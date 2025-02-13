@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Control } from "react-hook-form"
-import { FormFieldTypes } from "./forms/PatientForm"
+import { FormFieldType } from "./forms/PatientForm"
 import Image from "next/image"
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
@@ -18,7 +18,7 @@ import { E164Number } from 'libphonenumber-js';
 
 interface CustomProps{
     control: Control<any>,
-    filedType: FormFieldTypes,
+    fieldType: FormFieldType,
     name: string,
     label?: string,
     placeholder?:string,
@@ -32,10 +32,10 @@ interface CustomProps{
 }
 
 const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
-  const { filedType, iconSrc, iconAlt, placeholder,} = props
+  const { fieldType, iconSrc, iconAlt, placeholder,} = props
 
-  switch(filedType){
-    case FormFieldTypes.INPUT:
+  switch(fieldType){
+    case FormFieldType.INPUT:
       return(
         <div className="flex rounded-md border border-dark-500 bg-dark-400">
             {iconSrc && (
@@ -56,7 +56,7 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
             </FormControl>
         </div>
       )
-      case FormFieldTypes.PHONE_INPUT:
+      case FormFieldType.PHONE_INPUT:
         return(          
               <FormControl>
                   <PhoneInput
@@ -76,14 +76,14 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
 }
 
 const CustomFormField = (props: CustomProps) => {
-  const {control, filedType, name, label} = props;
+  const {control, fieldType, name, label} = props;
   return (
     <FormField
     control={control}
     name={name}
     render={({ field }) => (
       <FormItem className="flex-1">
-          {filedType !== FormFieldTypes.CHECKBOX && label && (
+          {fieldType !== FormFieldType.CHECKBOX && label && (
             <FormLabel>{label}</FormLabel>
           )}
 

@@ -22,6 +22,7 @@ const SubmitButton = ({isLoading, className, children}:ButtonProps) => {
                   height={24}
                   className='animate-spin'
               />
+              Loading ...
           </div>
         ):children}
     </Button>

@@ -8,16 +8,17 @@ import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
 import { UserFormValidation } from "@/lib/validation"
-import { useRouter } from "next/router"
-import  {createUser}  from "@/lib/actions/patient.actions"
+import { useRouter } from "next/navigation"
+import { createUser } from "@/lib/actions/patient.actions"
 
-export enum FormFieldTypes {
-  INPUT = 'input'
-  TEXTAREA = 'textarea'
-  PHONE_INPUT = 'phoneInput'
-  CHECKBOX = 'checkbox'
-  DATE_PICKER = 'datePicker'
-  SELECT = 'select'
+
+export enum FormFieldType {
+  INPUT = 'input',
+  TEXTAREA = 'textarea',
+  PHONE_INPUT = 'phoneInput',
+  CHECKBOX = 'checkbox',
+  DATE_PICKER = 'datePicker',
+  SELECT = 'select',
   SKELETON = 'skeleton'
 }
  
@@ -33,21 +34,21 @@ const PatientForm = () => {
     },
   })
  
-
-  async function onSubmit({name, email, phone}: z.infer<typeof UserFormValidation>) {
-
+ 
+  async function onSubmit({ name, email, phone }: z.infer<typeof UserFormValidation>) {
     setisLoading(true);
-
     try {
-        const userData ={ name, email, phone };
+      const userData = { name, email, phone };
 
-        const user = await createUser(userData);
-
-        if(user) router.push(`/patient/${user.id}/register`);
+      const user = await createUser(userData);
+  
+      if (user) router.push(`/patients/${user.$id}/register`);
+      
     } catch (error) {
-      console.error(error);
-    }
+      console.log(error);
+    } 
   }
+  
   return (
     <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
@@ -57,7 +58,7 @@ const PatientForm = () => {
       </section>
       
       <CustomFormField
-        filedType = {FormFieldTypes.INPUT}
+        fieldType = {FormFieldType.INPUT}
         control = {form.control}
         name = 'name'
         label = 'Full name'
@@ -67,7 +68,7 @@ const PatientForm = () => {
       />
       
       <CustomFormField
-        filedType = {FormFieldTypes.INPUT}
+        fieldType = {FormFieldType.INPUT}
         control = {form.control}
         name = 'email'
         label = 'Email'
@@ -77,7 +78,7 @@ const PatientForm = () => {
       />
 
       <CustomFormField
-        filedType = {FormFieldTypes.PHONE_INPUT}
+        fieldType = {FormFieldType.PHONE_INPUT}
         control = {form.control}
         name = 'phone'
         label = 'Phone number'
