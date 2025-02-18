@@ -1,3 +1,6 @@
+/*Trang này là tailwind có thể hiểu là css để design*/
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

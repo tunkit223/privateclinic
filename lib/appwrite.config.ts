@@ -1,3 +1,4 @@
+// Trang để liên kết với database (appwrite)
 import * as sdk from 'node-appwrite';
 export const{
   PROJECT_ID, API_KEY, 

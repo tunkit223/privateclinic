@@ -1,4 +1,4 @@
-
+// Trang chính
 import PatientForm from "@/components/forms/PatientForm";
 import Link  from "next/link";
 import Image from "next/image";

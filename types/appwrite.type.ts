@@ -18,8 +18,8 @@ export interface Patient extends Models.Document {
   currentMedication: string | undefined;
   familyMedicalHistory: string | undefined;
   pastMedicalHistory: string | undefined;
-  identificationType: string | undefined;
   identificationNumber: string | undefined;
+  identificationDocument: FormData | undefined;
   privacyConsent: boolean;
 }
 
