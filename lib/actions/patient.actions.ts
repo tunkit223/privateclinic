@@ -1,3 +1,4 @@
+'use server'
 import { ID, Query } from "node-appwrite"
 import { parseStringify } from "../utils"
 import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, storage, users } from "../appwrite.config"
@@ -46,17 +47,17 @@ export const registerPatient = async ({ identificationDocument, ...patient}: Reg
       identificationDocument?.get('fileName') as string,
     )
 
-    file = await storage.createFile('6785e5ac0003f1ff57f1', ID.unique(), inputFile);
+    file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
 
     }
 
     const newPatient = await databases.createDocument(
-      '6785e47f000971f0f63d',
-      '6785e4b5001c8f761799',
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
       ID.unique(),
       {
         identificationDocumentId: file?.$id || null,
-        identificationDocumentUrl: `https://cloud.appwrite.io/v1/storage/buckets/6785e5ac0003f1ff57f1/files/${file?.$id}/view?project=6785e3b8002e9c709766`, 
+        identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID}`, 
         ...patient
       }
     )
@@ -66,4 +67,19 @@ export const registerPatient = async ({ identificationDocument, ...patient}: Reg
     console.log(error);
   }
 
-}
+};
+
+export const getPatient = async (userId: string) =>{
+  try{
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [
+        Query.equal('userId', userId)
+      ]
+    );
+    return parseStringify(patients.documents[0]);
+  } catch (error){
+    console.log(error);
+  }
+};
