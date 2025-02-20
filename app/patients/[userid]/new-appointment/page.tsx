@@ -1,6 +1,4 @@
 // Trang chính
-import PatientForm from "@/components/forms/PatientForm";
-import Link  from "next/link";
 import Image from "next/image";
 import AppointmentForm from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";

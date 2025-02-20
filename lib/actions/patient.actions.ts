@@ -7,6 +7,12 @@ import {InputFile} from "node-appwrite/file";
 // Trang viet cac funtion cho backend
 export const createUser = async (user: CreateUserParams) =>{
   try{
+    // const existingUser = await users.list([
+    //   Query.equal('email', user.email),
+    // ]);
+    // if (existingUser.total > 0) {
+    //   return existingUser.users[0];
+    // }
     const newUser = await users.create(
       ID.unique(),
       user.email,
@@ -21,7 +27,7 @@ export const createUser = async (user: CreateUserParams) =>{
     if(error && error?.code === 409){
       const existingUser = await users.list([
         Query.equal("email", [user.email]),
-      ]);
+      ]);  
       return existingUser.users[0];
     }
   }

@@ -10,6 +10,8 @@ import { useState } from "react"
 import { UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.actions"
+import { users } from "@/lib/appwrite.config"
+import { Query } from "node-appwrite"
 
 
 export enum FormFieldType {
@@ -39,11 +41,18 @@ const PatientForm = () => {
     setisLoading(true);
     try {
       const userData = { name, email, phone };
-
+      const existingUser = await users.list([Query.equal("email", email)]);
+    
+    if (existingUser.total > 0) {
+      router.push(`/patients/${existingUser.users[0].$id}/new-appointment`);
+    } else {
       const user = await createUser(userData);
-  
-      if (user) router.push(`/patients/${user.$id}/register`);
+      if (user) {
+        router.push(`/patients/${user.$id}/register`);
+      }
+    }
       
+
     } catch (error) {
       console.log(error);
     } 
