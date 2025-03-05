@@ -83,3 +83,21 @@ export const StatusIcon = {
   pending: "/assets/icons/pending.svg",
   cancelled: "/assets/icons/cancelled.svg",
 };
+
+export const sidebarLinks=[
+  {
+    imgURL:'/assets/images/appointment-icon.png',
+    label:'Appointment',
+    route:'/'
+  },
+  {
+    imgURL:'/assets/images/medicine.png',
+    label:'Medicine',
+    route:'/medicine'
+  },
+  {
+    imgURL:'/assets/images/revenue.png',
+    label:'Revenue',
+    route:'/revenue'
+  },
+]

@@ -20,7 +20,7 @@ import FileUploader from "../FileUploader"
 
 
  
-const RegisterForm = ({user}: {user: User}) => {
+const RegisterForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -33,38 +33,38 @@ const RegisterForm = ({user}: {user: User}) => {
     },
   })
  
- 
+ // function đăng kí bệnh nhân
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
-    setisLoading(true);
+    // setisLoading(true);
 
-    let formData;
+    // let formData;
 
-    if(values.identificationDocument && values.identificationDocument.length > 0){
-        const blobFile = new Blob([values.identificationDocument[0]], {
-          type: values.identificationDocument[0].type,
-        })
+    // if(values.identificationDocument && values.identificationDocument.length > 0){
+    //     const blobFile = new Blob([values.identificationDocument[0]], {
+    //       type: values.identificationDocument[0].type,
+    //     })
 
-        formData = new FormData();
-        formData.append('blobFile', blobFile);
-        formData.append('fileName', values.identificationDocument[0].name);
-    }
+    //     formData = new FormData();
+    //     formData.append('blobFile', blobFile);
+    //     formData.append('fileName', values.identificationDocument[0].name);
+    // }
 
-    try {
-     const patientData = {
-      ...values,
-      userId: user.$id,
-      birthDate: new Date(values.birthDate),
-      identificationDocument: formData,
-     }
-      // @ts-ignore
-      const patient = await registerPatient(patientData);
+    // try {
+    //  const patientData = {
+    //   ...values,
+    //   userId: user.$id,
+    //   birthDate: new Date(values.birthDate),
+    //   identificationDocument: formData,
+    //  }
+    //   // @ts-ignore
+    //   const patient = await registerPatient(patientData);
 
-      if (patient) router.push(`/patients/${user.$id}/new-appointment`);
+    //   if (patient) router.push(`/patients/${user.$id}/new-appointment`);
 
-    } catch (error) {
-      console.log(error);
-    } 
-    setisLoading(false);
+    // } catch (error) {
+    //   console.log(error);
+    // } 
+    // setisLoading(false);
   }
   
   return (
@@ -319,7 +319,7 @@ const RegisterForm = ({user}: {user: User}) => {
           label="I consent to privacy policy"
         />
 
-      <SubmitButton isLoading={isLoading}>Get started</SubmitButton>
+      <SubmitButton isLoading={isLoading}>Submit</SubmitButton>
     </form>
   </Form>
   )

@@ -4,13 +4,8 @@
 import React from 'react'
 import Image from 'next/image'
 import RegisterForm from '@/components/forms/RegisterForm'
-import { getUser } from '@/lib/actions/patient.actions'
 
-const Register = async ({params}: SearchParamProps) => {
-  params = await params;
-  const  userId  = params.userId;
-  const user = await getUser(userId);
-
+const Register =  () => {
   return (
     <div className="flex h-screen max-h-screen">
       {/* TODO: OTP Verification | PasskeyModal <>?*/}
@@ -25,7 +20,7 @@ const Register = async ({params}: SearchParamProps) => {
             className="mb-12 h-10 w-fit"
           />
 
-          <RegisterForm user={user}/>
+          <RegisterForm />
 
           <p className="copy-right py-10">
                © 2025 CarePulse
