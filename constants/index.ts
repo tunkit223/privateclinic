@@ -86,9 +86,19 @@ export const StatusIcon = {
 
 export const sidebarLinks=[
   {
+    imgURL:'/assets/images/dashboard-icon.png',
+    label:'Dashboard',
+    route:'/'
+  },
+  {
     imgURL:'/assets/images/appointment-icon.png',
     label:'Appointment',
-    route:'/'
+    route:'/appointment'
+  },
+  {
+    imgURL:'/assets/images/patient-icon.png',
+    label:'Patient',
+    route:'/patientList'
   },
   {
     imgURL:'/assets/images/medicine.png',
@@ -97,7 +107,27 @@ export const sidebarLinks=[
   },
   {
     imgURL:'/assets/images/revenue.png',
-    label:'Revenue',
-    route:'/revenue'
+    label:'Bill',
+    route:'/bill'
+  },
+  {
+    imgURL:'/assets/images/employee.png',
+    label:'Employees',
+    route:'/employee'
+  },
+  {
+    imgURL:'/assets/images/import.png',
+    label:'Import',
+    route:'/import'
+  },
+  {
+    imgURL:'/assets/images/setting.jpg',
+    label:'Setting',
+    route:'/setting'
+  },
+  {
+    imgURL:'/assets/images/trash.png',
+    label:'Garbage',
+    route:'/garbage'
   },
 ]
