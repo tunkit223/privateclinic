@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import LeftSidebar from "@/components/navigation/LeftSidebar";
 
-const RootLayout = ({children}:{children: ReactNode})=>{
+const Root = ({children}:{children: ReactNode})=>{
   return(
     <main>
       <div className="flex ">
@@ -15,4 +15,4 @@ const RootLayout = ({children}:{children: ReactNode})=>{
     </main>
   )
 }
-export default RootLayout
+export default Root

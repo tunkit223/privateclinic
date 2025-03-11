@@ -3,6 +3,8 @@ import { ID, Query } from "node-appwrite"
 import { parseStringify } from "../utils"
 import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, storage, users } from "../appwrite.config"
 import {InputFile} from "node-appwrite/file";
+import dbConnect from "../mongoose";
+import Patient from "@/database/patient.model";
 
 // Trang viet cac funtion cho backend
 export const createUser = async (user: CreateUserParams) =>{
@@ -38,36 +40,40 @@ export const getUser = async (userId: string) =>{
   }
 };
 
-export const registerPatient = async ({ identificationDocument, ...patient}: RegisterUserParams) =>{
-  try{
-    let file;
+export const registerPatient = async (data: any) => {
+  try {
+    await dbConnect();
 
-    if(identificationDocument){
-     const inputFile = InputFile.fromBuffer(
-      identificationDocument?.get('blobFile') as Blob,
-      identificationDocument?.get('fileName') as string,
-    )
+    // Kiểm tra trùng lặp
+    const existingPatient = await Patient.findOne({
+      $or: [
+        { email: data.email },
+        { phone: data.phone }
+      ]
+    });
 
-    file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
-
+    if (existingPatient) {
+      throw new Error('Email hoặc số điện thoại đã tồn tại');
     }
 
-    const newPatient = await databases.createDocument(
-      DATABASE_ID!,
-      PATIENT_COLLECTION_ID!,
-      ID.unique(),
-      {
-        identificationDocumentId: file?.$id || null,
-        identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID}`, 
-        ...patient
-      }
-    )
+    // Tạo patient mới
+    const newPatient = await Patient.create({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      gender: data.gender,
+      address: data.address,
+      birthdate: data.birthDate,
+      // Thêm các trường khác nếu cần
+    });
 
-    return parseStringify(newPatient);
-  } catch (error){
-    console.log(error);
+    return {
+      ...newPatient.toObject(), // Chuyển mongoose document sang plain object
+      _id: newPatient._id.toString() // Đảm bảo _id là string
+    }
+  } catch (error) {
+    throw error;
   }
-
 };
 
 export const getPatient = async (userId: string) =>{

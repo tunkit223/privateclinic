@@ -10,10 +10,10 @@ const Success = async ({params, searchParams}: SearchParamProps) => {
     //({params:{userId}, searchParams}: SearchParamProps)
   params = await params;
   searchParams = await searchParams;
-  const userId = params.userId;
+  const patientId = params.patientId;
   const appointmentId = (searchParams?.appointmentId as string) || '';
   const appointment = await getAppointment(appointmentId);
-  const doctor = Doctors.find((doc) => doc.name === appointment.primaryPhysician)
+  const doctor = Doctors.find((doc) => doc.name === appointment.doctor)
 
   return (
     <div className='flex h-screen max-h-screen px-[5%]'>
@@ -61,11 +61,11 @@ const Success = async ({params, searchParams}: SearchParamProps) => {
                     width={24}
                     alt='calendar'
                 />
-                <p>{formatDateTime(appointment.schedule).dateTime}</p>
+                <p>{formatDateTime(appointment.date).dateTime}</p>
             </div>
         </section>
         <Button variant='outline' className='shad-primary-btn' asChild>
-            <Link href={`/patients/${userId}/new-appointment`}>
+            <Link href={`/patient/${patientId}/appointment`}>
               New Appointment
             </Link>
         </Button>
