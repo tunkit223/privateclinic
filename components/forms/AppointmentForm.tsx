@@ -15,8 +15,9 @@ import { SelectItem } from "@/components/ui/select"
 import Image from "next/image"
 import { createAppointment } from "@/lib/actions/appointment.action"
 import { Appointment } from "@/types/appwrite.type"
-//import { updateAppointment } from "@/lib/actions/appointment.action"
+import { updateAppointment } from "@/lib/actions/appointment.action"
 import { IAppointment } from "@/database/appointment.model"
+import mongoose from "mongoose";
 const AppointmentForm = ({
   patientId, type, appointment, setOpen
 }: {
@@ -42,7 +43,8 @@ const AppointmentForm = ({
       date:  new Date(Date.now()),
       reason: "",
       note: "",
-      // cancellationReason: appointment?.cancellationReason||""
+      status:"",
+      cancellationReason: ""
     },
   })
 
@@ -67,12 +69,12 @@ const AppointmentForm = ({
         console.log("im here onSubmit")
 
         const appointmentData = {
-          patientId: patientId,
+          patientId:  patientId,
           doctor: values.doctor,
           date: new Date(values.date),
           reason: values.reason!,
           note: values.note,
-          //  status: status as Status,
+          status: status as Status,
         }
         const appointment = await createAppointment(appointmentData);
 
@@ -81,26 +83,27 @@ const AppointmentForm = ({
           router.push(`/patient/${patientId}/appointment/success?appointmentId=${appointment._id}`);
         }
       }
-      // else {
-      //   //fetch du lieu cu len, thay doi sau
-      //   const appointmentToUpdate = {
-      //     appointmentId: appointment?._id!,
-      //     appointment:{
-      //       doctor:values?.doctor,
-      //       finish: new Date(values?.date),
-      //       status: status as Status,
-      //       cancellationReasons: values?.cancellationReason,
-      //     },
-      //     type
-      //   }
+      // dang tinh chinh
+      else {
+        //fetch du lieu cu len, thay doi sau
+        const appointmentToUpdate = {
+          appointmentId: appointment?._id!,
+          appointment:{
+            doctor:values?.doctor,
+            finish: new Date(values?.date),
+            status: status as Status,
+            cancellationReasons: values?.cancellationReason,
+          },
+          type
+        }
 
-      //   const updatedAppointment = await updateAppointment(appointmentToUpdate);
+        // const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
-      //   if(updatedAppointment){
-      //     setOpen && setOpen(false);
-      //     form.reset();
-      //   }
-      // }
+        // if(updatedAppointment){
+        //   setOpen && setOpen(false);
+        //   form.reset();
+        // }
+      }
 
     } catch (error) {
       console.log(error);
@@ -205,7 +208,7 @@ const AppointmentForm = ({
         )}
 
         <SubmitButton isLoading={isLoading}
-        //</form> className={`${type === 'cancel' ? 'shad-danger-btn' : 'shad-primary-btn'} w-full`}
+         className={`${type === 'cancel' ? 'shad-danger-btn' : 'shad-primary-btn'} w-full`}
         >{buttonLabel}
         </SubmitButton>
 

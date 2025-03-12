@@ -6,30 +6,31 @@ import { revalidatePath } from "next/cache";
 import Appointment, { IAppointment } from "@/database/appointment.model";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
-
+import mongoose from "mongoose"; 
 export const createAppointment = async (data: IAppointment) => {
   try {
     await dbConnect();
-    console.log('createapp')
-    // Kiểm tra xem bệnh nhân có tồn tại không
-    const patient = await Patient.findById(data.patientId);
+    console.log("createAppointment");
+    const patientIdString = typeof data.patientId === "object" ? data.patientId._id : data.patientId;
+    const patientIdObject = new mongoose.Types.ObjectId(patientIdString)
+
+    const patient = await Patient.findById(patientIdObject);
     if (!patient) {
       throw new Error("Bệnh nhân không tồn tại.");
     }
 
-    // Tạo lịch hẹn mới
-    const newAppointment = await Appointment.create({
-      patientId: data.patientId,
-      doctor: data.doctor,
-      date: data.date,
-      reason: data.reason,
-      note: data.note,
-    });
 
-    return {
-      ...newAppointment.toObject(),
-      _id: newAppointment._id.toString(), // Chuyển ObjectId sang string
-    };
+    const newAppointment = await Appointment.create(data);
+
+
+    return JSON.parse(
+      JSON.stringify({
+        ...newAppointment.toObject(),
+        _id: newAppointment._id.toString(),
+        patientId: newAppointment.patientId.toString(),
+        date: newAppointment.date.toISOString(), 
+      })
+    );
   } catch (error) {
     throw error;
   }
@@ -55,8 +56,8 @@ export const getRecentAppointmentList = async () => {
   try {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
+      .populate("patientId", "name")
       .lean();
-    
     const initialCounts = {
       finishedCount: 0,
       pendingCount: 0,
@@ -92,21 +93,24 @@ export const getRecentAppointmentList = async () => {
 };
 
 
-export const updateAppointment = async ({appointmentId, userId, appointment, type}: UpdateAppointmentParams) =>{
+export const updateAppointment = async ({ appointmentId, appointment }: UpdateAppointmentParams) => {
   try {
-    const updatedAppointment = await databases.updateDocument(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
       appointmentId,
-      appointment
-    )
-    if(!updatedAppointment){
+      { $set: appointment },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAppointment) {
       throw new Error("Appointment not found");
     }
-    //Todo sms notification
-    revalidatePath('/appointment')
-    return parseStringify(updatedAppointment)
+
+    // TODO: Thêm logic gửi SMS notification nếu cần
+
+    revalidatePath('/appointment'); // Cập nhật lại trang appointment
+    return JSON.parse(JSON.stringify(updatedAppointment)); // Chuyển đổi dữ liệu để đảm bảo tương thích
   } catch (error) {
-    console.log(error);
+    console.error("Error updating appointment:", error);
+    throw new Error("Failed to update appointment");
   }
-}
+};

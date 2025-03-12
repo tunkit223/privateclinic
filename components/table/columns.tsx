@@ -6,10 +6,10 @@ import { formatDateTime } from "@/lib/utils"
 import { Doctors } from "@/constants"
 import Image from "next/image"
 import AppointmentModal from "../AppointmentModal"
-import { Appointment } from "@/types/appwrite.type"
+import { IAppointment } from "@/database/appointment.model"
 
 
-export const columns: ColumnDef<Appointment>[] = [
+export const columns: ColumnDef<IAppointment>[] = [
   {
     header: "ID",
     cell: ({row}) => <p className="text-14-medium">{row.index+1}</p>
@@ -17,7 +17,11 @@ export const columns: ColumnDef<Appointment>[] = [
   {
     accessorKey: 'patient',
     header: 'Patient',
-    cell: ({row}) => <p className="text-14-medium">{row.original.patient.name}</p>
+    cell: ({row}) => {
+      const patient = row.original.patientId;
+      const patientName = typeof patient === "object" ? patient.name : "Unknown"; 
+    return <p className="text-14-medium">{patientName}</p>
+  }
     
   },
   {
@@ -35,7 +39,7 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Appointment",
     cell:({row}) =>(
       <p className="text-14-regular min-w-[100px]">
-        {formatDateTime(row.original.schedule).dateTime}
+        {formatDateTime(row.original.date).dateTime}
       </p>
     )
   },
@@ -43,7 +47,7 @@ export const columns: ColumnDef<Appointment>[] = [
     accessorKey: "primaryPhysician",
     header: () => 'Doctor',
     cell: ({ row }) => {
-      const doctor = Doctors.find((doc)=> doc.name === row.original.primaryPhysician)
+      const doctor = Doctors.find((doc)=> doc.name === row.original.doctor)
       return (
         <div className="flex items-center gap-3">
           <Image
@@ -63,21 +67,22 @@ export const columns: ColumnDef<Appointment>[] = [
   {
     id: "actions",
     header: () => <div className="pl-4">Actions</div>,
-    cell: ({ row:{original:data} }) => {
+    cell: ({ row }) => {
+      const patient = row.original.patientId;
+      const patientId = typeof patient === "object" ? patient._id : "Unknown"; 
       return(
+        
         <div className="flex gap-1">
             <AppointmentModal
              type="finish"
-             patientId={data.patient.$id}
-             userId={data.userId}
-             appointment={data}
+             patientId={patientId}
+             appointment={row.original}
              
              />
              <AppointmentModal 
              type="cancel"
-             patientId={data.patient.$id}
-             userId={data.userId}
-             appointment={data}
+             patientId={patientId}
+             appointment={row.original}
             
              />
         </div>

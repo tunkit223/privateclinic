@@ -7,6 +7,7 @@ if(!MONGODB_URI) {
 }
 // khai bao ket noi 1 lan, va duy tri ket noi, tranh ket noi nhieu lan dan den loi ket noi
 interface MongooseCache {
+  Types: any;
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null
 }
