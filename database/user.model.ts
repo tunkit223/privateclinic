@@ -1,9 +1,9 @@
-import { model, Schema, models } from "mongoose";
+import { model, Schema, models, Types } from "mongoose";
 export interface IUser{
+  _id?:string,
+  accountId: string,
   name:string;
   username:string,
-  password:string,
-  email:string,
   phone:number,
   image?:string,
   address?:string,
@@ -11,15 +11,22 @@ export interface IUser{
 
 
 const UserSchema = new Schema({
+  accountId: { type: Types.ObjectId, ref: "account", required: true },
   name:{ type:String, required:true},
   username: { type:String, required:true},
-  email:{ type:String, required:true, unique: true},
   phone:{type:Number, required:true, unique:true},
   image:{type: String},
   address:{type: String},
-  password: {type:String, required:true},
 },
-{timestamps: true}
+{timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret._id = ret._id.toString(); // Chuyển ObjectId thành string
+      delete ret.__v;
+      return ret;
+    }
+  }}
 );
 // check xem user da ton tai chua, neu chua thi tao
 const User = models?.User|| model<IUser>('User', UserSchema);

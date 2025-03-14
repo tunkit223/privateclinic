@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
-import { UserFormValidation } from "@/lib/validation"
+import { AccountFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.actions"
 import { users } from "@/lib/appwrite.config"
@@ -21,35 +21,32 @@ export enum FormFieldType {
   CHECKBOX = 'checkbox',
   DATE_PICKER = 'datePicker',
   SELECT = 'select',
-  SKELETON = 'skeleton'
+  SKELETON = 'skeleton',
+  PASSWORD = 'password'
 }
  
 const PatientForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof AccountFormValidation>>({
+    resolver: zodResolver(AccountFormValidation),
     defaultValues: {
-      name: "",
       email: "",
-      phone: "",
+
     },
   })
  
  
-  async function onSubmit({ name, email, phone }: z.infer<typeof UserFormValidation>) {
+  async function onSubmit({email,  }: z.infer<typeof AccountFormValidation>) {
     setisLoading(true);
     try {
-      const userData = { name, email, phone };
+
       const existingUser = await users.list([Query.equal("email", email)]);
     
     if (existingUser.total > 0) {
       router.push(`/patients/${existingUser.users[0].$id}/new-appointment`);
     } else {
-      const user = await createUser(userData);
-      if (user) {
-        router.push(`/patients/${user.$id}/register`);
-      }
+      
     }
       
 

@@ -1,8 +1,14 @@
 import { finished } from "stream";
 
 export const GenderOptions = ["Male", "Female", "Other"];
-
-
+export const Tag = [
+  {
+    name: "Admin",
+  },
+  {
+    name: "User",
+  },
+]
 export const Doctors = [
   {
     image: "/assets/images/dr-green.png",
@@ -85,7 +91,7 @@ export const sidebarLinks=[
     route:'/import'
   },
   {
-    imgURL:'/assets/images/setting.jpg',
+    imgURL:'/assets/images/setting-icon.png',
     label:'Setting',
     route:'/setting'
   },

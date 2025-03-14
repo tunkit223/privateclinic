@@ -1,13 +1,42 @@
 import { z } from "zod";
 // Trang check các thuộc tính của user
+export const AccountFormValidation = z.object({
+  password: z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  email: z.string().email("Invalid email address."),
+  tag: z.string()
+  .min(1, "Tag must be at least 1 property"),
+})
+export const LoginFormValidation = z.object({
+  password: z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  email: z.string().email("Invalid email address."),
+})
 export const UserFormValidation = z.object({
   name: z.string()
+    .min(1, "Name must be at least 1 characters.")
+    .max(50, "Name must be at most 50 characters."),
+  username: z.string()
     .min(1, "Username must be at least 1 characters.")
-    .max(50, "Username must be at most 2 characters."),
-  email: z.string().email("Invalid email address."),
-  phone: z.string().refine((phone)=>/^((\+84|0)[3|5|7|8|9])+([0-9]{8})$/.test(phone), 'Invalid phone number'),
+    .max(50, "Username must be at most 50 characters."),
+  phone: z
+    .string()
+    .refine((phone) => /^((\+84|0)[3|5|7|8|9])+([0-9]{8})$/.test(phone), 'Invalid phone number'),
+  address: z.string()
+    .min(1, "Address must be at least 1 characters.")
+    .max(50, "Address must be at most 50 characters."),
 })
-
+export const ForgetPassFormValidation = z.object({
+  newpassword: z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  newpasswordagain:z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  email: z.string().email("Invalid email address."),
+})
 
 export const PatientFormValidation = z.object({
   name: z
@@ -26,7 +55,6 @@ export const PatientFormValidation = z.object({
     .max(500, "Address must be at most 500 characters"),
 
 });
-
 export const CreateAppointmentSchema = z.object({
   doctor: z.string().min(2, "Select at least one doctor"),
   date: z.coerce.date(),

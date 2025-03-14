@@ -21,6 +21,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select"
 import { Textarea } from "./ui/textarea"
 import { Checkbox } from "./ui/checkbox"
+import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { useState } from "react"
 
 interface CustomProps{
     control: Control<any>,
@@ -152,6 +154,41 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
             {props.label}</label>
         </div>
       </FormControl>)
+    case FormFieldType.PASSWORD:
+      const [showPassword, setShowPassword] = useState(false);
+    
+      return (
+        <div className="flex rounded-md border border-dark-500 bg-dark-400 items-center">
+          {iconSrc && (
+            <Image
+              src={iconSrc}
+              height={24}
+              width={24}
+              alt={iconAlt || 'icon'}
+              className="ml-2"
+            />
+          )}
+          <FormControl>
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder={placeholder}
+              {...field}
+              className="shad-input border-0 pr-10"
+            />
+          </FormControl>
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="mr-2"
+          >
+            {showPassword ? (
+              <EyeOffIcon className="h-5 w-5 text-gray-500" />
+            ) : (
+              <EyeIcon className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+        </div>
+      );
     default:
       break;
   }

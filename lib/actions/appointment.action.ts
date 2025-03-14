@@ -1,6 +1,5 @@
 'use server'
-import { ID, Query } from "node-appwrite";
-import { APPOINTMENT_COLLECTION_ID, DATABASE_ID, databases } from "../appwrite.config";
+
 import { parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
 import Appointment, { IAppointment } from "@/database/appointment.model";
@@ -13,7 +12,7 @@ export const createAppointment = async (data: IAppointment) => {
     console.log("createAppointment");
     const patientIdString = typeof data.patientId === "object" ? data.patientId._id : data.patientId;
     const patientIdObject = new mongoose.Types.ObjectId(patientIdString)
-
+    
     const patient = await Patient.findById(patientIdObject);
     if (!patient) {
       throw new Error("Bệnh nhân không tồn tại.");

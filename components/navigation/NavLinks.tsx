@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 
-const NavLinks = () => {
+const NavLinks = ({accountId}:{accountId:string}) => {
   const pathname = usePathname();
   return <>
     {sidebarLinks.map((item)=>{
@@ -16,9 +16,9 @@ const NavLinks = () => {
                         ||pathname===item.route;
 
       const LinkComponent =(
-        <Link href={item.route} key={item.label} className={cn(
+        <Link href={`/${accountId}`+item.route} key={item.label} className={cn(
           isActive
-          ? 'bg-orange-600 rounded-lg text-light-200'
+          ? 'bg-green-700 rounded-lg text-light-200'
           : 'text-dark-600'
           ,'flex justify-start items-center gap-4 p-4')}>
           <Image src={item.imgURL} alt={item.label} 
