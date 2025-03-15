@@ -8,6 +8,9 @@ export const AccountFormValidation = z.object({
   tag: z.string()
   .min(1, "Tag must be at least 1 property"),
 })
+export const VerifyEmailValidation = z.object({
+  email: z.string().email("Invalid email address."),
+})
 export const LoginFormValidation = z.object({
   password: z.string()
     .min(6, "Password must be at least 6 characters.")
@@ -35,8 +38,13 @@ export const ForgetPassFormValidation = z.object({
   newpasswordagain:z.string()
     .min(6, "Password must be at least 6 characters.")
     .max(50, "Password must be at most 50 characters."),
-  email: z.string().email("Invalid email address."),
+  verifycode:z.string()
+    .min(1, "Password must be at least 1 characters.")
 })
+.refine((data) => data.newpassword === data.newpasswordagain, {
+  message: "Passwords do not match.",
+  path: ["newpasswordagain"], // Hiển thị lỗi tại trường `newpasswordagain`
+});
 
 export const PatientFormValidation = z.object({
   name: z

@@ -7,81 +7,127 @@ import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
-import { ForgetPassFormValidation, PatientFormValidation } from "@/lib/validation"
+import { ForgetPassFormValidation, PatientFormValidation, VerifyEmailValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { registerPatient } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
+import { sendVerificationEmail, updatePassword, verifyCode } from "@/lib/actions/login.actions"
 
 const ForgetPasswordForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
-  const form = useForm<z.infer<typeof ForgetPassFormValidation>>({
+  const [email, setEmail] = useState<string | null>(null); // Lưu email
+  const form1 = useForm<z.infer<typeof VerifyEmailValidation>>({
+    resolver: zodResolver(VerifyEmailValidation),
+    defaultValues: {
+      email:"",
+    },
+  })
+  const form2 = useForm<z.infer<typeof ForgetPassFormValidation>>({
     resolver: zodResolver(ForgetPassFormValidation),
     defaultValues: {
-      email: "",
+      verifycode: "",
       newpassword:"",
       newpasswordagain:""
     },
   })
  
  // function đăng kí bệnh nhân
-  async function onSubmit(values: z.infer<typeof ForgetPassFormValidation>) {
+  async function onSubmit1(values: z.infer<typeof VerifyEmailValidation>) {
     setisLoading(true);
-
-  try {
-    const patientData = {
-      ...values,
-      birthDate: new Date(), // Chuyển đổi ngày
-      // Xóa tất cả logic xử lý file của Appwrite
-    };
-
-    // Gọi action Mongoose trực tiếp
-    const newPatient = await registerPatient(patientData);
-
-    if (newPatient) {
-      router.push(`/patient/${newPatient._id}/appointment`); // Điều hướng thành công
+   
+    try {
+      const res = await sendVerificationEmail(values.email);
+      
+      if (res?.success) {
+        console.log("Verification code sent successfully!");
+        setEmail(values.email);
+      } else {
+        console.error("Error:", res?.error || "Failed to send verification email");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
     }
-  } catch (error) {
-    console.error('Lỗi đăng ký:', error);
-    form.setError('root', {
-      type: 'manual',
-      message: error instanceof Error ? error.message : 'Lỗi đăng ký',
-    });
-  } finally {
+  
     setisLoading(false);
   }
+  async function onSubmit2(values: z.infer<typeof ForgetPassFormValidation>) {
+    setisLoading(true);
+    try {
+      // Kiểm tra mã xác nhận
+      const verify = await verifyCode(email as string, values.verifycode);
+  
+      if (verify.error) {
+        console.error("Lỗi xác thực mã:", verify.error);
+        return;
+      }
+  
+      console.log("Mã xác nhận hợp lệ! Tiến hành đổi mật khẩu...");
+  
+      // Gọi hàm cập nhật mật khẩu
+      const update = await updatePassword(email as string, values.newpassword);
+  
+      if (update.error) {
+        console.error("Lỗi cập nhật mật khẩu:", update.error);
+        return;
+      }
+  
+      console.log("Đổi mật khẩu thành công!");
+      // Có thể điều hướng về trang đăng nhập hoặc thông báo thành công
+    } catch (error) {
+      console.error("Lỗi trong quá trình xử lý:", error);
+    }
+  
+    setisLoading(false);
   }
   
+  
+  
   return (
-    <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1 w-full max-w-[500px]" >
+    <Form {...{ ...form1, ...form2 }}>
+    <form onSubmit={form1.handleSubmit(onSubmit1)} className="space-y-6 flex-1 w-full max-w-[500px]" >
       
       
       <section className="space-y-6">
          <div className="mb-9 space-y-1">
-         <h1 className="sub-header">Login now</h1>
+         <h1 className="sub-header">Verify your email</h1>
          </div>
       </section>
 
-
-  
-    <CustomFormField
+      <div className="flex gap-6 xl:flex-row">
+    
+      <CustomFormField
         fieldType = {FormFieldType.INPUT}
-        control = {form.control}
+        control = {form1.control}
         name = 'email'
         label = 'Email'
         placeholder = 'Enter your email'
         iconSrc = '/assets/icons/email.svg'
-        iconAlt = 'email'
-      />
-
+        iconAlt = 'email'/>
+      <div className="flex flex-col h-full">
+        <p className="pb-2">Verify</p>
+  
+        <SubmitButton isLoading={isLoading} className="shad-primary-btn h-11">Click here</SubmitButton>
+      </div>
+      
+      </div>
+    </form>
+    <form onSubmit={form2.handleSubmit(onSubmit2)} className="space-y-6 flex-1 w-full max-w-[500px] pt-5" >
+      <CustomFormField
+        fieldType = {FormFieldType.INPUT}
+        control = {form2.control}
+        name = 'verifycode'
+        label = 'Verify code'
+        placeholder = 'Enter verify code'
+        iconSrc = '/assets/icons/email.svg'
+        iconAlt = 'email'/>
 
       <CustomFormField
         fieldType = {FormFieldType.PASSWORD}
-        control = {form.control}
+        control = {form2.control}
         name = 'newpassword'
         label= 'New password'
         placeholder = 'Enter your new password'
@@ -91,7 +137,7 @@ const ForgetPasswordForm = () => {
 
       <CustomFormField
         fieldType = {FormFieldType.PASSWORD}
-        control = {form.control}
+        control = {form2.control}
         name = 'newpasswordagain'
         label= 'New password again'
         placeholder = 'Enter your new password again'

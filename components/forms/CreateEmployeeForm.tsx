@@ -104,7 +104,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
 
   return (
     <Form {...{ ...form1, ...form2 }}>
-    <form onSubmit={form1.handleSubmit(onSubmit1)} className="space-y-6 flex-1 w-full max-w-[500px]" >  
+    <form onSubmit={form1.handleSubmit(onSubmit1)} className="space-y-2 flex-1 w-full max-w-[500px]" >  
     <CustomFormField
         fieldType = {FormFieldType.INPUT}
         control = {form1.control}
@@ -148,7 +148,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
       <SubmitButton isLoading={isLoading}>Create account</SubmitButton>
     </form>
 
-    <form onSubmit={form2.handleSubmit(onSubmit2)} className="space-y-6 flex-1 w-full max-w-[500px]" >  
+    <form onSubmit={form2.handleSubmit(onSubmit2)} className="space-y-2 flex-1 w-full max-w-[500px]" >  
     <div className="flex flex-col gap-6 xl:flex-row">
       <CustomFormField
           fieldType = {FormFieldType.INPUT}

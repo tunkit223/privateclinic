@@ -32,7 +32,7 @@ const NewemployeeModal = ({}:{}) => {
       </Button>
     </DialogTrigger>
     <DialogContent className="shad-dialog sm:max-w-[550px]">
-      <DialogHeader className="mb-4 space-y-3">
+      <DialogHeader className="mb-4 space-y-1">
               <DialogTitle ></DialogTitle>
               <DialogDescription>
               </DialogDescription>
