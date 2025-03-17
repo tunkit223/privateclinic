@@ -18,6 +18,7 @@ import { createAccount , createUser} from "@/lib/actions/user.action"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
 import mongoose from "mongoose";
+import toast from "react-hot-toast";
 const CreateEmployeeForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
@@ -54,15 +55,19 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
     const newAccount = await createAccount(accountData);
 
     if (newAccount) {
-      console.log("Create account successful", newAccount);
+      toast.success("Create account successfully.", {
+        position: "top-left",
+        duration: 3000,
+      });
       setAccountId(newAccount._id); // Lưu _id vào state
     }
   } catch (error) {
-    console.error("Lỗi đăng ký:", error);
-    form1.setError("root", {
-      type: "manual",
-      message: error instanceof Error ? error.message : "Lỗi đăng ký",
+    toast.error("Create account fail.", {
+      position: "top-left",
+      duration: 3000,
     });
+    form1.reset()
+    setisLoading(false);
   } finally {
     setisLoading(false);
   }
@@ -70,7 +75,10 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
 
   async function onSubmit2(values: z.infer<typeof UserFormValidation>) {
     if (!accountId) {
-      console.error("Không có accountId, vui lòng tạo tài khoản trước.");
+      toast.error("Please create account first.", {
+        position: "top-left",
+        duration: 3000,
+      });
       return;
     }
 
@@ -88,13 +96,15 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
     const newUser = await createUser(UserData);
 
     if (newUser) {
-      console.log("Create user successful", newUser);
+      toast.success("Create user successfully.", {
+        position: "top-left",
+        duration: 3000,
+      });
     }
   } catch (error) {
-    console.error("Lỗi đăng ký:", error);
-    form2.setError("root", {
-      type: "manual",
-      message: error instanceof Error ? error.message : "Lỗi đăng ký",
+    toast.error("Create user fail.", {
+      position: "top-left",
+      duration: 3000,
     });
   } finally {
     setisLoading(false);

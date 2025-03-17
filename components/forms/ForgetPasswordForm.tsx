@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
 import { sendVerificationEmail, updatePassword, verifyCode } from "@/lib/actions/login.actions"
+import toast from "react-hot-toast"
 
 const ForgetPasswordForm = () => {
   const router = useRouter();
@@ -43,10 +44,16 @@ const ForgetPasswordForm = () => {
       const res = await sendVerificationEmail(values.email);
       
       if (res?.success) {
-        console.log("Verification code sent successfully!");
+        toast.success("Verify code has been sent to your email.", {
+          position: "top-left",
+          duration: 3000,
+        });
         setEmail(values.email);
       } else {
-        console.error("Error:", res?.error || "Failed to send verification email");
+        toast.error("Cannot send verify code to your email.", {
+          position: "top-left",
+          duration: 3000,
+        });
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -61,24 +68,39 @@ const ForgetPasswordForm = () => {
       const verify = await verifyCode(email as string, values.verifycode);
   
       if (verify.error) {
-        console.error("Lỗi xác thực mã:", verify.error);
+        toast.error(`Verify code error: ${verify.error}`, {
+          position: "top-left",
+          duration: 3000,
+        });
+        form2.reset()
+        setisLoading(false);
         return;
       }
   
-      console.log("Mã xác nhận hợp lệ! Tiến hành đổi mật khẩu...");
+
   
       // Gọi hàm cập nhật mật khẩu
       const update = await updatePassword(email as string, values.newpassword);
   
       if (update.error) {
-        console.error("Lỗi cập nhật mật khẩu:", update.error);
+        toast.error(`Change password fail: ${update.error}`, {
+          position: "top-left",
+          duration: 3000,
+        });
         return;
       }
-  
-      console.log("Đổi mật khẩu thành công!");
+      
+      toast.success("Change password successfully.", {
+        position: "top-left",
+        duration: 3000,
+      });
+      router.push("/")
       // Có thể điều hướng về trang đăng nhập hoặc thông báo thành công
     } catch (error) {
-      console.error("Lỗi trong quá trình xử lý:", error);
+      toast.error("Error in process.", {
+        position: "top-right",
+        duration: 3000,
+      });
     }
   
     setisLoading(false);

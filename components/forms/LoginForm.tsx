@@ -15,7 +15,8 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
 import { loginAccount } from "@/lib/actions/login.actions"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert-dialog";
+import toast from "react-hot-toast"
+
 const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
@@ -29,7 +30,6 @@ const LoginForm = () => {
 
   async function onSubmit(values: z.infer<typeof LoginFormValidation>) {
     setisLoading(true);
-    console.log("im here on submit")
   try {
     const accountData = {
       email: values.email,
@@ -40,12 +40,21 @@ const LoginForm = () => {
 
     if (loginsuccess) {
       router.push(`${loginsuccess._id}`); 
+      toast.success("Login successfully.", {
+        position: "top-left",
+        duration: 3000,
+      });
+    } else {
+      toast.error("Login fail.", {
+        position: "top-left",
+        duration: 3000,
+      });
     }
+  
   } catch (error) {
-    console.error('Lỗi đăng ký:', error);
-    form.setError('root', {
-      type: 'manual',
-      message: error instanceof Error ? error.message : 'Lỗi đăng ký',
+    toast.error("Wrong email or password.", {
+      position: "top-left",
+      duration: 3000,
     });
   } finally {
     setisLoading(false);
