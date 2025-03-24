@@ -11,7 +11,7 @@ import {
 import { useState } from "react"
 import { Button } from "./ui/button"
 import Image from "next/image"
-import CreateEmployeeForm from "./forms/CreateEmployeeForm"
+import AddMedicineForm from "./forms/AddMedicineForm"
 const NewemployeeModal = ({}:{}) => {
   const [open, setOpen] = useState(false)
 
@@ -19,13 +19,7 @@ const NewemployeeModal = ({}:{}) => {
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
       <Button variant='ghost' className={`capitalize bg-green-800`}>
-                <Image
-                  src="/assets/images/user-plus.png"
-                  height={24}
-                  width={24}
-                  alt="userplus"
-                />
-        Add employee
+        Add medicine
       </Button>
     </DialogTrigger>
     <DialogContent className="shad-dialog sm:max-w-[550px]">
@@ -34,7 +28,7 @@ const NewemployeeModal = ({}:{}) => {
               <DialogDescription>
               </DialogDescription>
             </DialogHeader>
-      <CreateEmployeeForm/>
+      <AddMedicineForm/>
     </DialogContent>
   </Dialog>
   

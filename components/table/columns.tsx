@@ -15,14 +15,16 @@ export const columns: ColumnDef<IAppointment>[] = [
     cell: ({row}) => <p className="text-14-medium">{row.index+1}</p>
   },
   {
-    accessorKey: 'patient',
-    header: 'Patient',
-    cell: ({row}) => {
+    accessorKey: "patient",
+    header: "Patient",
+    accessorFn: (row) => {
+      return typeof row.patientId === "object" ? row.patientId.name : "";
+    },
+    cell: ({ row }) => {
       const patient = row.original.patientId;
-      const patientName = typeof patient === "object" ? patient.name : "Unknown"; 
-    return <p className="text-14-medium">{patientName}</p>
-  }
-    
+      const patientName = typeof patient === "object" ? patient.name : "Unknown";
+      return <p className="text-14-medium">{patientName}</p>;
+    },
   },
   {
     accessorKey: "status",

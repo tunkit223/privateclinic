@@ -9,6 +9,14 @@ export const Tag = [
     name: "User",
   },
 ]
+export const Unit = [
+  {
+    name: "Pill",
+  },
+  {
+    name: "Jar",
+  },
+]
 export const Doctors = [
   {
     image: "/assets/images/dr-green.png",

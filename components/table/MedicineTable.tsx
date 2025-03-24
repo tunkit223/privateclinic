@@ -44,12 +44,12 @@ export function DataTable<TData, TValue>({
     <div className="data-table">
   
       <Input
-        placeholder="Search by patient's name..."
-        value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+        placeholder="Search by medicine's name..."
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
-          table.getColumn("patient")?.setFilterValue(event.target.value)
+          table.getColumn("name")?.setFilterValue(event.target.value)
         }
-        className="w-full max-w-[900px] py-5 border border-gray-300 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all"
+        className="w-full py-5 border border-gray-300 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all"
        />
        
       <Table className="shad-table">

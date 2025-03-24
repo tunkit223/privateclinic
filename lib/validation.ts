@@ -88,10 +88,6 @@ export const ScheduleAppointmentSchema = z.object({
 });
 
 export const CancelAppointmentSchema = z.object({
-  doctor: z.string().min(2, "Select at least one doctor"),
-  date: z.coerce.date(),
-  reason: z.string().optional(),
-  note: z.string().optional(),
   status:  z.string().optional(),
   cancellationReason: z
     .string()
@@ -109,3 +105,13 @@ export function getAppointmentSchema(type: string) {
       return ScheduleAppointmentSchema;
   }
 }
+
+export const addMedicineFormValidation = z.object({
+  name: z
+    .string()
+    .min(1, "Name must be at least 1 characters")
+    .max(50, "Name must be at most 50 characters"),
+  unit: z.string(),
+  amount: z.string(),
+  price: z.string(),
+})

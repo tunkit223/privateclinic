@@ -9,7 +9,6 @@ import SubmitButton from "../SubmitButton"
 import { useState } from "react"
 import { AccountFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import { createUser } from "@/lib/actions/patient.actions"
 import { users } from "@/lib/appwrite.config"
 import { Query } from "node-appwrite"
 

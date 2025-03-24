@@ -113,3 +113,23 @@ export const updateAppointment = async ({ appointmentId, appointment }: UpdateAp
     throw new Error("Failed to update appointment");
   }
 };
+
+export const cancelAppointment = async (appointmentId: string, cancellationReason: string) => {
+  try {
+    await dbConnect();
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      throw new Error("Cuộc hẹn không tồn tại");
+    }
+
+    // Cập nhật trạng thái và lý do hủy
+    appointment.status = "cancelled";
+    appointment.cancellationReason = cancellationReason;
+    await appointment.save();
+
+    return { success: true, message: "Cuộc hẹn đã được hủy thành công" };
+  } catch (error) {
+    console.log({error})
+  }
+};
