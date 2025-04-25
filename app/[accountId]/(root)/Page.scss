@@ -1,0 +1,94 @@
+.overview{
+  margin-left: 0;
+  margin-right: 0;
+  height: 400px;
+
+  &__figure{
+    height: 100%;
+    &__row{
+      height: 100%;
+    }
+  }
+  &__revenueChart{
+    height: 400px;
+    border-radius: 10px;
+    background-color: #fff;
+
+    &__header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &--title{
+        margin-left: 5px;
+        margin-bottom: 10px;
+        font-size: 25px;
+        font-weight: 600;
+      }
+    }
+    &__content{
+      height: 100%;
+    }
+  }
+}
+
+
+.overview-two{
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 20px;
+}
+.expense{
+  background-color: #fff;
+  border-radius: 10px;
+  &__header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    &--title{
+      margin-left: 15px;
+      margin-top: 10px;
+      font-size: 25px;
+      font-weight: 600;
+    }
+  }
+  
+  &__chart{
+    height: 100%;
+  }
+}
+
+.appointment{
+  background-color: #fff;
+  border-radius: 10px;
+  border: 1px solid #fff;
+  &__list {
+    max-height: 100px; 
+    overflow-y: auto; 
+    padding: 10px;
+  }
+  &__item{
+    display: flex;
+    align-items: center;
+
+    &__status{
+      width: 7px;
+      height: 50px;
+      margin-right: 12px;
+
+
+      &--cancel{
+        background-color: red;
+      }
+      &--pending{
+        background-color: darkblue;
+      }
+      &--completed{
+        background-color: green;
+      }
+    }
+
+    &__content{
+      flex: 1;
+    }
+  }
+}

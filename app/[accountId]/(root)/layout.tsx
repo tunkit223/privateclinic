@@ -2,6 +2,10 @@
 import { ReactNode, useEffect, useState } from "react";
 import LeftSidebar from "@/components/navigation/LeftSidebar";
 import { useParams } from "next/navigation";
+import { Flex, Layout } from 'antd';
+import LayoutDefaultHeader from "@/components/LayoutDefault/Header/Layout-Default__Header";
+
+const { Header, Footer, Sider, Content } = Layout;
 
 const Root = ({ children }: { children: ReactNode }) => {
   const params = useParams();
@@ -19,15 +23,26 @@ const Root = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <main>
-      <div className="flex">
+    <>
+      {/* <div className="flex">
         <LeftSidebar accountId={accountId} />
 
-        <section className="flex min-h-screen flex-1 flex-col px-6 pb-6 pt-36 max-md:pb-14 sm:px-14">
-          <div className="mx-auto w-full max-w-5xl">{children}</div>
+        <section className="flex min-h-screen flex-1 flex-col px-6 pb-6 pt-36 max-md:pb-1 sm:px-1">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
         </section>
-      </div>
-    </main>
+      </div> */}
+
+      <Layout className="bg-[#F9FBFC]">
+        <Sider width={215}>
+          <LeftSidebar accountId={accountId} />
+        </Sider>
+        <Layout className="bg-[#F9FBFC]">
+          <header><LayoutDefaultHeader /></header>
+          <Content className="m-6 bg-transparent">{children}</Content>
+          <footer >Footer</footer>
+        </Layout>
+      </Layout>
+    </>
   );
 };
 
