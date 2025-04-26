@@ -30,22 +30,22 @@ const RegisterForm = () => {
     },
   })
  
- // function đăng kí bệnh nhân
+
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
     setisLoading(true);
 
   try {
     const patientData = {
       ...values,
-      birthDate: new Date(values.birthdate), // Chuyển đổi ngày
-      // Xóa tất cả logic xử lý file của Appwrite
+      birthDate: new Date(values.birthdate), 
+
     };
 
     // Gọi action Mongoose trực tiếp
     const newPatient = await registerPatient(patientData);
 
     if (newPatient) {
-      router.push(`/patient/${newPatient._id}/appointment`); // Điều hướng thành công
+      router.push(`/patient/${newPatient._id}/appointment`);
     }
   } catch (error) {
     console.error('Lỗi đăng ký:', error);
@@ -63,7 +63,7 @@ const RegisterForm = () => {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
       <section className="space-y-4">
           <h1 className="header">Welcome👋</h1>
-          <p className="text-dark-700">Let us know more about yourself.</p>
+          <p className="text-dark-400">Let us know more about yourself.</p>
       </section>
       
       <section className="space-y-6">
@@ -78,7 +78,7 @@ const RegisterForm = () => {
         name = 'name'
         label= 'Full name'
         placeholder = 'キエト'
-        iconSrc = '/assets/icons/user.svg'
+        iconSrc = '/assets/icons/user.png'
         iconAlt = 'user'
       />
       
@@ -89,7 +89,7 @@ const RegisterForm = () => {
         name = 'email'
         label = 'Email'
         placeholder = 'tunkit223@gmail.com'
-        iconSrc = '/assets/icons/email.svg'
+        iconSrc = '/assets/icons/mail.png'
         iconAlt = 'email'
       />
 

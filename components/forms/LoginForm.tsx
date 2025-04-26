@@ -80,7 +80,7 @@ const LoginForm = () => {
         name = 'email'
         label = 'Email'
         placeholder = 'Enter your email'
-        iconSrc = '/assets/icons/email.svg'
+        iconSrc = '/assets/icons/mail.png'
         iconAlt = 'email'
       />
 
@@ -91,7 +91,7 @@ const LoginForm = () => {
         name = 'password'
         label= 'Password'
         placeholder = 'Enter your password'
-        iconSrc = '/assets/images/key.png'
+        iconSrc = '/assets/icons/key.png'
         iconAlt = 'password'
       />
    

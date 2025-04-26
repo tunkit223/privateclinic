@@ -18,7 +18,7 @@ const NewemployeeModal = ({}:{}) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant='ghost' className={`capitalize bg-green-800`}>
+      <Button variant='ghost' className={`capitalize bg-blue-400`}>
                 <Image
                   src="/assets/images/user-plus.png"
                   height={24}

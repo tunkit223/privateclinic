@@ -121,7 +121,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
         name = 'email'
         label = 'Email'
         placeholder = 'Enter email'
-        iconSrc = '/assets/icons/email.svg'
+        iconSrc = '/assets/icons/mail.png'
         iconAlt = 'email'
       />
 
@@ -132,7 +132,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
         name = 'password'
         label= 'Password'
         placeholder = 'Enter password'
-        iconSrc = '/assets/images/key.png'
+        iconSrc = '/assets/icons/key.png'
         iconAlt = 'password'
       />
        <CustomFormField
@@ -166,7 +166,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
           name = 'name'
           label = 'Name'
           placeholder = 'Enter name'
-          iconSrc = '/assets/icons/user.svg'
+          iconSrc = '/assets/icons/user.png'
           iconAlt = 'name'
         />
 
@@ -176,7 +176,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
           name = 'username'
           label = 'User name'
           placeholder = 'Enter username'
-          iconSrc = '/assets/icons/user.svg'
+          iconSrc = '/assets/icons/user.png'
           iconAlt = 'username'
         />
       </div>

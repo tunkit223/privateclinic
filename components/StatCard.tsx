@@ -22,7 +22,7 @@ const StatCard = ({count=0, label, icon, type}:StatCardProps) => {
           alt={label}
           className='size-8 w-fit'
         />
-        <h2 className='text-32-bold text-white'>{count}</h2>
+        <h2 className='text-32-bold text-dark-200'>{count}</h2>
       </div>
       <p className='text-14-regular'>{label}</p>
     </div>

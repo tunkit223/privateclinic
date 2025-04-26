@@ -29,7 +29,7 @@
     "libphonenumber-js": "^1.11.17",
     "lucide-react": "^0.471.2",
     "mongoose": "^8.10.1",
-    "next": "^15.1.7",
+    "next": "^15.2.4",
     "next-themes": "^0.4.4",
     "node-appwrite": "^15.0.0",
     "nodemailer": "^6.10.0",
@@ -43,21 +43,21 @@
     "react-phone-number-input": "^3.4.11",
     "react-router-dom": "^7.5.1",
     "recharts": "^2.15.2",
-    "sass": "^1.86.1",
     "shadcn-ui": "^0.9.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.1"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
+    "@types/node": "^20.17.31",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "postcss": "^8.5.3",
+    "sass": "^1.87.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
