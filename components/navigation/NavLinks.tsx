@@ -16,10 +16,13 @@ const NavLinks = ({accountId}:{accountId:string}) => {
                         ||pathname===item.route;
 
       const LinkComponent =(
-        <Link href={`/${accountId}`+item.route} key={item.label} className={cn(
+        <Link 
+          href={`/${accountId}`+item.route} 
+          key={item.label} 
+          className={cn(
           isActive
-          ? 'bg-green-700 rounded-lg text-light-200'
-          : 'text-dark-600'
+          ? 'bg-blue-400 rounded-lg text-dark-400'
+          : 'text-dark-200'
           ,'flex justify-start items-center gap-4 p-4')}>
           <Image src={item.imgURL} alt={item.label} 
                  width={20} height={20}

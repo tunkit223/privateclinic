@@ -51,21 +51,21 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
   switch(fieldType){
     case FormFieldType.INPUT:
       return(
-        <div className="flex rounded-md border border-dark-500 bg-dark-400">
+        <div className="flex rounded-md border border-dark-500 bg-blue-200">
             {iconSrc && (
                 <Image
                   src={iconSrc}
                   height={24}
                   width={24}
                   alt={iconAlt || 'icon'}
-                  className='ml-2'
+                  className='ml-2 object-contain'
                 />
             )}
             <FormControl>
                 <Input
                   placeholder={placeholder}
                   {...field}
-                  className='shad-input border-0'/>
+                  className='shad-input border-0 '/>
                 
             </FormControl>
         </div>
@@ -88,13 +88,13 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
 
     case FormFieldType.DATE_PICKER:
       return (
-        <div className="flex rounded-md border border-dark-500 bg-dark-400">
+        <div className="flex rounded-md border border-dark-500 bg-blue-200">
             <Image
-              src="/assets/icons/calendar.svg"
+              src="/assets/icons/calendar.png"
               height={24}
               width={24}
               alt='calender'
-              className="ml-2"
+              className="ml-2 object-contain"
             />
             <FormControl>
               <DatePicker 
@@ -132,7 +132,7 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
             <Textarea
               placeholder={placeholder}
               {...field}
-              className="shad-textarea"
+              className="shad-textArea"
               disabled={props.disabled}
             />
         </FormControl>
@@ -158,7 +158,7 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
       const [showPassword, setShowPassword] = useState(false);
     
       return (
-        <div className="flex rounded-md border border-dark-500 bg-dark-400 items-center">
+        <div className="flex rounded-md border border-dark-500 bg-blue-200 items-center">
           {iconSrc && (
             <Image
               src={iconSrc}

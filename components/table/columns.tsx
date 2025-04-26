@@ -7,6 +7,7 @@ import { Doctors } from "@/constants"
 import Image from "next/image"
 import AppointmentModal from "../AppointmentModal"
 import { IAppointment } from "@/database/appointment.model"
+import MedicalReportModal from "../MedicalReportModal"
 
 
 export const columns: ColumnDef<IAppointment>[] = [
@@ -75,11 +76,10 @@ export const columns: ColumnDef<IAppointment>[] = [
       return(
         
         <div className="flex gap-1">
-            <AppointmentModal
+            <MedicalReportModal
              type="finish"
              patientId={patientId}
              appointment={row.original}
-             
              />
              <AppointmentModal 
              type="cancel"

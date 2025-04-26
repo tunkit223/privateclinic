@@ -40,20 +40,19 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    
-    <div className="data-table">
-  
-      <Input
+    <>
+     <Input
         placeholder="Search by medicine's name..."
         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
           table.getColumn("name")?.setFilterValue(event.target.value)
         }
-        className="w-full py-5 border border-gray-300 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all"
-       />
-       
+        className="w-full max-w-[1100px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
+      />
+    <div className="data-table">
+ 
       <Table className="shad-table">
-        <TableHeader className="bg-dark-200">
+        <TableHeader className="bg-blue-400">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="shad-table-row-header">
               {headerGroup.headers.map((header) => {
@@ -127,6 +126,7 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
     </div>
+    </>
   )
 }
 export default DataTable
