@@ -127,7 +127,7 @@ const ForgetPasswordForm = () => {
         name = 'email'
         label = 'Email'
         placeholder = 'Enter your email'
-        iconSrc = '/assets/icons/email.svg'
+        iconSrc = '/assets/icons/mail.png'
         iconAlt = 'email'/>
       <div className="flex flex-col h-full">
         <p className="pb-2">Verify</p>
@@ -144,7 +144,7 @@ const ForgetPasswordForm = () => {
         name = 'verifycode'
         label = 'Verify code'
         placeholder = 'Enter verify code'
-        iconSrc = '/assets/icons/email.svg'
+        iconSrc = '/assets/icons/mail.png'
         iconAlt = 'email'/>
 
       <CustomFormField
@@ -153,7 +153,7 @@ const ForgetPasswordForm = () => {
         name = 'newpassword'
         label= 'New password'
         placeholder = 'Enter your new password'
-        iconSrc = '/assets/images/key.png'
+        iconSrc = '/assets/icons/key.png'
         iconAlt = 'newpassword'
       />
 
@@ -163,7 +163,7 @@ const ForgetPasswordForm = () => {
         name = 'newpasswordagain'
         label= 'New password again'
         placeholder = 'Enter your new password again'
-        iconSrc = '/assets/images/key.png'
+        iconSrc = '/assets/icons/key.png'
         iconAlt = 'newpasswordagain'
       />
    

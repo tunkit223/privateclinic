@@ -11,8 +11,8 @@ const Login = () => {
         <div className="sub-container max-w-[600px] flex-1 flex-col py-10 flex items-start justify-center">
           <LoginForm />
           <section className="space-y-6 pt-10">
-            <div className="mb-9 space-y-1 text-green-300">
-              <Link href="/forgetPassword">Forget your password</Link>
+            <div className="mb-9 space-y-1 text-blue-400">
+             <Link href="/forgetPassword">Forget your password</Link>
             </div>
           </section>
         </div>

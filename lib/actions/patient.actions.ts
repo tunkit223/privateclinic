@@ -55,17 +55,19 @@ export const registerPatient = async (data: any) => {
   }
 };
 
-export const getPatient = async (userId: string) =>{
-  try{
-    const patients = await databases.listDocuments(
-      DATABASE_ID!,
-      PATIENT_COLLECTION_ID!,
-      [
-        Query.equal('userId', userId)
-      ]
-    );
-    return parseStringify(patients.documents[0]);
-  } catch (error){
-    console.log(error);
+export const getPatientList = async () => {
+  try {
+    const patient = await Patient.find()
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    const data = {
+      documents: patient,
+    };
+    
+    return JSON.parse(JSON.stringify(data));
+  } catch (error) {
+    console.error("Error fetching patient:", error);
+    return null;
   }
 };

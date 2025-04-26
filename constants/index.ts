@@ -64,47 +64,47 @@ export const StatusIcon = {
 
 export const sidebarLinks=[
   {
-    imgURL:'/assets/images/dashboard-icon.png',
+    imgURL:'/assets/icons/dashboard-icon.png',
     label:'Dashboard',
     route:'/'
   },
   {
-    imgURL:'/assets/images/appointment-icon.png',
+    imgURL:'/assets/icons/appointment-icon.png',
     label:'Appointment',
     route:'/appointment'
   },
   {
-    imgURL:'/assets/images/patient-icon.png',
+    imgURL:'/assets/icons/patient-icon.png',
     label:'Patient',
     route:'/patientList'
   },
   {
-    imgURL:'/assets/images/medicine.png',
+    imgURL:'/assets/icons/medicine.png',
     label:'Medicine',
     route:'/medicine'
   },
   {
-    imgURL:'/assets/images/revenue.png',
+    imgURL:'/assets/icons/revenue.png',
     label:'Bill',
     route:'/bill'
   },
   {
-    imgURL:'/assets/images/employee.png',
+    imgURL:'/assets/icons/employee.png',
     label:'Employees',
     route:'/employee'
   },
   {
-    imgURL:'/assets/images/import.png',
+    imgURL:'/assets/icons/import.png',
     label:'Import',
     route:'/import'
   },
   {
-    imgURL:'/assets/images/setting-icon.png',
+    imgURL:'/assets/icons/setting-icon.png',
     label:'Setting',
     route:'/setting'
   },
   {
-    imgURL:'/assets/images/trash.png',
+    imgURL:'/assets/icons/trash.png',
     label:'Garbage',
     route:'/garbage'
   },

@@ -117,7 +117,7 @@ export default function HomePage() {
          </div>
         
         <div className="flex justify-center mt-8">
-          <Button onClick={HandleClick} className="bg-green-500 text-white px-6 py-3 rounded-lg w-96 h-16 text-2xl hover:bg-green-700 hover:scale-105 transition duration-300" disabled={isLoading}>
+          <Button onClick={HandleClick} className="bg-blue-400 text-white px-6 py-3 rounded-lg w-96 h-16 text-2xl hover:bg-blue-300 hover:scale-105 transition duration-300" disabled={isLoading}>
             Book an Appointment
           </Button>
         </div>

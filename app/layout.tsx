@@ -18,11 +18,12 @@ export default function RootLayout({
 
   return (
     <html lang="en" >
-      <body className={cn('min-h-screen bg-dark-300 font-sans antialiased', fontSans.variable)} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+      <body className={cn('min-h-screen bg-blue-100 text-black font-sans antialiased', fontSans.variable) } suppressHydrationWarning>
+       
           <Toaster />
           {children}
-        </ThemeProvider>
+      
+        
       </body>
     </html>
   );

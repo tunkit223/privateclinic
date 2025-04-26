@@ -6,7 +6,7 @@ export interface IPatient{
   phone:number,
   gender?:Gender,
   address?:string,
-  birthdate?:Date,
+  birthdate:Date,
 }
 const PatientSchema = new Schema({
   name:{ type:String, required:true},
