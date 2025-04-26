@@ -18,12 +18,9 @@ export default function RootLayout({
 
   return (
     <html lang="en" >
-      <body className={cn('min-h-screen bg-blue-100 text-black font-sans antialiased', fontSans.variable) } suppressHydrationWarning>
-       
+      <body className={cn('min-h-screen bg-blue-100 text-black font-sans antialiased', fontSans.variable) } suppressHydrationWarning> 
           <Toaster />
-          {children}
-      
-        
+          {children}  
       </body>
     </html>
   );
