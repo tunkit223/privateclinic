@@ -41,18 +41,16 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-    <Input
-        placeholder="Search by patient's name..."
-        value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+     <Input
+        placeholder="Search by user's name..."
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
-          table.getColumn("patient")?.setFilterValue(event.target.value)
+          table.getColumn("name")?.setFilterValue(event.target.value)
         }
-        className="w-full max-w-[1200px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
-       />
-       
+        className="w-full max-w-[1100px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
+      />
     <div className="data-table">
-  
-      
+ 
       <Table className="shad-table">
         <TableHeader className="bg-blue-400">
           {table.getHeaderGroups().map((headerGroup) => (
