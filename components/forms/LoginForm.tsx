@@ -1,5 +1,5 @@
 "use client"
- // Trang đăng kí user mới
+// Trang đăng kí user mới
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,80 +24,81 @@ const LoginForm = () => {
     resolver: zodResolver(LoginFormValidation),
     defaultValues: {
       email: "",
-      password:"",
+      password: "",
     },
   })
 
   async function onSubmit(values: z.infer<typeof LoginFormValidation>) {
     setisLoading(true);
-  try {
-    const accountData = {
-      email: values.email,
-      password: values.password
-    };
+    try {
+      const accountData = {
+        email: values.email,
+        password: values.password
+      };
 
-    const loginsuccess = await loginAccount(accountData);
+      const loginsuccess = await loginAccount(accountData);
+      console.log(loginsuccess);
 
-    if (loginsuccess) {
-      router.push(`${loginsuccess._id}`); 
-      toast.success("Login successfully.", {
+      if (loginsuccess) {
+        router.push(`${loginsuccess._id}`);
+        toast.success("Login successfully.", {
+          position: "top-left",
+          duration: 3000,
+        });
+      } else {
+        toast.error("Login fail.", {
+          position: "top-left",
+          duration: 3000,
+        });
+      }
+
+    } catch (error) {
+      toast.error("Wrong email or password.", {
         position: "top-left",
         duration: 3000,
       });
-    } else {
-      toast.error("Login fail.", {
-        position: "top-left",
-        duration: 3000,
-      });
+    } finally {
+      setisLoading(false);
     }
-  
-  } catch (error) {
-    toast.error("Wrong email or password.", {
-      position: "top-left",
-      duration: 3000,
-    });
-  } finally {
-    setisLoading(false);
   }
-  }
-  
+
   return (
     <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1 w-full max-w-[500px]" >
-      
-      
-      <section className="space-y-6">
-         <div className="mb-9 space-y-1">
-         <h1 className="sub-header">Login now</h1>
-         </div>
-      </section>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1 w-full max-w-[500px]" >
 
 
-  
-    <CustomFormField
-        fieldType = {FormFieldType.INPUT}
-        control = {form.control}
-        name = 'email'
-        label = 'Email'
-        placeholder = 'Enter your email'
-        iconSrc = '/assets/icons/mail.png'
-        iconAlt = 'email'
-      />
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+            <h1 className="sub-header">Login now</h1>
+          </div>
+        </section>
 
 
-      <CustomFormField
-        fieldType = {FormFieldType.PASSWORD}
-        control = {form.control}
-        name = 'password'
-        label= 'Password'
-        placeholder = 'Enter your password'
-        iconSrc = '/assets/icons/key.png'
-        iconAlt = 'password'
-      />
-   
-      <SubmitButton isLoading={isLoading}>Login</SubmitButton>
-    </form>
-  </Form>
+
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name='email'
+          label='Email'
+          placeholder='Enter your email'
+          iconSrc='/assets/icons/mail.png'
+          iconAlt='email'
+        />
+
+
+        <CustomFormField
+          fieldType={FormFieldType.PASSWORD}
+          control={form.control}
+          name='password'
+          label='Password'
+          placeholder='Enter your password'
+          iconSrc='/assets/icons/key.png'
+          iconAlt='password'
+        />
+
+        <SubmitButton isLoading={isLoading}>Login</SubmitButton>
+      </form>
+    </Form>
   )
 }
 
