@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import Appointment, { IAppointment } from "@/database/appointment.model";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 export const createAppointment = async (data: IAppointment) => {
   try {
     await dbConnect();

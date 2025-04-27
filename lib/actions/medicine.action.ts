@@ -23,6 +23,7 @@ export const addMedicine = async (data : any) =>{
 
 export const getMedicineList = async () => {
   try {
+    await dbConnect();
     const medicines = await Medicine.find()
       .sort({ createdAt: -1 })
       .lean();
