@@ -9,6 +9,22 @@ export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
+export function getCookieParsed<T = any>(name: string): T | null {
+  const cookies = document.cookie.split("; ");
+  const cookie = cookies.find(row => row.startsWith(name + "="));
+
+  if (!cookie) return null;
+
+  try {
+    const value = cookie.split("=")[1];
+    return JSON.parse(decodeURIComponent(value)) as T;
+  } catch (error) {
+    console.error("Failed to parse cookie", error);
+    return null;
+  }
+}
+
+
 // FORMAT DATE TIME
 export const formatDateTime = (dateString: Date | string) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
