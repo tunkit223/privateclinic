@@ -8,6 +8,7 @@ import { sidebarLinks } from "@/constants";
 import React, { useState, useEffect, use } from 'react';
 import { Modal, Row } from 'antd';
 import { getCookieParsed } from "@/lib/utils";
+import { getUserByAccountId } from "@/lib/actions/user.action";
 
 function LayoutDefaultHeader() {
   const pathname = usePathname();
@@ -17,6 +18,8 @@ function LayoutDefaultHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState([]);
   const [form] = Form.useForm();
+
+
 
 
 
@@ -61,8 +64,6 @@ function LayoutDefaultHeader() {
     };
     fetchUser();
   }, [])
-  console.log(user);
-
 
 
   return (

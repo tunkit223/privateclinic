@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react';
 import { Calendar, Col, Radio, Row, Select, theme, Typography, List } from 'antd';
 import type { CalendarProps } from 'antd';
@@ -5,11 +6,10 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import dayLocaleData from 'dayjs/plugin/localeData';
 import updateLocale from 'dayjs/plugin/updateLocale';
-
+import { getRecentAppointmentList } from '@/lib/actions/appointment.action'
+import { useEffect } from 'react';
 import 'dayjs/locale/en';
-import { date } from 'zod';
-import { set } from 'mongoose';
-
+import "./UpcommingAppointment.scss"
 
 const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
   console.log(value.format('DD-MM-YYYY'), mode);
@@ -23,21 +23,56 @@ dayjs.updateLocale('en', {
   weekStart: 1,
 });
 
-const UpcomingAppoitment = () => {
+type Appointment = {
+  _id: string;
+  patientId: any;
+  doctor: string;
+  date: string;
+  reason: string;
+  status: string;
+  time: string;
+  description: string;
+};
 
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Lưu ngày được chọn
-  const [appointments, setAppointments] = useState([
-    { date: '2025-04-22', time: '10:00 AM', description: 'Meeting with Dr. Smith', status: 'completed' },
-    { date: '2025-04-22', time: '2:00 PM', description: 'Follow-up with patient John', status: 'pending' },
-    { date: '2025-04-22', time: '2:00 PM', description: 'Follow-up with patient John', status: 'cancel' },
-    { date: '2025-04-22', time: '2:00 PM', description: 'Follow-up with patient John', status: 'completed' },
-    { date: '2025-04-22', time: '2:00 PM', description: 'Follow-up with patient John', status: 'pending' },
-    { date: '2025-04-23', time: '9:00 AM', description: 'Surgery preparation', status: 'completed' },
-  ]); // Dữ liệu lịch hẹn mẫu
+const UpcomingAppointment = () => {
 
-  const filteredAppointments = selectedDate ? appointments.filter((appointment) => appointment.date === selectedDate.format('YYYY-MM-DD'))
-    : [];
+  const [appointmentsByDate, setAppointmentsByDate] = useState<Record<string, Appointment[]>>({});
 
+  useEffect(() => {
+    const fetchAppointmentList = async () => {
+      const response = await getRecentAppointmentList();
+      if (response) {
+        const mappedAppointments = response.documents.map((item: Appointment) => ({
+          ...item,
+          date: dayjs(item.date).format('YYYY-MM-DD'),
+          time: dayjs(item.date).format('h:mm A'),
+          description: (
+            <>
+              <div>Doctor: <span className='font-bold'>{item.doctor}</span></div>
+              <div>Patient: <span className='font-bold'>{item.patientId.name}</span></div>
+            </>
+          )
+        }));
+
+        const appointmentMap: Record<string, Appointment[]> = {};
+        mappedAppointments.forEach((appointment: Appointment) => {
+          if (!appointmentMap[appointment.date]) {
+            appointmentMap[appointment.date] = [];
+          }
+          appointmentMap[appointment.date].push(appointment);
+        });
+
+        setAppointmentsByDate(appointmentMap);
+      }
+    };
+    fetchAppointmentList();
+  }, [])
+
+
+
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+
+  const filteredAppointments = selectedDate ? (appointmentsByDate[selectedDate.format('YYYY-MM-DD')] || []) : [];
 
   const { token } = theme.useToken();
 
@@ -48,10 +83,43 @@ const UpcomingAppoitment = () => {
   };
 
 
+
+  const renderDateCell = (value: Dayjs) => {
+    const dayAppointments = appointmentsByDate[value.format('YYYY-MM-DD')] || [];
+    // Do not take duplicate elements, ex: [pending, pending, cancelled] => [pending, cancelled]
+    const uniqueStatuses = Array.from(new Set(dayAppointments.map(item => item.status)));
+
+    const limitedStatuses = uniqueStatuses.slice(0, 3);
+
+    const statusColorMap: { [key: string]: string } = {
+      pending: '#4062BB',
+      approved: '#2E8B57',
+      cancelled: '#FF4D4F',
+    };
+
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        {limitedStatuses.map((status, index) => (
+          <span
+            key={index}
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              backgroundColor: statusColorMap[status] || '#d9d9d9',
+              margin: '0 2px',
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div style={wrapperStyle}>
       <Calendar fullscreen={false} onPanelChange={onPanelChange}
         onSelect={(date) => setSelectedDate(date)}
+        cellRender={(value) => renderDateCell(value)}
         headerRender={({ value, type, onChange, onTypeChange }) => {
           const start = 0;
           const end = 12;
@@ -86,7 +154,7 @@ const UpcomingAppoitment = () => {
           return (
             <div style={{ padding: 8 }}>
               <Row justify="space-between" align="middle">
-                <div className='text-[25px] font-[600]'>Upcoming appoitment</div>
+                <div className='text-[25px] font-[600]'>Upcoming appointment</div>
                 <Row gutter={[8, 8]} align="middle" justify="end">
                   <Col>
                     <Radio.Group
@@ -142,7 +210,7 @@ const UpcomingAppoitment = () => {
               <div className='appointment__item__content'>
                 <List.Item>
                   <List.Item.Meta
-                    title={`${item.time}`}
+                    title={`${item.time} - ${item.status}`}
                     description={item.description}
                   />
                 </List.Item>
@@ -154,4 +222,4 @@ const UpcomingAppoitment = () => {
     </div>
   );
 }
-export default UpcomingAppoitment;
+export default UpcomingAppointment;

@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Select, Row } from 'antd';
 import CartItem from '@/components/CartItem/CartItem';
 import "./Page.scss"
 import { ExpenseChart } from '@/components/Chart/ExpenseChart';
-import { Table } from 'lucide-react';
-import TableAppointment from '@/components/table/TableDashboard/TableAppointment';
 import RevenueChart from '@/components/Chart/RevenueChart';
-import UpcomingAppoitment from '@/components/Calendar/UpcomingAppoitment';
 
+import UpcomingAppointment from '@/components/Calendar/UpcomingAppointment';
 
 const Dashboard = () => {
   const changeDateRevenue = (value: string) => {
@@ -18,6 +16,7 @@ const Dashboard = () => {
   const changeDateExpense = (value: string) => {
     console.log(`selected ${value}`);
   }
+
 
 
   const optionsSelectDate = [
@@ -37,30 +36,30 @@ const Dashboard = () => {
         <Col className='overview__figure ' span={12}>
           <Row className='overview__figure__row' gutter={[20, 20]} align="stretch">
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={10} title='Tổng bác sĩ' desc={
+              <CartItem count={10} title='Total doctor' desc={
                 <>
-                  Bac si dang lam viec
+                  Doctor is working
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={24} title='Lịch khám' desc={
+              <CartItem count={24} title='Appointment' desc={
                 <>
-                  Tăng <span className="text-green-500 font-bold">3.2%</span> so với hôm qua
+                  Up <span className="text-green-500 font-bold">3.2%</span> from yesterday
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={12} title='Tổng bệnh nhân' desc={
+              <CartItem count={12} title='Total patient' desc={
                 <>
-                  Giam <span className="text-red-500 font-bold">1.2%</span> so với hôm qua
+                  Down <span className="text-red-500 font-bold">1.2%</span> from yesterday
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={6} title='Tổng doanh thu' desc={
+              <CartItem count={6} title='Total revenue' desc={
                 <>
-                  Tăng <span className="text-green-500 font-bold">4.2%</span> so với hôm qua
+                  Up <span className="text-green-500 font-bold">4.2%</span> from yesterday
                 </>
               } href='#' />
             </Col>
@@ -109,7 +108,7 @@ const Dashboard = () => {
           </div>
         </Col>
         <Col span={11} className='appointment'>
-          <UpcomingAppoitment />
+          <UpcomingAppointment />
         </Col>
       </Row>
       {/* End Section two  */}
