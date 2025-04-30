@@ -70,7 +70,7 @@ const UpcomingAppointment = () => {
 
 
 
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs);
 
   const filteredAppointments = selectedDate ? (appointmentsByDate[selectedDate.format('YYYY-MM-DD')] || []) : [];
 
