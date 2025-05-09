@@ -84,6 +84,11 @@ export const sidebarLinks=[
     route:'/medicine'
   },
   {
+    imgURL:'/assets/images/medical-report.png',
+    label:'Medical Report',
+    route:'/medicalreport'
+  },
+  {
     imgURL:'/assets/icons/revenue.png',
     label:'Bill',
     route:'/bill'
