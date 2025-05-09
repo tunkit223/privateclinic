@@ -8,7 +8,7 @@ export interface IVerificationCode{
 const VerificationCodeSchema = new Schema({
   email: { type: String, required: true, unique: true },
   code: { type: String, required: true },
-  expiresAt: { type: Date, required: true }, // Hết hạn sau 5 phút
+  expiresAt: { type: Date, required: true, expires: 0 }, // Hết hạn sau 5 phút
 });
 
 export const VerificationCode =

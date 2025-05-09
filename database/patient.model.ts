@@ -1,6 +1,5 @@
 import { model, Schema, models } from "mongoose";
 export interface IPatient{
-  _id?:string;
   name:string;
   email:string,
   phone:number,
@@ -8,7 +7,10 @@ export interface IPatient{
   address?:string,
   birthdate:Date,
 }
-const PatientSchema = new Schema({
+
+export interface IPatientDoc extends IPatient, Document {}
+
+const PatientSchema = new Schema<IPatient>({
   name:{ type:String, required:true},
   email:{ type:String, required:true, unique: true},
   phone:{type:Number, required:true, unique:true},
@@ -16,18 +18,8 @@ const PatientSchema = new Schema({
   address:{type: String},
   birthdate:{type:Date},
 },
-{
-  timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (doc, ret) => {
-      ret._id = ret._id.toString(); // Chuyển ObjectId thành string
-      delete ret.__v;
-      return ret;
-    }
-  }
-});
-// check xem patient da ton tai chua, neu chua thi tao
+{timestamps: true});
+
 const Patient = models?.Patient|| model<IPatient>('Patient', PatientSchema);
 
 export default Patient
