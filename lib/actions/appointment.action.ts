@@ -6,7 +6,7 @@ import Appointment, { IAppointment } from "@/database/appointment.model";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
 import mongoose from "mongoose";
-export const createAppointment = async (data: IAppointment) => {
+export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
     console.log("createAppointment");
@@ -122,7 +122,9 @@ export const cancelAppointment = async (appointmentId: string, cancellationReaso
     if (!appointment) {
       throw new Error("Cuộc hẹn không tồn tại");
     }
-
+    if(appointment.status !== "pending"){
+      throw new Error("Cuộc hẹn đã bị hủy hoặc kết thúc");
+    }
     // Cập nhật trạng thái và lý do hủy
     appointment.status = "cancelled";
     appointment.cancellationReason = cancellationReason;
@@ -133,3 +135,23 @@ export const cancelAppointment = async (appointmentId: string, cancellationReaso
     console.log({error})
   }
 };
+
+export async function getAppointmentDetails(appointmentId: string) {
+  try {
+    await dbConnect();
+
+    const appointment = await Appointment.findById(appointmentId).populate('patientId');
+
+    if (!appointment) return null;
+
+    const patient = appointment.patientId as any;
+
+    return {
+      patientName: patient.name,
+      appointmentDate: appointment.date,
+    };
+  } catch (err) {
+    console.error('Error getting appointment details:', err);
+    return null;
+  }
+}

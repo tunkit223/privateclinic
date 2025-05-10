@@ -1,4 +1,4 @@
-import { model, Schema, models, Types } from "mongoose";
+import { model, Schema, models, Types, Document  } from "mongoose";
 export interface IAppointment{
   patientId: Types.ObjectId;
   doctor:string,
@@ -8,7 +8,9 @@ export interface IAppointment{
   status:Status,
   cancellationReason?:string
 }
-export interface IAppointmentDoc extends IAppointment, Document {}
+export interface IAppointmentDoc extends IAppointment, Document {
+  _id: Types.ObjectId;
+}
 
 const AppointmentSchema = new Schema<IAppointment>({
   patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true },

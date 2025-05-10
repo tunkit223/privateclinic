@@ -4,21 +4,23 @@ export interface IMedicalRPDetail{
   medicineId: Types.ObjectId,
   medicalReportId: Types.ObjectId,
   amount:number;
+  usage?:Usage,
   price?:number
 }
 
-export interface IIMedicalRPDetailDoc extends IMedicalRPDetail, Document {}
+export interface IMedicalRPDetailDoc extends IMedicalRPDetail, Document {}
 
-const MedicineReportSchema = new Schema<IMedicalRPDetail>({
+const MedicalRPDetailSchema = new Schema<IMedicalRPDetail>({
   medicineId: { type: Schema.Types.ObjectId, ref: "medicine", required: true },
   medicalReportId: { type: Schema.Types.ObjectId, ref: "medicalReport", required: true },
   amount:{type:Number, require:true},
+  usage:{type: String},
   price:{type:Number},
 },
 {timestamps: true}
 );
 
-const IMedicalRPDetail = models?.IMedicalRPDetail|| model<IMedicalRPDetail>('MedicineReport', MedicineReportSchema);
+const MedicalRPDetail = models?.MedicalRPDetail|| model<IMedicalRPDetail>('MedicalRPDetail', MedicalRPDetailSchema);
 
-export default IMedicalRPDetail
+export default MedicalRPDetail
 
