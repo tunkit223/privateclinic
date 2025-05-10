@@ -3,7 +3,6 @@ export interface IMedicine{
   name:string,
   unit:string,
   amount:number,
-  usage?:string,
   price:number,
 }
 
@@ -13,7 +12,6 @@ const MedicineSchema = new Schema<IMedicine>({
   name:{type: String, require:true},
   unit:{type: String, require:true},
   amount:{type:Number, require:true},
-  usage:{type: String},
   price:{type:Number, require:true} 
 },
 {timestamps: true}

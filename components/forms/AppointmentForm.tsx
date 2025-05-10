@@ -114,7 +114,7 @@ const AppointmentForm = ({
          router.refresh();
         }
         else{
-          toast.error("Cannot cancel.", {
+          toast.error("Cannot cancel(appointment had been finished or cancelled).", {
                   position: "top-left",
                   duration: 3000,
                 });

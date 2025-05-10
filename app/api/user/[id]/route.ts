@@ -3,7 +3,8 @@ import { getUserByAccountId } from "@/lib/actions/user.action";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    const user = await getUserByAccountId(params.id);
+    const Params = await params;
+    const user = await getUserByAccountId(Params.id);
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }

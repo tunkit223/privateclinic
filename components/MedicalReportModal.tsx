@@ -12,14 +12,15 @@ import { useState } from "react"
 import { Button } from "./ui/button"
 import AppointmentForm from "./forms/AppointmentForm"
 import { IAppointment } from "@/database/appointment.model"
+import MedicalReportForm from "./forms/MedicalReportForm"
+
+
 const MedicalReportModal = ({
   type,
-  patientId,
-  appointment,
+  appointmentId,
 }:{
   type:'finish'
-  patientId: string,
-  appointment?:IAppointment,
+  appointmentId: string
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -30,19 +31,16 @@ const MedicalReportModal = ({
         {type}
       </Button>
     </DialogTrigger>
-    <DialogContent className="shad-dialog sm:max-w-md">
+    <DialogContent className="shad-dialog sm:max-w-[900px]">
       <DialogHeader className="mb-4 space-y-3">
         <DialogTitle className="capitalize">{type} Appointment</DialogTitle>
         <DialogDescription>
           Please fill in the following details to {type} an appointment
         </DialogDescription>
       </DialogHeader>
-      <AppointmentForm
-        patientId={patientId}
-        type={type}
-        appointment={appointment}
-        setOpen={setOpen}
-      />
+     <MedicalReportForm
+        appointmentId={appointmentId}
+     />
     </DialogContent>
   </Dialog>
   

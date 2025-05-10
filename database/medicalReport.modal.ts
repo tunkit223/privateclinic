@@ -1,15 +1,15 @@
 import { model, Schema, models, Types } from "mongoose";
 export interface IMedicalReport{
   appointmentId: Types.ObjectId,
-  diseaseId: Types.ObjectId,
-  sympton:string,
+  diseaseType: Diseasetype,
+  symptom:string,
 }
 
 
 const MedicalReportSchema = new Schema<IMedicalReport>({
   appointmentId:{type: Schema.Types.ObjectId, ref:"Appointment", require:true},
-  diseaseId:{type: Schema.Types.ObjectId, ref:"disease", require:true},
-  sympton:{type: String},
+  diseaseType:{type: String, require:true},
+  symptom:{type: String},
 },
 {timestamps: true}
 );
