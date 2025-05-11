@@ -77,8 +77,8 @@ const RegisterForm = () => {
         control = {form.control}
         name = 'name'
         label= 'Full name'
-        placeholder = 'キエト'
-        iconSrc = '/assets/icons/user.png'
+        placeholder = 'Your full name'
+        iconSrc = '/assets/icons/user.svg'
         iconAlt = 'user'
       />
       
