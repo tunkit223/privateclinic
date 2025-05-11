@@ -20,6 +20,8 @@ const chartData = [
   { month: "June", online: 214, offline: 140 },
 ];
 
+
+
 const chartConfig = {
   online: {
     label: "Online",
@@ -30,6 +32,8 @@ const chartConfig = {
     color: "#f4a300",
   }
 } satisfies ChartConfig
+
+
 
 function RevenueChart() {
   return (

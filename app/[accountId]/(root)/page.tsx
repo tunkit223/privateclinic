@@ -20,8 +20,6 @@ const Dashboard = () => {
 
 
   const optionsSelectDate = [
-    { value: 'today', label: 'Today' },
-    { value: 'yesterday', label: 'Yesterday' },
     { value: 'last7days', label: 'Last 7 days' },
     { value: 'last30days', label: 'Last 30 days' },
     { value: 'thisMonth', label: 'This month' },
@@ -73,7 +71,7 @@ const Dashboard = () => {
             <div className='overview__revenueChart__header--title'>Revenue Overview</div>
             <div className='overview__revenueChart__header--selectTime'>
               <Select
-                defaultValue="today"
+                defaultValue="last7days"
                 onChange={changeDateRevenue}
                 style={{ width: 120 }}
                 options={optionsSelectDate}
@@ -96,7 +94,7 @@ const Dashboard = () => {
             <div className='expense__header--title'>Expenses</div>
             <div className='expense__header--selectTime'>
               <Select
-                defaultValue="today"
+                defaultValue="last7days"
                 onChange={changeDateExpense}
                 style={{ width: 120 }}
                 options={optionsSelectDate}
