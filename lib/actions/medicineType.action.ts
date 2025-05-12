@@ -2,6 +2,7 @@
 import { Types } from "mongoose";
 import dbConnect from "../mongoose"
 import MedicineType from "@/database/medicineType"
+import { trackSynchronousPlatformIOAccessInDev } from "next/dist/server/app-render/dynamic-rendering";
 
 export const getMedicineTypeList = async () => {
     try {
@@ -37,21 +38,57 @@ export const getMedicineTypeList = async () => {
     }
   };
   export const getMedicineTypeNameById = async (id: Types.ObjectId | string) => {
-    // Kiểm tra nếu id là string, chuyển sang ObjectId
     const objectId = typeof id === "string" ? new Types.ObjectId(id) : id;
   
     try {
-      // Tìm kiếm loại thuốc trong bảng MedicineType
       const medicineType = await MedicineType.findById(objectId).select("name");
   
       if (!medicineType) {
-        return "Unknown"; // Nếu không tìm thấy, trả về "Unknown"
+        return "Unknown";
       }
-  
-      // Trả về name của loại thuốc
       return medicineType.name;
     } catch (error) {
       console.error(error);
-      return "Error occurred"; // Xử lý lỗi
+      return "Error occurred"; 
     }
+  };
+
+  export const deleteMedicineType = async (id: Types.ObjectId | string) => {
+   try{
+    await dbConnect();
+    const deleted = await MedicineType.findByIdAndDelete(id);
+
+    if(!deleted){
+      throw new Error("Medicine type not found");
+    }
+    return  { success: true, message: "Deleted successfully" };
+   } catch(error){
+    console.error("Error deleting medicine type:", error);
+    return { success: false, message: "Error deleting medicine type" };
+   }
+  };
+
+  export const updateMedicineType = async (id: Types.ObjectId | string, data: any) => {
+    try{
+      await dbConnect();
+
+      const updatedMedicineType = await MedicineType.findByIdAndUpdate(
+        id , 
+        {name : data.name, description: data.description},
+        {new: true}
+      )
+      if (!updatedMedicineType) {
+        throw new Error("Medicine type not found")
+      }
+  
+      return {
+        success: true,
+        message: "Medicine type updated successfully",
+        updatedMedicineType,
+      }
+    } catch (error) {
+      console.error("Error updating medicine type:", error)
+      return { success: false, message: "Error updating medicine type" }
+    }
+    
   };
