@@ -18,7 +18,7 @@ const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
 dayjs.extend(dayLocaleData);
 dayjs.extend(updateLocale);
 
-// Cofig for day start from Monday to Sunday
+// Config for day start from Monday to Sunday
 dayjs.updateLocale('en', {
   weekStart: 1,
 });
@@ -74,6 +74,7 @@ const UpcomingAppointment = () => {
 
   const filteredAppointments = selectedDate ? (appointmentsByDate[selectedDate.format('YYYY-MM-DD')] || []) : [];
 
+  console.log("filteredAppointments", filteredAppointments);
   const { token } = theme.useToken();
 
   const wrapperStyle: React.CSSProperties = {
@@ -93,7 +94,7 @@ const UpcomingAppointment = () => {
 
     const statusColorMap: { [key: string]: string } = {
       pending: '#4062BB',
-      approved: '#2E8B57',
+      finished: '#2E8B57',
       cancelled: '#FF4D4F',
     };
 

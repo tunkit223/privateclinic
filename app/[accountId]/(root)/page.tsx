@@ -8,6 +8,7 @@ import { ExpenseChart } from '@/components/Chart/ExpenseChart';
 import RevenueChart from '@/components/Chart/RevenueChart';
 
 import UpcomingAppointment from '@/components/Calendar/UpcomingAppointment';
+import DemoColumn from '@/components/Chart/GenderChart';
 
 const Dashboard = () => {
   const changeDateRevenue = (value: string) => {
@@ -104,7 +105,8 @@ const Dashboard = () => {
             </div>
           </div>
           <div className='expense__chart'>
-            <ExpenseChart />
+            {/* <ExpenseChart /> */}
+            <DemoColumn />
           </div>
         </Col>
         <Col span={11} className='appointment'>
