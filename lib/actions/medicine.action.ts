@@ -1,11 +1,13 @@
 'use server'
 import Medicine from "@/database/medicine";
+import MedicineType from "@/database/medicineType";
 import dbConnect from "../mongoose";
 
 export const addMedicine = async (data : any) =>{
   try {
     await dbConnect();
     const newMedicine = await Medicine.create({
+      medicineTypeId: data.medicineTypeId,
       name: data.name,
       unit: data.unit,
       amount: data.amount,
@@ -20,7 +22,18 @@ export const addMedicine = async (data : any) =>{
   }
 }
 
+export const getMedicinesWithType = async () => {
+  await dbConnect();
+  const medicines = await Medicine.find()
+    .populate("medicineTypeId", "name")
+    .select("name")
+    .lean();
 
+  return medicines.map(med => ({
+    ...med,
+    medicineTypeName: med.medicineTypeId ? med.medicineTypeId.name : 'Unknown'  
+  }));
+};
 export const getMedicineList = async () => {
   try {
     await dbConnect();
