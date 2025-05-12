@@ -7,7 +7,7 @@ import RegisterForm from '@/components/forms/RegisterForm'
 
 const Register =  () => {
   return (
-    <div className="flex h-screen max-h-screen">
+    <div className="flex h-screen max-h-screen bg-blue-100">
       {/* TODO: OTP Verification | PasskeyModal <>?*/}
 
       <section className="remove-scrollbar container">

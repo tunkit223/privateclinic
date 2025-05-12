@@ -17,6 +17,39 @@ export const Unit = [
     name: "Jar",
   },
 ]
+export const MedicineTypes = [
+  { name: "Pain Reliever" },
+  { name: "Antibiotic" },
+  { name: "Antipyretic" },
+  { name: "Antihistamine" },
+  { name: "Antacid" },
+  { name: "Antiviral" },
+  { name: "Antifungal" },
+  { name: "Anti-inflammatory" },
+  { name: "Antidepressant" },
+  { name: "Antihypertensive" },
+  { name: "Diuretic" },
+  { name: "Cough Suppressant" },
+  { name: "Expectorant" },
+  { name: "Bronchodilator" },
+  { name: "Hormone Replacement" },
+  { name: "Anticonvulsant" },
+  { name: "Sedative" },
+  { name: "Stimulant" },
+  { name: "Laxative" },
+  { name: "Antidiarrheal" },
+  { name: "Cholesterol-lowering" },
+  { name: "Anticoagulant" },
+  { name: "Muscle Relaxant" },
+  { name: "Antipsychotic" },
+  { name: "Vaccine" },
+  { name: "Insulin" },
+  { name: "Thyroid Hormone" },
+  { name: "Eye Drop" },
+  { name: "Nasal Spray" },
+  { name: "Topical Cream" }
+];
+
 export const Usage = [
   {
     name: "Take one tablet by mouth every 8 hours",
@@ -113,6 +146,11 @@ export const sidebarLinks=[
     imgURL:'/assets/icons/medicine.png',
     label:'Medicine',
     route:'/medicine'
+  },
+  {
+    imgURL:'/assets/icons/tags-icon.png',
+    label:'Medicine Type',
+    route:'/Type'
   },
   {
     imgURL:'/assets/images/medical-report.png',
