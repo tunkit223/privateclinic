@@ -72,7 +72,7 @@ const Dashboard = () => {
 
               } count={24} title='Appointment' desc={
                 <>
-                  Up <span className="text-green-500 font-bold">3.2%</span> from yesterday
+                  Up <span className="text-green-500 font-bold">3.2%</span> from <br /> yesterday
                 </>
               } href='#' />
             </Col>
@@ -80,7 +80,7 @@ const Dashboard = () => {
               <CartItem background='#F5E0FE' colorIcon='#F492E2' icon={<FaUsers />
               } count={12} title='Total patient' desc={
                 <>
-                  Down <span className="text-red-500 font-bold">1.2%</span> from yesterday
+                  <div>Down <span className="text-red-500 font-bold">1.2%</span> from yesterday</div>
                 </>
               } href='#' />
             </Col>
@@ -88,7 +88,7 @@ const Dashboard = () => {
               <CartItem background='#D0F2E7' colorIcon='#4EC092' icon={<LuChartNoAxesCombined />
               } count={6} title='Total revenue' desc={
                 <>
-                  Up <span className="text-green-500 font-bold">4.2%</span> from yesterday
+                  Up <span className="text-green-500 font-bold">4.2%</span> from <br /> yesterday
                 </>
               } href='#' />
             </Col>
