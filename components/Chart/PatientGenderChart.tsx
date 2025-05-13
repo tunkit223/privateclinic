@@ -19,15 +19,6 @@ interface PatientByGender {
   female: number;
 }
 
-const chartData = [
-  { month: "January", male: 186, female: 80 },
-  { month: "February", male: 305, female: 200 },
-  { month: "March", male: 237, female: 120 },
-  { month: "April", male: 73, female: 190 },
-  { month: "May", male: 209, female: 130 },
-  { month: "June", male: 214, female: 140 },
-];
-
 
 const chartConfig = {
   male: {
@@ -43,16 +34,16 @@ const chartConfig = {
 
 const PatientByGender = ({ data }: { data: PatientByGender[] }) => {
   return (
-    <div className="max-h-400px ">
+    <div className="max-h-400px w-full">
       <div>
         <ChartContainer config={chartConfig}>
-
           <AreaChart
             accessibilityLayer
             data={data}
             margin={{
               left: 12,
               right: 12,
+              bottom: 40
             }}
           >
             <CartesianGrid vertical={false} strokeDasharray="4 4" />
@@ -100,7 +91,6 @@ const PatientByGender = ({ data }: { data: PatientByGender[] }) => {
               strokeWidth={3}
             />
             <ChartLegend content={<ChartLegendContent />} />
-
           </AreaChart>
         </ChartContainer>
       </div>

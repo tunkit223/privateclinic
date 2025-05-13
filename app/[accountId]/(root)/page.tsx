@@ -12,6 +12,11 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import type { RangePickerProps } from 'antd/es/date-picker';
 import DemoDualAxes from '@/components/Chart/CombineChart';
+import { FaUserDoctor } from "react-icons/fa6";
+import { FaCalendarAlt } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
+import { LuChartNoAxesCombined } from "react-icons/lu";
+
 
 const { RangePicker } = DatePicker;
 
@@ -55,28 +60,33 @@ const Dashboard = () => {
         <Col className='overview__figure ' span={12}>
           <Row className='overview__figure__row' gutter={[20, 20]} align="stretch">
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={10} title='Total doctor' desc={
+              <CartItem background='#D9E2FF' colorIcon='#6580F0' icon={<FaUserDoctor />
+              } count={10} title='Total doctor' desc={
                 <>
                   Doctor is working
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={24} title='Appointment' desc={
+              <CartItem background='#E4F5FF' colorIcon='#48AEF2' icon={<FaCalendarAlt />
+
+              } count={24} title='Appointment' desc={
                 <>
                   Up <span className="text-green-500 font-bold">3.2%</span> from yesterday
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={12} title='Total patient' desc={
+              <CartItem background='#F5E0FE' colorIcon='#F492E2' icon={<FaUsers />
+              } count={12} title='Total patient' desc={
                 <>
                   Down <span className="text-red-500 font-bold">1.2%</span> from yesterday
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
-              <CartItem count={6} title='Total revenue' desc={
+              <CartItem background='#D0F2E7' colorIcon='#4EC092' icon={<LuChartNoAxesCombined />
+              } count={6} title='Total revenue' desc={
                 <>
                   Up <span className="text-green-500 font-bold">4.2%</span> from yesterday
                 </>

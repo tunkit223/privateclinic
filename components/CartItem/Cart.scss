@@ -1,5 +1,5 @@
 .cart{
-    background-color: #fff;
+    // background-color: #fff;
     color: #000;
     border-radius: 10px;
     width: 100%;
@@ -19,7 +19,11 @@
         }
         &--icon{
             font-size: 25px;
-            margin-right: 10px;
+            margin-right: 20px;
+            margin-top: 15px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
         }
     }
     &__content{
