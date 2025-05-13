@@ -96,6 +96,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
     const newUser = await createUser(UserData);
 
     if (newUser) {
+      router.refresh();
       toast.success("Create user successfully.", {
         position: "top-left",
         duration: 3000,

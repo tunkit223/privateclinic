@@ -115,3 +115,15 @@ export const addMedicineFormValidation = z.object({
   amount: z.string(),
   price: z.string(),
 })
+
+export const createMedicalReportFormValidation = z.object({
+  appointmentId:z.string(),
+  name: z
+    .string()
+    .min(1, "Name must be at least 1 characters")
+    .max(50, "Name must be at most 50 characters"),
+  date:  z.coerce.date(),
+  symptom: z.string(),
+  diseaseType: z.string(),
+})
+

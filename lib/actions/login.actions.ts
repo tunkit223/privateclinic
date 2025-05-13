@@ -23,7 +23,7 @@ export async function loginAccount(data: { email: string; password: string }) {
     return {
       _id: account._id.toString(), // Chuyển ObjectId thành string
       email: account.email,
-      tag: account.tag, // Thêm thông tin nếu cần
+      tag: account.tag, 
     };
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Lỗi đăng nhập");
@@ -47,7 +47,7 @@ export async function sendVerificationEmail(email: string) {
     await VerificationCode.create({
       email: email,
       code: verificationCode,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 2 * 60 * 1000),
     });
 
     // Cấu hình gửi email

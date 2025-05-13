@@ -1,30 +1,20 @@
 import { model, Schema, models, Types } from "mongoose";
 export interface IMedicalReport{
-  _id?:string,
-  password:string,
-  email:string,
-  tag?:string,
+  appointmentId: Types.ObjectId,
+  diseaseType: Diseasetype,
+  symptom:string,
 }
 
 
-const MedicalReportSchema = new Schema({
-  appointmentId:{type: Types.ObjectId, ref:"Appointment", require:true},
-  sympton:{type: String},
-  disease:{type:String},
-  
+const MedicalReportSchema = new Schema<IMedicalReport>({
+  appointmentId:{type: Schema.Types.ObjectId, ref:"Appointment", require:true},
+  diseaseType:{type: String, require:true},
+  symptom:{type: String},
 },
-{timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (doc, ret) => {
-      ret._id = ret._id.toString(); // Chuyển ObjectId thành string
-      delete ret.__v;
-      return ret;
-    }
-  }}
+{timestamps: true}
 );
-// check xem user da ton tai chua, neu chua thi tao
+
 const MedicalReport = models?.MedicalReport|| model<IMedicalReport>('MedicalReport', MedicalReportSchema);
 
 export default MedicalReport
-
+// Tạo phiếu khám bệnh thành công mới dẫn đến điền phiếu thuốc(từ phiếu thuốc sẽ có các chi tiết PKB).

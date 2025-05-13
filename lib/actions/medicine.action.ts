@@ -38,3 +38,28 @@ export const getMedicineList = async () => {
     return null;
   }
 };
+
+export const getMedicineByName = async (name: string): Promise<string> => {
+  await dbConnect();
+  const medicine = await Medicine.findOne({ name });
+  if (!medicine) throw new Error(`Medicine "${name}" not found`);
+  return medicine._id.toString();
+};
+
+export const getMedicinePriceByAmount = async (name: string, amount: number): Promise<string> => {
+  await dbConnect();
+  const medicine = await Medicine.findOne({ name });
+  if (!medicine) throw new Error(`Medicine "${name}" not found`);
+  return (amount * medicine.price).toString();
+};
+
+export const validateMedicine = async (name: string) => {
+  try {
+    await dbConnect();
+    const medicine = await Medicine.findOne({ name });
+    return medicine.unit; 
+  } catch (error) {
+    console.error("Error validating medicine", error);
+    return null;
+  }
+};

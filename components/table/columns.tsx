@@ -6,11 +6,11 @@ import { formatDateTime } from "@/lib/utils"
 import { Doctors } from "@/constants"
 import Image from "next/image"
 import AppointmentModal from "../AppointmentModal"
-import { IAppointment } from "@/database/appointment.model"
+import { IAppointment, IAppointmentDoc } from "@/database/appointment.model"
 import MedicalReportModal from "../MedicalReportModal"
 
 
-export const columns: ColumnDef<IAppointment>[] = [
+export const columns: ColumnDef<IAppointmentDoc>[] = [
   {
     header: "ID",
     cell: ({row}) => <p className="text-14-medium">{row.index+1}</p>
@@ -54,8 +54,8 @@ export const columns: ColumnDef<IAppointment>[] = [
       return (
         <div className="flex items-center gap-3">
           <Image
-            src={doctor.image}
-            alt={doctor.name}
+            src={doctor!.image}
+            alt={doctor!.name}
             width={100}
             height={100}
             className='size-8'
@@ -78,8 +78,7 @@ export const columns: ColumnDef<IAppointment>[] = [
         <div className="flex gap-1">
             <MedicalReportModal
              type="finish"
-             patientId={patientId}
-             appointment={row.original}
+             appointmentId={row.original._id.toString()}
              />
              <AppointmentModal 
              type="cancel"

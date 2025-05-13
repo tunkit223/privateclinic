@@ -17,6 +17,37 @@ export const Unit = [
     name: "Jar",
   },
 ]
+export const Usage = [
+  {
+    name: "Take one tablet by mouth every 8 hours",
+  },
+  {
+    name: "Apply a thin layer to the affected area twice daily",
+  },
+  {
+    name: "Inhale one puff every 6 hours as needed",
+  },
+  {
+    name: "Inject 1 mL subcutaneously once a week",
+  },
+]
+export const Diseasetype = [
+  {
+    name: "Hypertension",
+  },
+  {
+    name: "Diabetes mellitus",
+  },
+  {
+    name: "Common cold",
+  },
+  {
+    name: "Gastritis",
+  },
+  {
+    name: "Asthma",
+  }
+]
 export const Doctors = [
   {
     image: "/assets/images/dr-green.png",
@@ -82,6 +113,11 @@ export const sidebarLinks=[
     imgURL:'/assets/icons/medicine.png',
     label:'Medicine',
     route:'/medicine'
+  },
+  {
+    imgURL:'/assets/images/medical-report.png',
+    label:'Medical Report',
+    route:'/medicalreport'
   },
   {
     imgURL:'/assets/icons/revenue.png',

@@ -154,7 +154,7 @@ const UpcomingAppointment = () => {
           return (
             <div style={{ padding: 8 }}>
               <Row justify="space-between" align="middle">
-                <div className='text-[25px] font-[600]'>Upcoming appointment</div>
+                <div className='text-[23px] font-[600]'>Upcoming appointment</div>
                 <Row gutter={[8, 8]} align="middle" justify="end">
                   <Col>
                     <Radio.Group

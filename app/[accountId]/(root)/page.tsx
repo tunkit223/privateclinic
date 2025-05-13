@@ -1,30 +1,51 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Col, Select, Row } from 'antd';
+import { Col, Select, Row, DatePicker } from 'antd';
 import CartItem from '@/components/CartItem/CartItem';
 import "./Page.scss"
-import { ExpenseChart } from '@/components/Chart/ExpenseChart';
 import RevenueChart from '@/components/Chart/RevenueChart';
-
+import PatientByGender from '@/components/Chart/PatientGenderChart';
+import { getPatientByDateRange } from '@/lib/actions/dashboard.action';
 import UpcomingAppointment from '@/components/Calendar/UpcomingAppointment';
+import dayjs, { Dayjs } from 'dayjs';
+
+import type { RangePickerProps } from 'antd/es/date-picker';
+import DemoDualAxes from '@/components/Chart/CombineChart';
+
+const { RangePicker } = DatePicker;
+
 
 const Dashboard = () => {
-  const changeDateRevenue = (value: string) => {
-    console.log(`selected ${value}`);
-  }
-  const changeDateExpense = (value: string) => {
-    console.log(`selected ${value}`);
-  }
 
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>([dayjs().subtract(7, 'day'), dayjs()]);
+  const [genderData, setGenderData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchGenderData = async () => {
+      if (!dateRange || !dateRange[0] || !dateRange[1]) return;
 
-  const optionsSelectDate = [
-    { value: 'last7days', label: 'Last 7 days' },
-    { value: 'last30days', label: 'Last 30 days' },
-    { value: 'thisMonth', label: 'This month' },
-    { value: 'lastMonth', label: 'Last month' },
-  ];
+      try {
+        const data = await getPatientByDateRange(
+          dateRange[0].toDate(),
+          dateRange[1].toDate()
+        );
+        console.log("Patient by gender:", data);
+        setGenderData(data);
+      } catch (err) {
+        console.error("Error fetch patient by gender", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGenderData();
+  }, [dateRange]);
+
+  const handleChangeRangePicker: RangePickerProps['onChange'] = (dates) => {
+    setDateRange(dates as [Dayjs, Dayjs]);
+  };
 
   return (
     <>
@@ -65,44 +86,34 @@ const Dashboard = () => {
         </Col>
         {/* End Grid figure  */}
 
-        {/* Chart Revenue */}
-        <Col className='overview__revenueChart ' span={11} >
-          <div className='overview__revenueChart__header'>
-            <div className='overview__revenueChart__header--title'>Revenue Overview</div>
-            <div className='overview__revenueChart__header--selectTime'>
-              <Select
-                defaultValue="last7days"
-                onChange={changeDateRevenue}
-                style={{ width: 120 }}
-                options={optionsSelectDate}
-              />
+        {/* Gender */}
+        <Col className='overview__gender' span={11} >
+          <div className='overview__gender__header'>
+            <div className='overview__gender__header--title'>Patients by Gender</div>
+            <div className='overview__gender__header--selectTime'>
+              <RangePicker format="DD/MM/YYYY" value={dateRange} onChange={handleChangeRangePicker} />
             </div>
           </div>
-          <div className='overview__revenueChart__content'>
-            <RevenueChart />
+          <div className='overview__gender__content'>
+            <PatientByGender data={genderData} />
           </div>
         </Col>
-        {/* End Chart Revenue */}
+        {/* End Gender */}
       </Row>
       {/* End Section one  */}
 
 
       {/* Section two  */}
       <Row className='overview-two' justify="space-evenly" align="stretch">
-        <Col span={12} className='expense'>
-          <div className='expense__header'>
-            <div className='expense__header--title'>Expenses</div>
-            <div className='expense__header--selectTime'>
-              <Select
-                defaultValue="last7days"
-                onChange={changeDateExpense}
-                style={{ width: 120 }}
-                options={optionsSelectDate}
-              />
+        <Col span={12} className='revenue'>
+          <div className='revenue__header'>
+            <div className='revenue__header--title'>Revenue</div>
+            <div className='revenue__header--selectTime'>
             </div>
           </div>
-          <div className='expense__chart'>
-            <ExpenseChart />
+          <div className='revenue__chart'>
+            {/* <RevenueChart /> */}
+            <DemoDualAxes />
           </div>
         </Col>
         <Col span={11} className='appointment'>

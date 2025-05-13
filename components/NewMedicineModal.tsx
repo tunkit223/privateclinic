@@ -12,7 +12,7 @@ import { useState } from "react"
 import { Button } from "./ui/button"
 import Image from "next/image"
 import AddMedicineForm from "./forms/AddMedicineForm"
-const NewemployeeModal = ({}:{}) => {
+const NewMedicineModal = ({}:{}) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -35,4 +35,4 @@ const NewemployeeModal = ({}:{}) => {
   )
 }
 
-export default NewemployeeModal
+export default NewMedicineModal
