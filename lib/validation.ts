@@ -111,9 +111,18 @@ export const addMedicineFormValidation = z.object({
     .string()
     .min(1, "Name must be at least 1 characters")
     .max(50, "Name must be at most 50 characters"),
+  medicineTypeId: z.string(),
   unit: z.string(),
   amount: z.string(),
   price: z.string(),
+})
+
+export const addMedicineTypeFormValidation = z.object({
+  name:z
+  .string()
+  .min(1, "Name must be at least 1 characters")
+  .max(50, "Name must be at most 50 characters"),
+  description: z.string()
 })
 
 export const createMedicalReportFormValidation = z.object({

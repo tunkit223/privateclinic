@@ -2,6 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { IMedicine } from "@/database/medicine"
+import { getMedicineTypeNameById } from "@/lib/actions/medicineType.action";
+import { useState, useEffect } from 'react';
 
 
 export const columns: ColumnDef<IMedicine>[] = [
@@ -17,6 +19,27 @@ export const columns: ColumnDef<IMedicine>[] = [
     },
     cell: ({ row }) => {
       return <p className="text-14-medium">{row.original.name}</p>;
+    },
+  },
+  {
+    accessorKey: "medicineTypeId",
+    header: "Type",
+    accessorFn: (row) => {
+      return  row.name;
+    },
+    cell: ({ row }) => {
+      const [medicineTypeName, setMedicineTypeName] = useState("Loading...");
+  
+      useEffect(() => {
+        const fetchMedicineTypeName = async () => {
+          const name = await getMedicineTypeNameById(row.original.medicineTypeId);
+          setMedicineTypeName(name);
+        };
+  
+        fetchMedicineTypeName();
+      }, [row.original.medicineTypeId]);
+  
+      return <p className="text-14-medium">{medicineTypeName}</p>;
     },
   },
   {
