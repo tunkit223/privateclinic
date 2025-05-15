@@ -1,4 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
+import { Percent } from "lucide-react";
+import { Model } from "mongoose";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -90,4 +92,47 @@ export function encryptKey(passkey: string) {
 
 export function decryptKey(passkey: string) {
   return atob(passkey);
+}
+
+
+export function getDateRanges() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  return { yesterday, today, tomorrow };
+}
+
+export const getFigureByModel = async <T>(Model: Model<T>, filter: Record<string, any> = {}) => {
+  const { yesterday, today, tomorrow } = getDateRanges();
+
+  try {
+    const totalToday = await Model.countDocuments({
+      ...filter,
+      createdAt: { $gte: today, $lt: tomorrow }
+    });
+    const totalYesterday = await Model.countDocuments({
+      ...filter,
+      createdAt: { $gte: yesterday, $lt: today }
+    });
+    let percentageChange = 0;
+    if (totalYesterday === 0) {
+      percentageChange = totalToday > 0 ? 100 : 0
+    } else {
+      percentageChange = ((totalToday - totalYesterday) / totalYesterday) * 100;
+    }
+
+    return {
+      total: totalToday,
+      percent: parseFloat(percentageChange.toFixed(2)),
+    };
+  } catch (error) {
+    console.log(`Error fetch figure by ${Model.modelName}:`, error);
+    return null;
+  }
 }

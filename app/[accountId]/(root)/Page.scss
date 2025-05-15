@@ -9,7 +9,7 @@
       height: 100%;
     }
   }
-  &__revenueChart{
+  &__gender{
     height: 400px;
     border-radius: 10px;
     background-color: #fff;
@@ -18,11 +18,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 5px;
       &--title{
-        margin-left: 5px;
+        margin-left: 10px;
         margin-bottom: 10px;
-        font-size: 25px;
+        font-size: 23px;
         font-weight: 600;
+      }
+      &--selectTime{
+        margin-right: 10px;
       }
     }
     &__content{
@@ -37,7 +41,7 @@
   margin-right: 0;
   margin-top: 20px;
 }
-.expense{
+.revenue{
   background-color: #fff;
   border-radius: 10px;
   &__header{
@@ -47,7 +51,7 @@
     &--title{
       margin-left: 15px;
       margin-top: 10px;
-      font-size: 25px;
+      font-size: 23px;
       font-weight: 600;
     }
   }
@@ -55,5 +59,12 @@
   &__chart{
     height: 100%;
   }
+}
+.ant-segmented-item{
+  border: 1px solid #E7E7E7 !important;
+}
+.ant-segmented-item-selected {
+  color: #1677FF !important;
+  border: 1px solid #1677FF !important;
 }
 

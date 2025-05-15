@@ -1,100 +1,115 @@
-
-"use client"
-
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
-
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart"
-const chartData = [
-  { month: "January", online: 186, offline: 80 },
-  { month: "February", online: 305, offline: 200 },
-  { month: "March", online: 237, offline: 120 },
-  { month: "April", online: 73, offline: 190 },
-  { month: "May", online: 209, offline: 130 },
-  { month: "June", online: 214, offline: 140 },
-];
-
-const chartConfig = {
-  online: {
-    label: "Online",
-    color: "#004e64",
-  },
-  offline: {
-    label: "Offline",
-    color: "#f4a300",
-  }
-} satisfies ChartConfig
-
-function RevenueChart() {
-  return (
-    <div className="max-h-400px ">
-      <div>
-        <ChartContainer config={chartConfig}>
-
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} strokeDasharray="4 4" />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-
-            <defs>
-              <linearGradient id="fillOnline" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-online)" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="var(--color-online)" stopOpacity={0} />
-              </linearGradient>
-
-              <linearGradient id="fillOffline" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-offline)" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="var(--color-offline)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              dataKey="offline"
-              type="natural"
-              fill="url(#fillOffline)"
-              fillOpacity={0.4}
-              stroke="var(--color-offline)"
-              stackId="a"
-              strokeWidth={3}
-            />
-            <Area
-              dataKey="online"
-              type="natural"
-              fill="url(#fillOnline)"
-              fillOpacity={0.4}
-              stroke="var(--color-online)"
-              stackId="a"
-              strokeWidth={3}
-            />
-            <ChartLegend content={<ChartLegendContent />} />
-
-          </AreaChart>
-        </ChartContainer>
-      </div>
-    </div>
-  )
+"use client";
+import { getExpense, getIncome, getRevenue } from '@/lib/actions/dashboard.action';
+// import { getExpense, getRevenue } from '@/lib/actions/dashboard.action';
+import { DualAxes } from '@ant-design/plots';
+import { NumberExpression } from 'mongoose';
+import React, { useEffect, useState } from 'react';
+type IncomeItem = {
+  date: string;
+  income: number;
 }
-export default RevenueChart
+type RevenueAndExpense = {
+  date: string;
+  value: number;
+  type: string;
+}
+
+const RevenueChart = () => {
+  const [incomeData, setIncomeData] = useState<IncomeItem[]>([]);
+  const [revenueData, setRevenueData] = useState<RevenueAndExpense[]>([]);
+  const [expenseData, setExpenseData] = useState<RevenueAndExpense[]>([]);
+
+  // Fetch Revenue Data
+  useEffect(() => {
+    const fetchRevenue = async () => {
+      const response = await getRevenue();
+      if (response) {
+        setRevenueData(response);
+      }
+    };
+    fetchRevenue();
+  }, [])
+
+  // Fetch Expense Data
+  useEffect(() => {
+    const fetchExpense = async () => {
+      const response = await getExpense();
+      if (response) {
+        setExpenseData(response);
+      }
+    };
+    fetchExpense();
+  }, [])
+
+  // Fetch Income Data
+  useEffect(() => {
+    const fetchIncome = async () => {
+      const response = await getIncome();
+      if (response) {
+        setIncomeData(response);
+      }
+    };
+    fetchIncome();
+  }, [])
+
+  const revenueExpensesData = [
+    ...revenueData,
+    ...expenseData
+  ]
+
+  // console.log(revenueExpensesData);
+
+
+  // console.log(uvBillData);
+
+
+  const config = {
+    // height: 600,
+    xField: 'date',
+    legend: {
+      color: {
+        position: 'top',
+        layout: { justifyContent: 'center' },
+      },
+    },
+    scale: { color: { range: ['#5B8FF9', '#5D7092', '#5AD8A6'] } },
+    slider: {
+      x: {
+        values: [0.1, 0.5],
+      },
+    },
+    children: [
+      {
+        data: revenueExpensesData,
+        type: 'interval',
+        yField: 'value',
+        colorField: 'type',
+        group: true,
+        style: { maxWidth: 50 },
+        label: { position: 'inside' },
+        interaction: { elementHighlight: { background: true } },
+      },
+      {
+        data: incomeData,
+        type: 'line',
+        yField: 'income',
+        style: { lineWidth: 2 },
+        axis: { y: { position: 'right' } },
+        // shape: 'smooth',
+        interaction: {
+          tooltip: {
+            crosshairs: false,
+            marker: false,
+          },
+        },
+      },
+    ],
+  };
+  return (
+    <>
+      <DualAxes {...config} />
+    </>
+  );
+};
+
+export default RevenueChart;

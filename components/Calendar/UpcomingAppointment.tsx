@@ -155,7 +155,7 @@ const UpcomingAppointment = () => {
           return (
             <div style={{ padding: 8 }}>
               <Row justify="space-between" align="middle">
-                <div className='text-[25px] font-[600]'>Upcoming appointment</div>
+                <div className='text-[23px] font-[600]'>Upcoming appointment</div>
                 <Row gutter={[8, 8]} align="middle" justify="end">
                   <Col>
                     <Radio.Group
@@ -199,7 +199,7 @@ const UpcomingAppointment = () => {
             </div>
           );
         }} />
-      <div style={{ marginTop: 16 }}>
+      <div className='bg-[#fff] rounded-b-lg'>
         {/* <Typography.Title level={5}>
           {selectedDate ? `Appointments for ${selectedDate.format('DD-MM-YYYY')}` : 'Select a date to view appointments'}
         </Typography.Title> */}

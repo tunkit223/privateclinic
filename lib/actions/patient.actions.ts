@@ -2,7 +2,7 @@
 import { ID, Query } from "node-appwrite"
 import { parseStringify } from "../utils"
 import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, storage, users } from "../appwrite.config"
-import {InputFile} from "node-appwrite/file";
+import { InputFile } from "node-appwrite/file";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
 
@@ -10,11 +10,11 @@ import Patient from "@/database/patient.model";
 
 
 
-export const getUser = async (userId: string) =>{
-  try{
+export const getUser = async (userId: string) => {
+  try {
     const user = await users.get(userId);
     return parseStringify(user);
-  } catch (error){
+  } catch (error) {
     console.log(error);
   }
 };
@@ -60,11 +60,11 @@ export const getPatientList = async () => {
     const patient = await Patient.find()
       .sort({ createdAt: -1 })
       .lean();
-    
+
     const data = {
       documents: patient,
     };
-    
+
     return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error("Error fetching patient:", error);

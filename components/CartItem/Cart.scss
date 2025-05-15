@@ -1,10 +1,9 @@
 .cart{
-    background-color: #fff;
+    // background-color: #fff;
     color: #000;
     border-radius: 10px;
     width: 100%;
     height: 190px;
-
 
     &__title{
         display: flex;
@@ -19,7 +18,11 @@
         }
         &--icon{
             font-size: 25px;
-            margin-right: 10px;
+            margin-right: 20px;
+            margin-top: 15px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
         }
     }
     &__content{
@@ -32,10 +35,26 @@
             font-weight: 400;
             margin-left: 10px;
             margin-right: 20px;
+            transition: transform 0.3s ease;
+            transform: scale(1);
         }
         &--desc{
             flex: 1;
             font-size: 22px;
         }
     }
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+
+    &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    .cart{
+        &__content{
+            &--count{
+                transform: scale(1.15);
+            }
+        }
+    }
+  }
 }
