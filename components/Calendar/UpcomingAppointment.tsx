@@ -198,7 +198,7 @@ const UpcomingAppointment = () => {
             </div>
           );
         }} />
-      <div style={{ marginTop: 16 }}>
+      <div className='bg-[#fff] rounded-b-lg'>
         {/* <Typography.Title level={5}>
           {selectedDate ? `Appointments for ${selectedDate.format('DD-MM-YYYY')}` : 'Select a date to view appointments'}
         </Typography.Title> */}

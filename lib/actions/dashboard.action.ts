@@ -1,5 +1,10 @@
+import Patient from "@/database/patient.model";
 import { getPatientList } from "./patient.actions";
 import { subDays, startOfMonth, endOfMonth, format, isWithinInterval } from "date-fns";
+import { date } from "zod";
+import { getDateRanges, getFigureByModel } from "../utils";
+import Appointment from "@/database/appointment.model";
+import User from "@/database/user.model";
 
 
 export async function getPatientByDateRange(start: Date, end: Date) {
@@ -84,3 +89,6 @@ export async function getIncome() {
 };
 
 
+export const getFigurePatientToday = () => getFigureByModel(Patient);
+export const getFigureAppointmentToday = () => getFigureByModel(Appointment);
+export const getFigureDoctorToday = () => getFigureByModel(User);
