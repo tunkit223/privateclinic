@@ -16,11 +16,9 @@ import MedicalReportForm from "./forms/MedicalReportForm"
 import Image from "next/image"
 
 const MedicalReportModal = ({
-  type,
   appointmentId,
   meidcalReportId,
 }:{
-  type:'finish'
   appointmentId: string,
   meidcalReportId: string
 }) => {
@@ -46,7 +44,7 @@ const MedicalReportModal = ({
       </DialogHeader>
      <MedicalReportForm
         appointmentId={appointmentId}
-        meidcalReportId={meidcalReportId}
+        medicalReportIds={meidcalReportId}
      />
     </DialogContent>
   </Dialog>

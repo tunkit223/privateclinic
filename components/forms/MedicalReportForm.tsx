@@ -2,7 +2,7 @@
 import { createMedicalReportFormValidation } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { Form, FormControl } from "@/components/ui/form"
 import { z } from 'zod'
 import CustomFormField from '../CustomFormField'
@@ -14,7 +14,7 @@ import { addMedicine, getMedicineByName, getMedicinePriceByAmount, validateMedic
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { getAppointmentDetails } from '@/lib/actions/appointment.action'
-import { addMedicalReport, addMedicalReportDetail } from '@/lib/actions/medicalReport.action'
+import { addMedicalReport, addMedicalReportDetail, getMedicalReportDetails, updateMedicalReport } from '@/lib/actions/medicalReport.action'
 
 import {
   Table,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 
 import { Input } from "@/components/ui/input";
+import { getMedicalReportDetailsList } from '@/lib/actions/medicalRPdetails'
 type MedicineRow = {
   Name: string;
   Unit: string;
@@ -58,6 +59,39 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
     }, [appointmentId]);
 
     
+    useEffect(() => {
+      const fetchMedicalReport = async () => {
+        const data = await getMedicalReportDetails(medicalReportIds);
+        if (data) {
+          form.setValue("symptom", data.symptom || "");
+          form.setValue("diseaseType", data.diseaseType || "");
+        }
+      };
+      fetchMedicalReport();
+    }, [medicalReportIds]);
+
+    const { control } = form;
+    
+    useEffect(() => {
+    const fetchMedicalReportDetailsList = async () => {
+      const list = await getMedicalReportDetailsList(medicalReportIds);
+
+        if (list && list.length > 0) {
+          setData(
+            list.map((item) => ({
+              Name: item.medicineName,
+              Unit: item.unit,
+              Amount: item.amount.toString(),
+              Usage: item.usage || "",
+            })).concat([{ Name: "", Unit: "", Amount: "", Usage: "" }]) 
+          );
+        }
+      };
+
+      fetchMedicalReportDetailsList();
+    }, [medicalReportIds]);
+
+
     const [data, setData] = useState<MedicineRow[]>([
     { Name: "", Unit: "", Amount:"", Usage:"" },
     { Name: "", Unit: "", Amount:"", Usage:"" },
@@ -110,16 +144,16 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
       }
     }
 
-      const medicalReportData ={
-        appointmentId: appointmentId,
-        symptom: values.symptom,
-        diseaseType: values.diseaseType,
-      }
-      const newmedicalReport= await addMedicalReport(medicalReportData);
+     
+      const success = await updateMedicalReport(medicalReportIds, 
+           values.symptom,
+          values.diseaseType
+        );
+  
       
-      if(newmedicalReport){
+      if(success){
         router.refresh();
-        toast.success("Add medical report successfully.", {
+        toast.success("Update medical report successfully.", {
           position: "top-left",
           duration: 3000,
         });
@@ -137,6 +171,7 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
               medicalReportId,
               medicineId,
               amount: parseInt(item.Amount, 10),
+              unit: item.Unit,
               usage: item.Usage,
               price: parseInt(await getMedicinePriceByAmount(item.Name, parseInt(item.Amount, 10))),
             }
