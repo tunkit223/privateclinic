@@ -1,15 +1,18 @@
 import { model, Schema, models, Types } from "mongoose";
 export interface IMedicalReport {
   appointmentId: Types.ObjectId,
-  diseaseType: Diseasetype,
-  symptom: string,
+  diseaseType?: Diseasetype,
+  symptom?:string,
+  status:MedicalStatus,
+
 }
 
 
 const MedicalReportSchema = new Schema<IMedicalReport>({
-  appointmentId: { type: Schema.Types.ObjectId, ref: "Appointment", require: true },
-  diseaseType: { type: String, require: true },
-  symptom: { type: String },
+  appointmentId:{type: Schema.Types.ObjectId, ref:"Appointment", required:true},
+  diseaseType:{type: String},
+  symptom:{type: String},
+  status:{type: String, required:true},
 },
   { timestamps: true }
 );
@@ -17,4 +20,4 @@ const MedicalReportSchema = new Schema<IMedicalReport>({
 const MedicalReport = models?.MedicalReport || model<IMedicalReport>('MedicalReport', MedicalReportSchema);
 
 export default MedicalReport
-// Tạo phiếu khám bệnh thành công mới dẫn đến điền phiếu thuốc(từ phiếu thuốc sẽ có các chi tiết PKB).
+// Tạo phiếu khám bệnh ban đầu với status là chưa khám, sau đó sẽ update dần và có 1 button chuyển thành examined

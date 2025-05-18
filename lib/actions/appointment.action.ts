@@ -6,6 +6,7 @@ import Appointment, { IAppointment } from "@/database/appointment.model";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
 import mongoose from "mongoose";
+import MedicalReport from "@/database/medicalReport.modal";
 export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
@@ -58,15 +59,15 @@ export const getRecentAppointmentList = async () => {
       .populate("patientId", "name")
       .lean();
     const initialCounts = {
-      finishedCount: 0,
+      confirmedCount: 0,
       pendingCount: 0,
       cancelledCount: 0,
     };
     
     const counts = appointments.reduce((acc, appointment) => {
       switch (appointment.status) {
-        case "finished":
-          acc.finishedCount += 1;
+        case "confirmed":
+          acc.confirmedCount += 1;
           break;
         case "pending":
           acc.pendingCount += 1;
@@ -155,3 +156,99 @@ export async function getAppointmentDetails(appointmentId: string) {
     return null;
   }
 }
+
+
+export async function getAppointmentWithPatient(appointmentId: string) {
+  try {
+    await dbConnect()
+    const appointment = await Appointment.findById(appointmentId).populate("patientId")
+
+    if (!appointment) return null
+
+    const patient = appointment.patientId
+
+    return {
+      name: patient.name,
+      email: patient.email,
+      phone: patient.phone,
+      birthdate: patient.birthdate,
+      gender: patient.gender,
+      address: patient.address,
+      doctor: appointment.doctor,
+      date: appointment.date,
+      reason: appointment.reason,
+      note: appointment.note,
+    }
+  } catch (error) {
+    console.error("Failed to get appointment:", error)
+    return null
+  }
+}
+
+
+export async function updateAppointmentAndPatient(appointmentId: string, values: any) {
+  try {
+    await dbConnect()
+
+    const appointment = await Appointment.findById(appointmentId)
+    if (!appointment) return { error: "Appointment not found" }
+
+    // Update patient
+    const patient = await Patient.findById(appointment.patientId)
+    if (!patient) return { error: "Patient not found" }
+
+    patient.name = values.name
+    patient.email = values.email
+    patient.phone = values.phone
+    patient.gender = values.gender
+    patient.address = values.address
+    patient.birthdate = values.birthdate
+    await patient.save()
+
+    // Update appointment
+    appointment.doctor = values.doctor
+    appointment.date = values.date
+    appointment.reason = values.reason
+    appointment.note = values.note
+    await appointment.save()
+
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to update:", error)
+    return { error: "Update failed" }
+  }
+}
+
+export const ConfirmAppointment = async ({
+  appointmentId,
+}: {
+  appointmentId: string;
+}) => {
+  try {
+    await dbConnect();
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return { error: "Cuộc hẹn không tồn tại" };
+    }
+
+    if (appointment.status !== "pending") {
+      return { error: "Cuộc hẹn đã bị hủy hoặc kết thúc" };
+    }
+
+    appointment.status = "confirmed";
+    await appointment.save();
+
+    const newMedicalReport = await MedicalReport.create({
+      appointmentId: appointmentId,
+      status: "unexamined",
+    });
+    
+    return {
+      _id: appointment._id.toString(),
+    };
+  } catch (error: any) {
+    console.error("Lỗi xác nhận cuộc hẹn:", error);
+    return { error: error.message || "Đã xảy ra lỗi không xác định" };
+  }
+};

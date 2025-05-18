@@ -16,8 +16,8 @@ const appointments = async () => {
         <section className='admin-stat'>
           <StatCard
             type="appointments"
-            count={appointments.finishedCount}
-            label="Finished appointments"
+            count={appointments.confirmedCount}
+            label="Confirmed appointments"
             icon="/assets/icons/appointments.svg"
           />
           <StatCard

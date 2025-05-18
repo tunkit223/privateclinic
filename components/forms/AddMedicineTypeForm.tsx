@@ -56,7 +56,7 @@ const AddMedicineTypeForm = () => {
     <Form {...form}>
        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 flex-1 w-full max-w-[500px]" >
        <section className="mb-12 space-y-4">
-          <h1 className="header">Add new medicine</h1>
+          <h1 className="header">Add new medicine type</h1>
           <p className="text-dark-700">Fill in the details</p>
         </section>
        <CustomFormField

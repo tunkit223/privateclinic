@@ -32,7 +32,7 @@ type MedicineRow = {
   Amount: string;
   Usage: string;
 };
-const MedicalReportForm = ({appointmentId}:{appointmentId: string}) => {
+const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: string, medicalReportIds: string}) => {
       const router = useRouter();
       const [isLoading, setisLoading] = useState(false);
       const form = useForm<z.infer<typeof createMedicalReportFormValidation>>({
@@ -124,7 +124,7 @@ const MedicalReportForm = ({appointmentId}:{appointmentId: string}) => {
           duration: 3000,
         });
 
-        const medicalReportId = newmedicalReport._id.toString();
+        const medicalReportId = medicalReportIds;
 
       // Duyệt thuốc và chuẩn bị data
       const detailList = await Promise.all(
@@ -160,7 +160,7 @@ const MedicalReportForm = ({appointmentId}:{appointmentId: string}) => {
     <Form {...form}>
        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 flex-1 w-full max-w-[800px]" >
        <section className="mb-12 space-y-4">
-          <h1 className="header">Finish Appointment</h1>
+          <h1 className="header">Update medical report</h1>
           <p className="text-dark-600">Fill in the Medical Report</p>
         </section>
         <div className='flex flex-row gap-4'>
@@ -291,7 +291,7 @@ const MedicalReportForm = ({appointmentId}:{appointmentId: string}) => {
           </Table>
         
 
-         <SubmitButton isLoading={isLoading}>Create Medical Report</SubmitButton>
+         <SubmitButton isLoading={isLoading}>Update Medical Report</SubmitButton>
         </form>  
     </Form>
   )

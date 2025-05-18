@@ -121,9 +121,15 @@ export const Doctors = [
 ];
 
 export const StatusIcon = {
-  finished: "/assets/icons/check.svg",
+  confirmed: "/assets/icons/check.svg",
   pending: "/assets/icons/pending.svg",
   cancelled: "/assets/icons/cancelled.svg",
+};
+
+export const MedicalStatusIcon = {
+  examined: "/assets/icons/check.svg",
+  examining: "/assets/icons/pending.svg",
+  unexamined: "/assets/icons/cancelled.svg",
 };
 
 export const sidebarLinks=[
@@ -136,6 +142,16 @@ export const sidebarLinks=[
     imgURL:'/assets/icons/appointment-icon.png',
     label:'Appointment',
     route:'/appointment'
+  },
+   {
+    imgURL:'/assets/images/medical-report.png',
+    label:'Medical Report',
+    route:'/medicalreport'
+  },
+  {
+    imgURL:'/assets/icons/revenue.png',
+    label:'Bill',
+    route:'/bill'
   },
   {
     imgURL:'/assets/icons/patient-icon.png',
@@ -152,16 +168,8 @@ export const sidebarLinks=[
     label:'Medicine Type',
     route:'/Type'
   },
-  {
-    imgURL:'/assets/images/medical-report.png',
-    label:'Medical Report',
-    route:'/medicalreport'
-  },
-  {
-    imgURL:'/assets/icons/revenue.png',
-    label:'Bill',
-    route:'/bill'
-  },
+ 
+  
   {
     imgURL:'/assets/icons/employee.png',
     label:'Employees',

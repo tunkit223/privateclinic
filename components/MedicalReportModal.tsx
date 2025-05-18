@@ -13,33 +13,40 @@ import { Button } from "./ui/button"
 import AppointmentForm from "./forms/AppointmentForm"
 import { IAppointment } from "@/database/appointment.model"
 import MedicalReportForm from "./forms/MedicalReportForm"
-
+import Image from "next/image"
 
 const MedicalReportModal = ({
   type,
   appointmentId,
+  meidcalReportId,
 }:{
   type:'finish'
-  appointmentId: string
+  appointmentId: string,
+  meidcalReportId: string
 }) => {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant='ghost' className={`capitalize ${type==='finish'&&'text-green-500'}`}>
-        {type}
-      </Button>
+     <Image
+      src="/assets/icons/details.png"
+      alt="details"
+      height={24}
+      width={24}
+      className="object-contain cursor-pointer"
+    />
     </DialogTrigger>
     <DialogContent className="shad-dialog sm:max-w-[900px]">
-      <DialogHeader className="mb-4 space-y-3">
-        <DialogTitle className="capitalize">{type} Appointment</DialogTitle>
+      <DialogHeader className="">
+        <DialogTitle className=""></DialogTitle>
         <DialogDescription>
-          Please fill in the following details to {type} an appointment
+         
         </DialogDescription>
       </DialogHeader>
      <MedicalReportForm
         appointmentId={appointmentId}
+        meidcalReportId={meidcalReportId}
      />
     </DialogContent>
   </Dialog>

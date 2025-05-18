@@ -23,7 +23,7 @@ const AppointmentForm = ({
   patientId, type, appointment, setOpen
 }: {
   patientId: string;
-  type: 'create' | 'cancel' | 'finish';
+  type: 'create' | 'cancel' | 'confirm';
   appointment?: IAppointment;
   setOpen: (open: boolean) => void;
 }) => {
@@ -53,8 +53,8 @@ const AppointmentForm = ({
     setisLoading(true);
     let status;
     switch(type){
-      case 'finish':
-        status = 'finished';
+      case 'confirm':
+        status = 'confirmed';
         break;
       case 'cancel':
         status = 'cancelled';
@@ -92,8 +92,8 @@ const AppointmentForm = ({
     setisLoading(true);
     let status;
     switch(type){
-      case 'finish':
-        status = 'finished';
+      case 'confirm':
+        status = 'confirmed';
         break;
       case 'cancel':
         status = 'cancelled';
@@ -135,8 +135,8 @@ const AppointmentForm = ({
     case 'cancel':
       buttonLabel = 'Cancel Appointment';
       break;
-    case 'finish':
-      buttonLabel = 'Finish Appointment';
+    case 'confirm':
+      buttonLabel = 'Confirm Appointment';
       break;
     default:
       buttonLabel = 'Get started';
