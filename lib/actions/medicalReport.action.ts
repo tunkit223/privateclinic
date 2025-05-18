@@ -52,3 +52,55 @@ export const addMedicalReportDetail = async (details: MedicalReportDetailInput[]
     throw error;
   }
 };
+
+
+export const getMedicalReportList = async () => {
+  try {
+    await dbConnect();
+    const MedicalReports = await MedicalReport.find()
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    const data = {
+      documents: MedicalReports,
+    };
+    
+    return JSON.parse(JSON.stringify(data));
+  } catch (error) {
+    console.error("Error fetching MedicalReports:", error);
+    return null;
+  }
+};
+
+export const getAllMedicalReports = async () => {
+  await dbConnect();
+
+  const reports = await MedicalReport.find()
+    .populate({
+      path: "appointmentId",
+      populate: {
+        path: "patientId",
+        model: "Patient",
+      },
+    });
+
+  return JSON.parse(JSON.stringify(reports)); 
+};
+
+
+export const examiningMedicalReport = async (data: any) => {
+  try {
+    await dbConnect();
+    const medicalReport = await MedicalReport.findById(data.medicalreportId);
+    if (!medicalReport) {
+      throw new Error("Phiếu khám không tồn tại");
+    }
+    medicalReport.status = "examining";
+    await medicalReport.save();
+    return {
+      _id: medicalReport._id.toString(),
+    };
+  } catch (error) {
+    console.log(error);
+  }
+};

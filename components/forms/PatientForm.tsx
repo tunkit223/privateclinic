@@ -69,7 +69,7 @@ const PatientForm = () => {
         name = 'name'
         label = 'Full name'
         placeholder = 'キエト'
-        iconSrc = '/assets/icons/user.svg'
+        iconSrc = '/assets/icons/user.png'
         iconAlt = 'user'
       />
       

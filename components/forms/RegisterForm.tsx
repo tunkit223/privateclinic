@@ -78,7 +78,7 @@ const RegisterForm = () => {
         name = 'name'
         label= 'Full name'
         placeholder = 'Your full name'
-        iconSrc = '/assets/icons/user.svg'
+        iconSrc = '/assets/icons/user.png'
         iconAlt = 'user'
       />
       

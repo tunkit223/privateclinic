@@ -5,7 +5,7 @@ import {StatusIcon} from '@/constants'
 const StatusBadge = ({status}:{status: Status}) => {
   return (
     <div className={clsx('status-badge',{
-      'bg-green-600': status === 'finished',
+      'bg-green-600': status === 'confirmed',
       'bg-blue-600': status === 'pending',
       'bg-red-600': status === 'cancelled',
     })}>
@@ -17,7 +17,7 @@ const StatusBadge = ({status}:{status: Status}) => {
         className='h-fit w-3'
       />
       <p className={clsx('text-12-semibold capitalize',{
-        'text-green-500': status==='finished',
+        'text-green-500': status==='confirmed',
         'text-blue-500': status==='pending',
         'text-red-500': status==='cancelled',
       })}>{status}</p>

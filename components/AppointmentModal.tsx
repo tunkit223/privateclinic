@@ -19,7 +19,7 @@ const AppointmentModal = ({
   patientId,
   appointment,
 }:{
-  type:'finish' | 'cancel'
+  type:'confirm' | 'cancel'
   patientId: string,
   appointment?:IAppointment,
 }) => {
@@ -28,7 +28,7 @@ const AppointmentModal = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant='ghost' className={`capitalize ${type==='finish'&&'text-green-500'}`}>
+      <Button variant='ghost' className={`capitalize ${type==='confirm'&&'text-green-500'}`}>
         {type}
       </Button>
     </DialogTrigger>
