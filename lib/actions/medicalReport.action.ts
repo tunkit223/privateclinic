@@ -45,8 +45,19 @@ export const addMedicalReportDetail = async (details: MedicalReportDetailInput[]
   try {
     await dbConnect();
 
-    await MedicalRPDetail.insertMany(details); 
-    return { success: true }; 
+    if (!details || details.length === 0) {
+      return { success: false, message: "Danh sách chi tiết rỗng." };
+    }
+
+    const medicalReportId = details[0].medicalReportId;
+
+
+    await MedicalRPDetail.deleteMany({ medicalReportId });
+
+    
+    await MedicalRPDetail.insertMany(details);
+
+    return { success: true };
   } catch (error) {
     console.error("Failed to add medical report details:", error);
     throw error;
@@ -102,5 +113,61 @@ export const examiningMedicalReport = async (data: any) => {
     };
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+export const ExaminedMedicalReport = async (data: any) => {
+  try {
+    await dbConnect();
+    const medicalReport = await MedicalReport.findById(data.medicalreportId);
+    if (!medicalReport) {
+      throw new Error("Phiếu khám không tồn tại");
+    }
+    medicalReport.status = "examined";
+    await medicalReport.save();
+    return {
+      _id: medicalReport._id.toString(),
+    };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+export async function getMedicalReportDetails(medicalReportId: string) {
+  try {
+    await dbConnect();
+
+    const medicalReport = await MedicalReport.findById(medicalReportId);
+
+    if (!medicalReport) return null;
+
+    return {
+      symptom: medicalReport.symptom,
+      diseaseType: medicalReport.diseaseType,
+    };
+  } catch (err) {
+    console.error('Error getting medical report details:', err);
+    return null;
+  }
+}
+
+export const updateMedicalReport = async (id: string, symptom: string, diseaseType: string) => {
+  try {
+
+    await dbConnect();
+    const update = await MedicalReport.findByIdAndUpdate(id, {
+      $set: {
+        symptom: symptom,
+        diseaseType: diseaseType
+      }})
+    if (!update) {
+      throw new Error("Medical report not found");
+    }
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 };
