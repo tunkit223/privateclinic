@@ -74,7 +74,7 @@ const UpcomingAppointment = () => {
 
   const filteredAppointments = selectedDate ? (appointmentsByDate[selectedDate.format('YYYY-MM-DD')] || []) : [];
 
-  console.log("filteredAppointments", filteredAppointments);
+  // console.log("filteredAppointments", filteredAppointments);
   const { token } = theme.useToken();
 
   const wrapperStyle: React.CSSProperties = {

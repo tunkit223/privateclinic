@@ -13,7 +13,13 @@ import { getUserByAccountId } from "@/lib/actions/user.action";
 function LayoutDefaultHeader() {
   const pathname = usePathname();
   const cleanedPathname = pathname.split("/").slice(2).join("/") || "";
-  const currentPage = sidebarLinks.find((link) => link.route === `/${cleanedPathname}`)?.label || "Unknown Page";
+  const mainRoute = '/' + cleanedPathname.split('/')[0];
+
+
+  let currentPage = sidebarLinks.find(link => link.route === mainRoute)?.label || "Unknown page"
+  if (cleanedPathname.endsWith("create")) {
+    currentPage = `Create ${currentPage}`
+  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState([]);

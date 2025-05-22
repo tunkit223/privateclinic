@@ -5,6 +5,7 @@ import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PRO
 import { InputFile } from "node-appwrite/file";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
+import PatientReport from "@/database/patientReport.model";
 
 // Trang viet cac funtion cho backend
 
@@ -71,3 +72,20 @@ export const getPatientList = async () => {
     return null;
   }
 };
+
+export const getPatientRecord = async () => {
+  try {
+    const patient = await PatientReport.find()
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const data = {
+      documents: patient,
+    };
+
+    return JSON.parse(JSON.stringify(data));
+  } catch (error) {
+    console.error("Error fetching patient record:", error);
+    return null;
+  }
+}

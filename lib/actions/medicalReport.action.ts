@@ -3,16 +3,16 @@ import MedicalReport, { IMedicalReport } from "@/database/medicalReport.modal";
 import dbConnect from "../mongoose";
 import { Types } from "mongoose";
 import Appointment from "@/database/appointment.model";
-import MedicalRPDetail from "@/database/medicalRPDetail.model";
+import MedicalRPDetail from "@/database/prescriptionDetail.model";
 
-export const addMedicalReport = async (data : any) =>{
+export const addMedicalReport = async (data: any) => {
   try {
     await dbConnect();
     const appointment = await Appointment.findById(data.appointmentId);
     if (!appointment) {
       throw new Error("Cuộc hẹn không tồn tại");
     }
-    if(appointment.status !== "pending"){
+    if (appointment.status !== "pending") {
       throw new Error("Cuộc hẹn đã bị hủy hoặc kết thúc");
     }
     appointment.status = "finished";
@@ -24,7 +24,7 @@ export const addMedicalReport = async (data : any) =>{
       symptom: data.symptom,
       diseaseType: data.diseaseType,
     })
-    return{
+    return {
       _id: newMedicalReport._id.toString(),
     }
   } catch (error) {
@@ -54,7 +54,7 @@ export const addMedicalReportDetail = async (details: MedicalReportDetailInput[]
 
     await MedicalRPDetail.deleteMany({ medicalReportId });
 
-    
+
     await MedicalRPDetail.insertMany(details);
 
     return { success: true };
@@ -71,11 +71,11 @@ export const getMedicalReportList = async () => {
     const MedicalReports = await MedicalReport.find()
       .sort({ createdAt: -1 })
       .lean();
-    
+
     const data = {
       documents: MedicalReports,
     };
-    
+
     return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error("Error fetching MedicalReports:", error);
@@ -95,7 +95,7 @@ export const getAllMedicalReports = async () => {
       },
     });
 
-  return JSON.parse(JSON.stringify(reports)); 
+  return JSON.parse(JSON.stringify(reports));
 };
 
 
@@ -161,7 +161,8 @@ export const updateMedicalReport = async (id: string, symptom: string, diseaseTy
       $set: {
         symptom: symptom,
         diseaseType: diseaseType
-      }})
+      }
+    })
     if (!update) {
       throw new Error("Medical report not found");
     }
