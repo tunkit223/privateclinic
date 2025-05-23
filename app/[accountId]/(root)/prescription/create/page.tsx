@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
 import { getPatientExaminedList, getPrescriptionList } from "@/lib/actions/prescription.action";
+import { set } from 'mongoose';
 
 interface IMedicine {
   _id: string;
@@ -25,6 +26,9 @@ function CreatePrescription() {
   const router = useRouter();
   const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
+
+  const [form] = Form.useForm();
+
 
   // Fetch patient examined
   useEffect(() => {
@@ -59,10 +63,23 @@ function CreatePrescription() {
     console.log('Received values of form:', values);
   };
 
+  const handleChangeSelectMedicine = (value: string, fieldName: number) => {
+    const medicine = medicineList.find((medicine) => medicine.name === value);
+    if (medicine) {
+      const currentDetail = form.getFieldValue('prescriptionDetails') || [];
+      currentDetail[fieldName] = {
+        ...currentDetail[fieldName],
+        unit: medicine.unit,
+      };
+      form.setFieldsValue({ prescriptionDetails: currentDetail });
+    }
+  }
+
   return (
     <>
       <div >
         <Form
+          form={form}
           initialValues={{ prescriptionDetails: [{}] }}
           name="dynamic_form_nest_item"
           onFinish={onFinish}
@@ -82,7 +99,19 @@ function CreatePrescription() {
                 style={{ width: 500, minHeight: 40 }}
                 rules={[{ required: true, message: 'Missing patient name' }]}
               >
-                <Select placeholder="Select patient">
+                <Select
+                  dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                  placeholder="Select patient name"
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input: string, option?: DefaultOptionType) => {
+                    const label = option?.children;
+                    if (typeof label === 'string') {
+                      return (label as string).toLowerCase().includes(input.toLowerCase());
+                    }
+                    return false;
+                  }
+                  }>
                   {patientExaminedList && patientExaminedList.map((pt) => (
                     <Select.Option key={pt.id} value={pt.name} >
                       {pt.name}
@@ -122,6 +151,7 @@ function CreatePrescription() {
                         rules={[{ required: true, message: 'Missing medicine name' }]}
                       >
                         <Select
+                          onChange={(value) => handleChangeSelectMedicine(value, name)}
                           dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                           placeholder="Select medicine"
                           showSearch
@@ -150,9 +180,6 @@ function CreatePrescription() {
                         {...restField}
                         name={[name, 'unit']}
                       >
-                        {/* <Select placeholder="Select unit">
-                          <Select.Option value="sample">Sample</Select.Option>
-                        </Select> */}
                         <Input disabled style={{ width: 150 }} placeholder="Unit" />
                       </Form.Item>
                       <Form.Item
