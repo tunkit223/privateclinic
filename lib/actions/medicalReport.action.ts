@@ -172,3 +172,4 @@ export const updateMedicalReport = async (id: string, symptom: string, diseaseTy
     return false;
   }
 };
+

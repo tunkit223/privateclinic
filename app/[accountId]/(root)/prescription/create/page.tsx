@@ -1,12 +1,59 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Row, Space } from 'antd';
 import { Select } from 'antd';
 import { useRouter } from 'next/navigation';
+import { getMedicineList } from '@/lib/actions/medicine.action';
+import type { DefaultOptionType } from 'antd/es/select';
+import { getPatientExaminedList, getPrescriptionList } from "@/lib/actions/prescription.action";
+
+interface IMedicine {
+  _id: string;
+  name: string;
+  unit: string;
+}
+
+interface PatientExamined {
+  id: string,
+  name: string
+}
+
+
 
 function CreatePrescription() {
   const router = useRouter();
+  const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
+  const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
+
+  // Fetch patient examined
+  useEffect(() => {
+    const fetchPatient = async () => {
+      try {
+        const response = await getPatientExaminedList();
+        setPatientExaminedList(response);
+      } catch (err) {
+        console.log("Error fetch patient:", err);
+      }
+    }
+    fetchPatient();
+  }, [])
+  console.log("Patient", patientExaminedList);
+
+
+  // Fetch medicine list
+  useEffect(() => {
+    const fetchMedicine = async () => {
+      try {
+        const response = await getMedicineList();
+        setMedicineList(response.documents);
+      } catch (err) {
+        console.log("Error fetch medicine:", err);
+      }
+    }
+    fetchMedicine();
+  }, [])
+  console.log("MedicineList", medicineList);
 
   const onFinish = (values: any) => {
     console.log('Received values of form:', values);
@@ -36,7 +83,11 @@ function CreatePrescription() {
                 rules={[{ required: true, message: 'Missing patient name' }]}
               >
                 <Select placeholder="Select patient">
-                  <Select.Option value="sample">Nguyen Van A</Select.Option>
+                  {patientExaminedList && patientExaminedList.map((pt) => (
+                    <Select.Option key={pt.id} value={pt.name} >
+                      {pt.name}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Form.Item>
               <Form.Item
@@ -70,8 +121,25 @@ function CreatePrescription() {
                         name={[name, 'name']}
                         rules={[{ required: true, message: 'Missing medicine name' }]}
                       >
-                        <Select placeholder="Select medicine">
-                          <Select.Option value="sample">Sample</Select.Option>
+                        <Select
+                          dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                          placeholder="Select medicine"
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input: string, option?: DefaultOptionType) => {
+                            const label = option?.children;
+                            if (typeof label === 'string') {
+                              return (label as string).toLowerCase().includes(input.toLowerCase());
+                            }
+                            return false;
+                          }
+                          }
+                        >
+                          {medicineList && medicineList.map((medicine) => (
+                            <Select.Option key={medicine._id} value={medicine.name}>
+                              {medicine.name}
+                            </Select.Option>
+                          ))}
                         </Select>
                       </Form.Item>
 
@@ -81,11 +149,11 @@ function CreatePrescription() {
                         layout='vertical'
                         {...restField}
                         name={[name, 'unit']}
-                        rules={[{ required: true, message: 'Missing unit' }]}
                       >
-                        <Select placeholder="Select unit">
+                        {/* <Select placeholder="Select unit">
                           <Select.Option value="sample">Sample</Select.Option>
-                        </Select>
+                        </Select> */}
+                        <Input disabled style={{ width: 150 }} placeholder="Unit" />
                       </Form.Item>
                       <Form.Item
                         style={{ width: 150, minHeight: 50 }}
@@ -105,7 +173,19 @@ function CreatePrescription() {
                         name={[name, 'usage']}
                         rules={[{ required: true, message: 'Missing usage' }]}
                       >
-                        <Select placeholder="Select usage">
+                        <Select
+                          dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                          placeholder="Select usage"
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input: string, option?: DefaultOptionType) => {
+                            const label = option?.children;
+                            if (typeof label === 'string') {
+                              return (label as string).toLowerCase().includes(input.toLowerCase());
+                            }
+                            return false;
+                          }
+                          }>
                           <Select.Option value="sample">Sample</Select.Option>
                         </Select>
                       </Form.Item>

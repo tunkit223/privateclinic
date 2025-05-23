@@ -4,6 +4,8 @@
 import Prescription from "@/database/prescription.model";
 import dbConnect from "../mongoose"
 import PrescriptionDetail from "@/database/prescriptionDetail.model";
+import { getMedicalReportList } from "./medicalReport.action";
+import MedicalReport from "@/database/medicalReport.modal";
 
 interface CreatePrescriptionPayload {
   medicalReportId: string;
@@ -16,6 +18,7 @@ interface CreatePrescriptionPayload {
     price?: number;
   }[];
 }
+
 
 
 export const getPrescriptionList = async () => {
@@ -95,5 +98,28 @@ export const createPrescription = async ({
     }
   } catch (error) {
     console.log("Create prescription:", error)
+  }
+}
+
+export const getPatientExaminedList = async () => {
+  try {
+    const medicalReportExamined = await MedicalReport.find({ status: "examined" })
+      .populate({
+        path: "appointmentId",
+        populate: {
+          path: "patientId",
+          select: "name",
+        }
+      })
+    const formatted = medicalReportExamined.map((item: any) => ({
+      id: item._id,
+      patientId: item.appointmentId.patientId._id,
+      name: item.appointmentId.patientId.name,
+    }))
+
+    return JSON.parse(JSON.stringify(formatted));
+  } catch (error) {
+    console.log("Error get patient examined list", error);
+    return null;
   }
 }
