@@ -89,7 +89,7 @@ function Prescription() {
         <div className="table">
         </div>
       </div> */}
-      <DataTable columns={columns} data={prescription.documents} />
+      <DataTable columns={columns} data={prescription.documents.reverse()} />
 
     </>
   )

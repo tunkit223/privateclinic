@@ -33,10 +33,10 @@ export const columns: ColumnDef<IPrescription>[] = [
     accessorKey: "doctor",
     header: "Doctor name",
     accessorFn: (row) => {
-      return row.medicalReportId?.appointmentId?.doctor || "N/A";
+      return row.prescribeByDoctor.name || "N/A";
     },
     cell: ({ row }) => {
-      return <p className="text-14-medium">{row.original.medicalReportId?.appointmentId?.doctor || "N/A"}</p>;
+      return <p className="text-14-medium">{row.original.prescribeByDoctor?.name || "N/A"}</p>;
     },
   },
   {

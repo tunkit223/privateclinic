@@ -6,26 +6,34 @@ import { Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
-import { getPatientExaminedList, getPrescriptionList } from "@/lib/actions/prescription.action";
-import { set } from 'mongoose';
+import { CreatePrescriptionPayload, getPatientExaminedList, createPrescription } from "@/lib/actions/prescription.action";
+import { Erica_One } from 'next/font/google';
+import { getEmployeesList } from '@/lib/actions/employees.action';
 
 interface IMedicine {
   _id: string;
   name: string;
   unit: string;
+  price: number;
 }
 
+interface IDoctor {
+  _id: string;
+  name: string;
+
+}
 interface PatientExamined {
-  id: string,
+  medicalReportId: string,
+  patientId: string,
   name: string
 }
-
-
 
 function CreatePrescription() {
   const router = useRouter();
   const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
+  const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
+
 
   const [form] = Form.useForm();
 
@@ -57,10 +65,44 @@ function CreatePrescription() {
     }
     fetchMedicine();
   }, [])
-  console.log("MedicineList", medicineList);
+  // console.log("MedicineList", medicineList);
 
-  const onFinish = (values: any) => {
-    console.log('Received values of form:', values);
+  // Fetch doctor list 
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const response = await getEmployeesList();
+        setDoctorList(response.documents);
+      } catch (error) {
+        console.log("Error fetch doctor in create prescription:", error);
+      }
+    }
+    fetchDoctor();
+  }, [])
+  console.log("Doctor list:", doctorList);
+
+  const onFinish = async (values: any) => {
+    const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
+    const prescriptionDetailsPrice = values.prescriptionDetails.map((item: any) => {
+      const medicine = medicineList.find(med => med.name === item.name);
+      return {
+        ...item,
+        price: medicine?.price || 0
+      }
+    })
+
+
+    const payload: CreatePrescriptionPayload = {
+      medicalReportId: selectedPatient?.medicalReportId || '',
+      prescribeByDoctor: values.doctor,
+      details: prescriptionDetailsPrice,
+    }
+    console.log("Payload to create prescription:", payload);
+    try {
+      const result = await createPrescription(payload);
+    } catch (error) {
+      console.log("Error create prescription:", error);
+    }
   };
 
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
@@ -70,10 +112,12 @@ function CreatePrescription() {
       currentDetail[fieldName] = {
         ...currentDetail[fieldName],
         unit: medicine.unit,
+        medicineId: medicine._id,
       };
       form.setFieldsValue({ prescriptionDetails: currentDetail });
     }
   }
+
 
   return (
     <>
@@ -113,7 +157,7 @@ function CreatePrescription() {
                   }
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => (
-                    <Select.Option key={pt.id} value={pt.name} >
+                    <Select.Option key={pt.patientId} value={pt.name} >
                       {pt.name}
                     </Select.Option>
                   ))}
@@ -126,8 +170,23 @@ function CreatePrescription() {
                 style={{ width: 500 }}
                 rules={[{ required: true, message: 'Missing doctor' }]}
               >
-                <Select placeholder="Select doctor">
-                  <Select.Option value="sample">Nguyen Van A</Select.Option>
+                <Select placeholder="Select doctor"
+                  dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input: string, option?: DefaultOptionType) => {
+                    const label = option?.children;
+                    if (typeof label === 'string') {
+                      return (label as string).toLowerCase().includes(input.toLowerCase());
+                    }
+                    return false;
+                  }
+                  }>
+                  {doctorList && doctorList.map(dt => (
+                    <Select.Option key={dt._id} value={dt._id}>
+                      {dt.name}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Form.Item>
             </div>

@@ -4,11 +4,11 @@
 import Prescription from "@/database/prescription.model";
 import dbConnect from "../mongoose"
 import PrescriptionDetail from "@/database/prescriptionDetail.model";
-import { getMedicalReportList } from "./medicalReport.action";
 import MedicalReport from "@/database/medicalReport.modal";
 
-interface CreatePrescriptionPayload {
+export interface CreatePrescriptionPayload {
   medicalReportId: string;
+  prescribeByDoctor?: string;
   details: {
     name: string;
     quantity: number;
@@ -34,6 +34,10 @@ export const getPrescriptionList = async () => {
           },
         },
       })
+      .populate({
+        path: "prescribeByDoctor",
+        select: "name",
+      })
       .lean();
 
     const data = {
@@ -50,6 +54,7 @@ export const getPrescriptionList = async () => {
 
 export const createPrescription = async ({
   medicalReportId,
+  prescribeByDoctor = "Unknown Doctor",
   details,
 }: CreatePrescriptionPayload) => {
   try {
@@ -63,6 +68,7 @@ export const createPrescription = async ({
     // })
     const newPrescription = new Prescription({
       medicalReportId,
+      prescribeByDoctor,
     });
     console.log("Prescription trước khi lưu:", newPrescription.toObject());
 
@@ -112,7 +118,7 @@ export const getPatientExaminedList = async () => {
         }
       })
     const formatted = medicalReportExamined.map((item: any) => ({
-      id: item._id,
+      medicalReportId: item._id,
       patientId: item.appointmentId.patientId._id,
       name: item.appointmentId.patientId.name,
     }))

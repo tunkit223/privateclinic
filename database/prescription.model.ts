@@ -13,6 +13,10 @@ export interface IPrescription {
       }
     }
   }
+  prescribeByDoctor: {
+    _id: Types.ObjectId;
+    name: string;
+  }
   totalPrice?: number,
   code?: string,
   deleted?: boolean,
@@ -24,6 +28,7 @@ export interface IPrescriptionDoc extends IPrescription, Document {
 
 const PrescriptionSchema = new Schema<IPrescription>({
   medicalReportId: { type: Schema.Types.ObjectId, ref: "MedicalReport", required: true },
+  prescribeByDoctor: { type: Schema.Types.ObjectId, ref: "User", required: true },
   totalPrice: { type: Number, },
   code: { type: String, unique: true },
   deleted: { type: Boolean, default: false },

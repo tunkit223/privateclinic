@@ -89,3 +89,6 @@ export const getPatientRecord = async () => {
     return null;
   }
 }
+
+
+
