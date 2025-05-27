@@ -11,6 +11,7 @@ import { IPrescription } from "@/database/prescription.model";
 import { FaPlus } from "react-icons/fa";
 import { Input } from "../../../../components/ui/input"
 
+
 interface PrescriptionData {
   documents: IPrescription[];
 }
@@ -41,56 +42,25 @@ function Prescription() {
   }, [])
   console.log(prescription);
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = {
-      medicalReportId: "6826e3e701c52a3a6d413b2c",
-      details: [
-        {
-          medicineId: "6651a7dfbcb01234f8abcd01",
-          name: "Paracetamol",
-          quantity: 2,
-          unit: "viên",
-          usage: "Uống sau ăn",
-          price: 5000,
-        },
-        {
-          medicineId: "6651a7dfbcb01234f8abcd02",
-          name: "Amoxicillin",
-          quantity: 1,
-          unit: "ống",
-          usage: "Tiêm mỗi sáng",
-          price: 10000,
-        },
-      ],
-    };
-    await createPrescription(payload);
-  };
-  // const table = DataTable(columns, prescription.documents);
   return (
     <>
-      {/* <Button onClick={handleAdd} >Create prescription</Button>
-      <form onSubmit={handleSubmit}>
-        <button type="submit">Submit</button>
-      </form>
-      <DataTable columns={columns} data={prescription.documents} /> */}
+
       <div className="header flex justify-between items-center">
         <Input
           placeholder="Search by prescription..."
           className="w-full max-w-[500px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
         />
-        <Button color="green" onClick={handleAdd} variant="solid" icon={<FaPlus />
+        <Button style={{
+          backgroundColor: "#4EC092",
+          color: "#fff",
+          fontSize: "15px",
+          fontWeight: "600",
+        }} onClick={handleAdd} variant="solid" icon={<FaPlus />
         } iconPosition="start">
           Create prescription
         </Button>
       </div>
-      {/* <div className="body">
-        <div className="table">
-        </div>
-      </div> */}
       <DataTable columns={columns} data={prescription.documents.reverse()} />
-
     </>
   )
 }

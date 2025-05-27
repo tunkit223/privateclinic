@@ -2,6 +2,7 @@ import { autoGenerateCode } from "@/lib/middlewares/autoGenerateCodel";
 import { model, Schema, models, Types, Document } from "mongoose";
 
 export interface IPrescription {
+  _id: Types.ObjectId;
   medicalReportId: {
     _id: Types.ObjectId;
     appointmentId: {
@@ -17,6 +18,7 @@ export interface IPrescription {
     _id: Types.ObjectId;
     name: string;
   }
+  isPaid?: boolean,
   totalPrice?: number,
   code?: string,
   deleted?: boolean,
@@ -27,8 +29,10 @@ export interface IPrescriptionDoc extends IPrescription, Document {
 }
 
 const PrescriptionSchema = new Schema<IPrescription>({
+
   medicalReportId: { type: Schema.Types.ObjectId, ref: "MedicalReport", required: true },
   prescribeByDoctor: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  isPaid: { type: Boolean, default: false },
   totalPrice: { type: Number, },
   code: { type: String, unique: true },
   deleted: { type: Boolean, default: false },

@@ -1,0 +1,202 @@
+"use client"
+import { useEffect, useState } from "react";
+import { Button, Skeleton } from "antd";
+import { GrView } from "react-icons/gr";
+import { Modal } from "antd";
+import { Form, Input, Select, Space, InputNumber, Tag } from "antd";
+import { getPrescriptionById, getPrescriptionDetailsById } from "@/lib/actions/prescription.action";
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
+
+interface ViewPrescriptionDetailsProps {
+  prescriptionId: string;
+}
+
+interface DataTitleViewPrescription {
+  code: string,
+  isPaid: boolean;
+}
+const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProps) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [form] = Form.useForm();
+  const [dataTitlePrescription, setDataTitlePrescription] = useState<DataTitleViewPrescription | null>(null);
+
+
+  useEffect(() => {
+    if (open) {
+      const fetchPrescription = async () => {
+        const data = await getPrescriptionById(prescriptionId);
+        setDataTitlePrescription(data);
+        const details = await getPrescriptionDetailsById(prescriptionId);
+        console.log(details);
+        console.log("data", data)
+        if (data) {
+          form.setFieldsValue({
+            patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
+            doctor: data?.prescribeByDoctor?.name,
+            prescriptionDetails: details || [],
+          })
+        }
+      }
+      fetchPrescription();
+    }
+  }, [open, prescriptionId])
+
+
+  const showModal = async () => {
+    setOpen(true);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000);
+  };
+
+  const handleOk = () => {
+    setOpen(false);
+
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
+  console.log("Data title", dataTitlePrescription)
+
+  return (
+    <>
+      <Button onClick={showModal} icon={<GrView />
+      } style={{
+        width: 30,
+        border: "none",
+        fontSize: "20px",
+        backgroundColor: "transparent",
+      }}>
+      </Button>
+      <Modal
+        width={1300}
+        title={
+          dataTitlePrescription ? (
+            <>
+              <div className="text-xl mb-2">Prescription details - {dataTitlePrescription?.code}</div>
+              <div>
+                {dataTitlePrescription?.isPaid ? <Tag style={{
+                  width: 100,
+                  fontSize: 17,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }} icon={<CheckCircleOutlined />} color="success">
+                  Paid
+                </Tag> : <Tag style={{
+                  width: 100,
+                  fontSize: 17,
+                  paddingTop: 5,
+                  paddingBottom: 5
+                }} icon={<ExclamationCircleOutlined />} color="warning">
+                  Unpaid
+                </Tag>}
+              </div></>
+          ) : <Skeleton active paragraph={{ rows: 0 }} title={false} />
+        }
+        open={open}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        {loading ? <Skeleton active /> : (
+          <Form
+            form={form}
+            initialValues={{ prescriptionDetails: [{}] }}
+            name="dynamic_form_nest_item"
+            autoComplete="on"
+          >
+            <div className='w-full mt-10 bg-white p-5 pb-10 rounded-lg shadow-md'>
+              <div className='Header mb-5'>
+                <div className='text-xl font-semibold'>Prescription information</div>
+                <div >Fill out all the information below</div>
+              </div>
+              <div className='flex '>
+                <Form.Item
+                  className='mr-[100px]'
+                  label="Patient name"
+                  name="patientName"
+                  layout='vertical'
+                  style={{ width: 500, minHeight: 40 }}
+                >
+                  <Input readOnly>
+                  </Input>
+                </Form.Item>
+                <Form.Item
+                  label="Doctor"
+                  name="doctor"
+                  layout='vertical'
+                  style={{ width: 500 }}
+                >
+                  <Input readOnly></Input>
+                </Form.Item>
+              </div>
+            </div>
+
+            <div className='w-full mt-10 bg-white p-5 rounded-lg shadow-md'>
+              <div className='Header mb-5'>
+                <div className='text-xl font-semibold'>Prescription details</div>
+              </div>
+              <Form.List name="prescriptionDetails">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <Space key={key} style={{ display: 'flex', marginBottom: 20, gap: 20, alignItems: "flex-end" }} >
+                        <Form.Item
+                          label="Medicine name"
+                          layout='vertical'
+                          style={{ width: 400, minHeight: 50 }}
+                          {...restField}
+                          name={[name, 'name']}
+                        >
+                          <Input readOnly></Input>
+                        </Form.Item>
+
+                        <Form.Item
+                          style={{ width: 150, minHeight: 50 }}
+                          label="Unit"
+                          layout='vertical'
+                          {...restField}
+                          name={[name, 'unit']}
+                        >
+                          <Input readOnly style={{ width: 150 }} placeholder="Unit" />
+                        </Form.Item>
+                        <Form.Item
+                          style={{ width: 150, minHeight: 50 }}
+                          label="Quantity"
+                          layout='vertical'
+                          {...restField}
+                          name={[name, 'quantity']}
+                        >
+                          <Input readOnly></Input>
+                        </Form.Item>
+                        <Form.Item
+                          label="Usage"
+                          layout='vertical'
+                          style={{ width: 450, minHeight: 50 }}
+                          {...restField}
+                          name={[name, 'usage']}
+                        >
+                          <Input readOnly></Input>
+                        </Form.Item>
+                      </Space>
+                    ))}
+                  </>
+                )}
+              </Form.List>
+            </div>
+          </Form >
+        )}
+      </Modal>
+    </>
+
+  )
+}
+export default ViewPrescriptionDetails;

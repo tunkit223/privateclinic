@@ -19,8 +19,6 @@ export interface CreatePrescriptionPayload {
   }[];
 }
 
-
-
 export const getPrescriptionList = async () => {
   try {
     const prescription = await Prescription.find({ deleted: false })
@@ -51,7 +49,52 @@ export const getPrescriptionList = async () => {
   }
 }
 
+export const getPrescriptionById = async (prescriptionId: string) => {
+  try {
+    if (!prescriptionId) {
+      console.log("Null prescriptionId");
+      return null;
+    }
+    const prescription = await Prescription.findById(prescriptionId)
+      .populate({
+        path: "medicalReportId",
+        populate: {
+          path: "appointmentId",
+          populate: {
+            path: "patientId",
+            select: "name",
+          },
+        },
+      })
+      .populate({
+        path: "prescribeByDoctor",
+        select: "name",
+      })
+      .lean();
+    if (!prescription) {
+      console.log("Prescription find id error");
+      return null;
+    }
+    return JSON.parse(JSON.stringify(prescription));
 
+  } catch (error) {
+    console.log("Error get prescription by Id", prescriptionId);
+  }
+}
+
+export const getPrescriptionDetailsById = async (prescriptionId: string) => {
+  try {
+    const details = await PrescriptionDetail.find({ prescriptionId })
+      .lean();
+    if (!details) {
+      console.log("Details null");
+      return null;
+    }
+    return JSON.parse(JSON.stringify(details));
+  } catch (error) {
+    console.log("Get prescription details by Id", error)
+  }
+}
 export const createPrescription = async ({
   medicalReportId,
   prescribeByDoctor = "Unknown Doctor",
@@ -127,5 +170,22 @@ export const getPatientExaminedList = async () => {
   } catch (error) {
     console.log("Error get patient examined list", error);
     return null;
+  }
+}
+
+export const UpdatePrescriptionStatus = async (prescriptionId: string, isPaid: boolean) => {
+  try {
+    await dbConnect();
+    const prescription = await Prescription.findById(prescriptionId);
+    if (!prescription) {
+      throw new Error("Prescription not found");
+    }
+    console.log("id", prescriptionId);
+    console.log("status action:", isPaid);
+    prescription.isPaid = isPaid;
+    await prescription.save();
+  } catch (error) {
+    console.log("Error set status paid:", error);
+    throw error;
   }
 }
