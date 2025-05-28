@@ -114,7 +114,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     setLoading(true);
     setTimeout(() => {
       setLoading(false)
-    }, 2000);
+    }, 1500);
   };
 
 
@@ -250,7 +250,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
             onFinish={onFinish}
             form={form}
             initialValues={{ prescriptionDetails: [{}] }}
-            name="dynamic_form_nest_item"
+            name={`dynamic_form_nest_item_${prescriptionId}`}
             autoComplete="on"
           >
             <div className='w-full mt-10 bg-white p-5 pb-10 rounded-lg shadow-md'>

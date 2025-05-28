@@ -27,20 +27,20 @@ function Prescription() {
   }
   const [prescription, setPrescription] = useState<PrescriptionData>({ documents: [] });
 
+  const fetchPrescription = async () => {
+    try {
+      const response = await getPrescriptionList();
+      setPrescription(response);
+    } catch (err) {
+      console.log("Error fetch prescription:", err);
+    }
+  }
 
   // Fetch prescription
   useEffect(() => {
-    const fetchPrescription = async () => {
-      try {
-        const response = await getPrescriptionList();
-        setPrescription(response);
-      } catch (err) {
-        console.log("Error fetch prescription:", err);
-      }
-    }
     fetchPrescription();
   }, [])
-  console.log(prescription);
+  // console.log(prescription);
 
   return (
     <>
@@ -60,7 +60,10 @@ function Prescription() {
           Create prescription
         </Button>
       </div>
-      <DataTable columns={columns} data={prescription.documents.reverse()} />
+      {/* <DataTable columns={columns({ onDeleted: fetchPrescription })}
+        data={prescription.documents.reverse()} /> */}
+      <DataTable columns={columns({ onDeleted: fetchPrescription })} data={prescription.documents.reverse()} />
+
     </>
   )
 }

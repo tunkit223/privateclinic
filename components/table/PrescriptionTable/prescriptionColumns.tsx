@@ -11,8 +11,11 @@ import EditPrescriptionDetails from "./EditPrescriptionDetails";
 import DeletePrescriptionDetails from "./DeletePrescription";
 import EditButton from "@/components/Button/EditButton";
 
+interface ColumnProps {
+  onDeleted: () => void;
+}
 
-export const columns: ColumnDef<IPrescription>[] = [
+export const columns = ({ onDeleted }: ColumnProps): ColumnDef<IPrescription>[] => [
   {
     header: "No.",
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>
@@ -83,7 +86,7 @@ export const columns: ColumnDef<IPrescription>[] = [
             <ViewPrescriptionDetails prescriptionId={row.original._id.toString()} />
             {/* <EditPrescriptionDetails prescriptionId={row.original._id.toString()} /> */}
             <EditButton id={row.original._id.toString()} />
-            <DeletePrescriptionDetails />
+            <DeletePrescriptionDetails prescriptionId={row.original._id.toString()} onDeleted={onDeleted} />
           </div>
         </>
       )

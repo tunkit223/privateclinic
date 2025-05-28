@@ -7,6 +7,8 @@ import PrescriptionDetail from "@/database/prescriptionDetail.model";
 import MedicalReport from "@/database/medicalReport.modal";
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
+import Success from "@/app/patient/[patientId]/appointment/success/page";
+import { message } from "antd";
 
 
 
@@ -76,7 +78,10 @@ export const getPrescriptionById = async (prescriptionId: string) => {
 
 export const getPrescriptionDetailsById = async (prescriptionId: string) => {
   try {
-    const details = await PrescriptionDetail.find({ prescriptionId })
+    const details = await PrescriptionDetail.find({
+      prescriptionId,
+      // deleted: false
+    })
       .lean();
     if (!details) {
       console.log("Details null");
@@ -131,11 +136,19 @@ export const createPrescription = async ({
 
 
     return {
-      ...newPrescription.toObject(),
+      // ...newPrescription.toObject(),
+      // _id: newPrescription._id.toString(),
+      // code: newPrescription.code,
+      // medicalReportId: newPrescription.medicalReportId.toString(),
       _id: newPrescription._id.toString(),
-      code: newPrescription.code,
       medicalReportId: newPrescription.medicalReportId.toString(),
-
+      isPaid: newPrescription.isPaid,
+      deleted: newPrescription.deleted,
+      deletedAt: newPrescription.deletedAt?.toISOString() || null,
+      createdAt: newPrescription.createdAt.toISOString(),
+      updatedAt: newPrescription.updatedAt.toISOString(),
+      code: newPrescription.code,
+      totalPrice: newPrescription.totalPrice,
     }
   } catch (error) {
     console.log("Create prescription:", error)
@@ -239,5 +252,40 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
     session.endSession();
     console.log("Error update prescription", error);
     throw error
+  }
+}
+
+// Delete prescription
+export const deletePrescription = async (prescriptionId: string) => {
+  const session = await Prescription.startSession();
+  session.startTransaction();
+  try {
+    if (!prescriptionId) throw new Error("PrescriptionId is required");
+    await dbConnect();
+
+    // First, soft delete prescription
+    await Prescription.updateOne(
+      { _id: new ObjectId(prescriptionId) },
+      { $set: { deleted: true, deletedAt: new Date() } },
+      { session }
+    )
+
+
+    // Secondly, soft delete all prescription details
+    await PrescriptionDetail.updateMany(
+      { prescriptionId: new ObjectId(prescriptionId) },
+      { $set: { deleted: true } },
+      { session }
+    )
+
+    await session.commitTransaction();
+    session.endSession();
+    return { success: true, message: "Delete is successfully" };
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log("Error delete prescription action", error);
+    throw error;
   }
 }
