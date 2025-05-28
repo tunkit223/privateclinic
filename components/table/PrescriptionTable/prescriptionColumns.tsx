@@ -80,7 +80,7 @@ export const columns: ColumnDef<IPrescription>[] = [
         <>
           <div className="flex items-center gap-4">
             <ViewPrescriptionDetails prescriptionId={row.original._id.toString()} />
-            <EditPrescriptionDetails />
+            <EditPrescriptionDetails prescriptionId={row.original._id.toString()} />
             <DeletePrescriptionDetails />
           </div>
         </>

@@ -5,22 +5,14 @@ import Prescription from "@/database/prescription.model";
 import dbConnect from "../mongoose"
 import PrescriptionDetail from "@/database/prescriptionDetail.model";
 import MedicalReport from "@/database/medicalReport.modal";
+import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
+import { ObjectId } from "mongodb";
 
-export interface CreatePrescriptionPayload {
-  medicalReportId: string;
-  prescribeByDoctor?: string;
-  details: {
-    name: string;
-    quantity: number;
-    medicineId: string;
-    unit: string;
-    usage?: string;
-    price?: number;
-  }[];
-}
+
 
 export const getPrescriptionList = async () => {
   try {
+    await dbConnect();
     const prescription = await Prescription.find({ deleted: false })
       .populate({
         path: "medicalReportId",
@@ -99,7 +91,7 @@ export const createPrescription = async ({
   medicalReportId,
   prescribeByDoctor = "Unknown Doctor",
   details,
-}: CreatePrescriptionPayload) => {
+}: Create_EditPrescriptionPayload) => {
   try {
     console.log("Bắt đầu tạo prescription với medicalReportId:", medicalReportId);
 
@@ -187,5 +179,65 @@ export const UpdatePrescriptionStatus = async (prescriptionId: string, isPaid: b
   } catch (error) {
     console.log("Error set status paid:", error);
     throw error;
+  }
+}
+
+export const UpdatePrescription = async (prescriptionId: string, payload: Create_EditPrescriptionPayload) => {
+  // Session use to avoid inadequately update data
+  const session = await Prescription.startSession();
+  session.startTransaction();
+  try {
+    // Update general information of prescription
+    await Prescription.updateOne(
+      { _id: new ObjectId(prescriptionId) },
+      {
+        $set: {
+          medicalReportId: new ObjectId(payload.medicalReportId),
+          prescribeByDoctor: new ObjectId(payload.prescribeByDoctor),
+          updatedAt: new Date(),
+        }
+      },
+      { session }
+    );
+
+    // ============== Update prescription details =============
+    // 1. Delete all old prescription details
+    await PrescriptionDetail.deleteMany({ prescriptionId: new ObjectId(prescriptionId) }, { session });
+
+    // 2. Re-add list prescription details
+    const newDetails = payload.details.map(dt => ({
+      medicineId: new ObjectId(dt.medicineId),
+      prescriptionId: new ObjectId(prescriptionId),
+      name: dt.name,
+      quantity: dt.quantity,
+      usage: dt.usage,
+      unit: dt.unit,
+      price: dt.price,
+      totalPriceDetail: dt.quantity * (dt.price || 0),
+    }));
+    await PrescriptionDetail.insertMany(newDetails, { session });
+
+    const totalPrice = newDetails.reduce((sum, item) => {
+      const itemTotal = (item.price || 0) * item.quantity;
+      return sum + itemTotal;
+    }, 0)
+
+
+    // update totalPrice;
+    await Prescription.updateOne(
+      { _id: prescriptionId },
+      { $set: { totalPrice } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+    return { success: true };
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log("Error update prescription", error);
+    throw error
   }
 }

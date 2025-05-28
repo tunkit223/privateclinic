@@ -6,27 +6,12 @@ import { Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
-import { CreatePrescriptionPayload, getPatientExaminedList, createPrescription } from "@/lib/actions/prescription.action";
-import { Erica_One } from 'next/font/google';
+import { getPatientExaminedList, createPrescription } from "@/lib/actions/prescription.action";
 import { getEmployeesList } from '@/lib/actions/employees.action';
-
-interface IMedicine {
-  _id: string;
-  name: string;
-  unit: string;
-  price: number;
-}
-
-interface IDoctor {
-  _id: string;
-  name: string;
-
-}
-interface PatientExamined {
-  medicalReportId: string,
-  patientId: string,
-  name: string
-}
+import { IMedicine } from '@/lib/interfaces/medicine.interface';
+import { IDoctor } from '@/lib/interfaces/doctor.interface';
+import { PatientExamined } from '@/lib/interfaces/patientExamined.interface';
+import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 
 function CreatePrescription() {
   const router = useRouter();
@@ -92,7 +77,7 @@ function CreatePrescription() {
     })
 
 
-    const payload: CreatePrescriptionPayload = {
+    const payload: Create_EditPrescriptionPayload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
       details: prescriptionDetailsPrice,
@@ -239,7 +224,7 @@ function CreatePrescription() {
                         {...restField}
                         name={[name, 'unit']}
                       >
-                        <Input disabled style={{ width: 150 }} placeholder="Unit" />
+                        <Input readOnly style={{ width: 150 }} placeholder="Unit" />
                       </Form.Item>
                       <Form.Item
                         style={{ width: 150, minHeight: 50 }}
