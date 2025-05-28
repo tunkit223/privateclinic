@@ -1,10 +1,10 @@
-import { FaPen } from "react-icons/fa";
+"use client"
 
 import { useEffect, useState } from "react";
-import { Button, Skeleton } from "antd";
+import { Button, message, Skeleton } from "antd";
 import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
-import { Form, Input, Select, Space, InputNumber, Tag } from "antd";
+import { Form, Input, Select, Space, InputNumber, Tag, Alert, } from "antd";
 import { getEmployeesList } from '@/lib/actions/employees.action';
 import { getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
@@ -12,8 +12,8 @@ import { IMedicine } from "@/lib/interfaces/medicine.interface";
 import { PatientExamined } from "@/lib/interfaces/patientExamined.interface";
 import { IDoctor } from "@/lib/interfaces/doctor.interface";
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-
 import { getPrescriptionById, getPrescriptionDetailsById, getPatientExaminedList, UpdatePrescription, } from "@/lib/actions/prescription.action";
+import { useRouter } from "next/navigation";
 
 import {
   CheckCircleOutlined,
@@ -36,10 +36,16 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
   const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
+  const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const key = "updatable"
 
+  const router = useRouter();
 
   const [form] = Form.useForm();
-
+  useEffect(() => {
+    showModal();
+  }, []);
 
   // Fetch patient examined
   useEffect(() => {
@@ -89,8 +95,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         const data = await getPrescriptionById(prescriptionId);
         setDataTitlePrescription(data);
         const details = await getPrescriptionDetailsById(prescriptionId);
-        console.log(details);
-        console.log("data", data)
+
         if (data) {
           form.setFieldsValue({
             patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
@@ -112,16 +117,36 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     }, 2000);
   };
 
+
   const handleOk = () => {
-    setOpen(false);
+    if (alertDuplicateMedicine) {
+      messageApi.open({
+        type: "error",
+        content: "Please fix duplicate medicine selection before saving"
+      });
+      return;
+    }
     form.submit();
   };
 
   const handleCancel = () => {
     setOpen(false);
+    setAlertDuplicateMedicine(false);
+    router.back();
   };
 
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
+    const currentDetail = form.getFieldValue('prescriptionDetails') || [];
+
+    // Check medicine is exist in another row ?
+    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.name === value);
+    if (isDuplicate) {
+      setAlertDuplicateMedicine(true);
+      return;
+    }
+    if (alertDuplicateMedicine) {
+      setAlertDuplicateMedicine(false);
+    }
     const medicine = medicineList.find((medicine) => medicine.name === value);
     if (medicine) {
       const currentDetail = form.getFieldValue('prescriptionDetails') || [];
@@ -149,7 +174,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         price: medicineSelected?.price || 0
       }
     })
-    console.log("detail:", prescriptionDetailsPrice);
+    // console.log("detail:", prescriptionDetailsPrice);
     const payload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
@@ -157,23 +182,36 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     }
     // console.log("Payload to update prescription:", payload);
     try {
+      messageApi.open({
+        key,
+        type: 'loading',
+        content: "Updating prescription",
+      });
       await UpdatePrescription(prescriptionId, payload);
+
+      setTimeout(() => {
+        messageApi.open({
+          key,
+          type: "success",
+          content: "Update prescription successfully",
+          duration: 2
+        })
+      }, 1000);
+
+      // Close modal
+      setTimeout(() => {
+        setOpen(false)
+        router.back();
+      }, 1500);
+
     } catch (error) {
       console.log("Error update prescription:", error);
     }
   };
   return (
     <>
-      <Button onClick={showModal} icon={<FaPen />
+      {contextHolder}
 
-      } style={{
-        width: 30,
-        border: "none",
-        fontSize: "20px",
-
-        backgroundColor: "transparent",
-      }}>
-      </Button>
       <Modal
         width={1300}
         title={
@@ -325,6 +363,8 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                           layout='vertical'
                           {...restField}
                           name={[name, 'unit']}
+                          rules={[{ required: true, message: 'Missing unit' }]}
+
                         >
                           <Input readOnly style={{ width: 150 }} placeholder="Unit" />
                         </Form.Item>
@@ -372,6 +412,9 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                         </div>
                       </Space>
                     ))}
+                    {alertDuplicateMedicine && (
+                      <Alert onClose={() => setAlertDuplicateMedicine(false)} style={{ marginBottom: 20, fontSize: 16 }} message="This medicine has already been selected in another row. Please choice another!" type="warning" showIcon />
+                    )}
                     <Form.Item>
                       <Button style={{ width: 100, height: 35 }} color="primary" variant="filled" onClick={() => add()} block icon={<PlusOutlined />}>
                         Add

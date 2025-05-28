@@ -9,6 +9,7 @@ import ViewPrescriptionDetails from "./ViewPrescriptionDetails";
 import { Delete, Edit } from "lucide-react";
 import EditPrescriptionDetails from "./EditPrescriptionDetails";
 import DeletePrescriptionDetails from "./DeletePrescription";
+import EditButton from "@/components/Button/EditButton";
 
 
 export const columns: ColumnDef<IPrescription>[] = [
@@ -80,7 +81,8 @@ export const columns: ColumnDef<IPrescription>[] = [
         <>
           <div className="flex items-center gap-4">
             <ViewPrescriptionDetails prescriptionId={row.original._id.toString()} />
-            <EditPrescriptionDetails prescriptionId={row.original._id.toString()} />
+            {/* <EditPrescriptionDetails prescriptionId={row.original._id.toString()} /> */}
+            <EditButton id={row.original._id.toString()} />
             <DeletePrescriptionDetails />
           </div>
         </>
