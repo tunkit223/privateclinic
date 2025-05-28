@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Row, Space } from 'antd';
+import { Alert, Button, Form, Input, InputNumber, message, Row, Space } from 'antd';
 import { Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
@@ -18,6 +18,7 @@ function CreatePrescription() {
   const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
   const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
+  const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
 
 
   const [form] = Form.useForm();
@@ -35,7 +36,7 @@ function CreatePrescription() {
     }
     fetchPatient();
   }, [])
-  console.log("Patient", patientExaminedList);
+  // console.log("Patient", patientExaminedList);
 
 
   // Fetch medicine list
@@ -64,7 +65,7 @@ function CreatePrescription() {
     }
     fetchDoctor();
   }, [])
-  console.log("Doctor list:", doctorList);
+  // console.log("Doctor list:", doctorList);
 
   const onFinish = async (values: any) => {
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
@@ -75,14 +76,12 @@ function CreatePrescription() {
         price: medicine?.price || 0
       }
     })
-
-
     const payload: Create_EditPrescriptionPayload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
       details: prescriptionDetailsPrice,
     }
-    console.log("Payload to create prescription:", payload);
+    // console.log("Payload to create prescription:", payload);
     try {
       const result = await createPrescription(payload);
     } catch (error) {
@@ -91,6 +90,24 @@ function CreatePrescription() {
   };
 
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
+    const currentDetail = form.getFieldValue('prescriptionDetails') || [];
+
+    // Check medicine is exist in another row ?
+    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.name === value);
+    if (isDuplicate) {
+      // Reset value this row such that user re-selected
+      setAlertDuplicateMedicine(true);
+      currentDetail[fieldName] = {
+        ...currentDetail[fieldName],
+        name: undefined,
+        unit: null,
+        quantity: undefined,
+        usage: undefined,
+        medicineId: undefined,
+      };
+      form.setFieldsValue({ prescriptionDetails: currentDetail });
+      return;
+    }
     const medicine = medicineList.find((medicine) => medicine.name === value);
     if (medicine) {
       const currentDetail = form.getFieldValue('prescriptionDetails') || [];
@@ -271,14 +288,18 @@ function CreatePrescription() {
                       </div>
                     </Space>
                   ))}
+                  {alertDuplicateMedicine && (
+                    <Alert onClose={() => setAlertDuplicateMedicine(false)} style={{ marginBottom: 20, fontSize: 16 }} message="This medicine has already been selected in another row. Please choice another!" type="warning" showIcon closable />
+                  )}
                   <Form.Item>
-                    <Button style={{ width: 100, height: 35 }} color="primary" variant="filled" onClick={() => add()} block icon={<PlusOutlined />}>
+                    <Button style={{ width: 100, height: 35, }} color="primary" variant="filled" onClick={() => add()} block icon={<PlusOutlined />}>
                       Add
                     </Button>
                   </Form.Item>
                 </>
               )}
             </Form.List>
+
           </div>
           <Form.Item className='mt-10' >
             <Button type="primary" htmlType="submit">
