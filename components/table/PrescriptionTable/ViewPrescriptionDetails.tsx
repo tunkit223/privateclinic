@@ -86,7 +86,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         title={
           dataTitlePrescription ? (
             <>
-              <div className="text-xl mb-2">Prescription details - {dataTitlePrescription?.code}</div>
+              <div className="text-xl mb-2">Prescription detail - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "success" : "warning"}>{dataTitlePrescription?.code}</Tag></div>
               <div>
                 {dataTitlePrescription?.isPaid ? <Tag style={{
                   width: 100,

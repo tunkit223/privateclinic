@@ -201,7 +201,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         title={
           dataTitlePrescription ? (
             <>
-              <div className="text-xl mb-2">Edit prescription - {dataTitlePrescription?.code}</div>
+              <div className="text-xl mb-2">Edit prescription - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "green" : "warning"}>{dataTitlePrescription?.code}</Tag></div>
               <div>
                 {dataTitlePrescription?.isPaid ? <Tag style={{
                   width: 100,

@@ -1,7 +1,7 @@
 "use client"
 import React, { useCallback, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input, InputNumber, message, Row, Space } from 'antd';
+import { Alert, Button, Form, Input, InputNumber, message, Row, Space, Tag, Typography } from 'antd';
 import { Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
@@ -213,7 +213,7 @@ function CreatePrescription() {
                       <Form.Item
                         label="Medicine name"
                         layout='vertical'
-                        style={{ width: 400, minHeight: 50 }}
+                        style={{ width: 200, minHeight: 50 }}
                         {...restField}
                         name={[name, 'medicineId']}
                         rules={[{ required: true, message: 'Missing medicine name' }]}
@@ -260,10 +260,35 @@ function CreatePrescription() {
                       >
                         <InputNumber style={{ width: 150 }} placeholder="Quantity" min={1} />
                       </Form.Item>
+
+
+                      <Form.Item
+                        label="Dosage schedule"
+                        layout='vertical'
+
+                        style={{ width: 350, minHeight: 50 }}
+                        required
+                      >
+                        <Space.Compact block>
+                          <Form.Item name={[name, 'morning']} noStyle>
+                            <InputNumber min={0} placeholder="Morning" />
+                          </Form.Item>
+                          <Form.Item name={[name, 'noon']} noStyle>
+                            <InputNumber min={0} placeholder="Noon" />
+                          </Form.Item>
+                          <Form.Item name={[name, 'afternoon']} noStyle>
+                            <InputNumber min={0} placeholder="Afternoon" />
+                          </Form.Item>
+                          <Form.Item name={[name, 'evening']} noStyle>
+                            <InputNumber min={0} placeholder="Evening" />
+                          </Form.Item>
+                        </Space.Compact>
+                      </Form.Item>
+
                       <Form.Item
                         label="Usage"
                         layout='vertical'
-                        style={{ width: 450, minHeight: 50 }}
+                        style={{ width: 300, minHeight: 50 }}
                         {...restField}
                         name={[name, 'usage']}
                         rules={[{ required: true, message: 'Missing usage' }]}
@@ -288,6 +313,18 @@ function CreatePrescription() {
                           ))}
                         </Select>
                       </Form.Item>
+
+                      <Form.Item
+                        style={{ width: 100, minHeight: 50 }}
+                        label="Quantity"
+                        layout='vertical'
+                        {...restField}
+                        name={[name, 'quantity']}
+                        rules={[{ required: true, message: 'Missing quantity' }]}
+                      >
+                        <Input style={{ width: 100 }} placeholder="Quantity" min={1} />
+                      </Form.Item>
+
                       {/* <Form.Item >
                         <MinusCircleOutlined onClick={() => remove(name)} />
                       </Form.Item> */}
@@ -302,6 +339,7 @@ function CreatePrescription() {
                   {alertDuplicateMedicine && (
                     <Alert onClose={() => setAlertDuplicateMedicine(false)} style={{ marginBottom: 20, fontSize: 16 }} message="This medicine has already been selected in another row. Please choice another!" type="warning" showIcon />
                   )}
+
                   <Form.Item>
                     <Button style={{ width: 100, height: 35, }} color="primary" variant="filled" onClick={() => add()} block icon={<PlusOutlined />}>
                       Add
