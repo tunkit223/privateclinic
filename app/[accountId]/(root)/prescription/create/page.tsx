@@ -64,8 +64,12 @@ function CreatePrescription() {
           type: "success",
           content: "Create prescription successfully",
           duration: 2
-        })
+        });
+        setTimeout(() => {
+          router.back();
+        }, 1000);
       }, 1000);
+
 
     } catch (error) {
       console.log("Error create prescription:", error);
