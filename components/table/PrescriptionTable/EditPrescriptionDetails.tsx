@@ -39,85 +39,48 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const key = "updatable"
-
   const router = useRouter();
-
   const [form] = Form.useForm();
+
+  // Open modal
   useEffect(() => {
     showModal();
   }, []);
 
-  // Fetch patient examined
-  useEffect(() => {
-    const fetchPatient = async () => {
-      try {
-        const response = await getPatientExaminedList();
-        setPatientExaminedList(response);
-      } catch (err) {
-        console.log("Error fetch patient:", err);
-      }
-    }
-    fetchPatient();
-  }, [])
-  // console.log("Patient", patientExaminedList);
-
-
-  // Fetch medicine list
-  useEffect(() => {
-    const fetchMedicine = async () => {
-      try {
-        const response = await getMedicineList();
-        setMedicineList(response.documents);
-      } catch (err) {
-        console.log("Error fetch medicine:", err);
-      }
-    }
-    fetchMedicine();
-  }, [])
-  // console.log("MedicineList", medicineList);
-
-  // Fetch doctor list 
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await getEmployeesList();
-        setDoctorList(response.documents);
-      } catch (error) {
-        console.log("Error fetch doctor in create prescription:", error);
-      }
-    }
-    fetchDoctor();
-  }, [])
-
-  useEffect(() => {
-    if (open) {
-      const fetchPrescription = async () => {
-        const data = await getPrescriptionById(prescriptionId);
-        setDataTitlePrescription(data);
-        const details = await getPrescriptionDetailsById(prescriptionId);
-
-        if (data) {
-          form.setFieldsValue({
-            patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
-            doctor: data?.prescribeByDoctor?._id,
-            prescriptionDetails: details || [],
-          })
-        }
-      }
-      fetchPrescription();
-    }
-  }, [open, prescriptionId])
-
-
+  // Func showModal
   const showModal = async () => {
     setOpen(true);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false)
-    }, 1500);
+    try {
+      const [patients, medicines, doctors, prescription, details] = await Promise.all([
+        getPatientExaminedList(),
+        getMedicineList(),
+        getEmployeesList(),
+        getPrescriptionById(prescriptionId),
+        getPrescriptionDetailsById(prescriptionId)
+      ]);
+
+      setPatientExaminedList(patients);
+      setMedicineList(medicines.documents);
+      setDoctorList(doctors.documents);
+      setDataTitlePrescription(prescription);
+
+      if (prescription) {
+        form.setFieldsValue({
+          patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+          doctor: prescription?.prescribeByDoctor?._id,
+          prescriptionDetails: details || [],
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      messageApi.error("Failed to load prescription data");
+    } finally {
+      setLoading(false);
+    }
   };
 
-
+  // Handle oke modal
   const handleOk = () => {
     if (alertDuplicateMedicine) {
       messageApi.open({
@@ -129,12 +92,14 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     form.submit();
   };
 
+  // Handle cancel modal
   const handleCancel = () => {
     setOpen(false);
     setAlertDuplicateMedicine(false);
     router.back();
   };
 
+  // Handle change select medicine
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
     const currentDetail = form.getFieldValue('prescriptionDetails') || [];
 
@@ -159,12 +124,12 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     }
   }
 
+  // On finish form
   const onFinish = async (values: any) => {
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
     const prescriptionDetailsPrice = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med.name === item.name);
 
-      // console.log("Medicine Selected:", medicineSelected)
       return {
         medicineId: medicineSelected?._id,
         quantity: item.quantity,
@@ -174,13 +139,11 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         price: medicineSelected?.price || 0
       }
     })
-    // console.log("detail:", prescriptionDetailsPrice);
     const payload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
       details: prescriptionDetailsPrice,
     }
-    // console.log("Payload to update prescription:", payload);
     try {
       messageApi.open({
         key,
@@ -189,6 +152,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       });
       await UpdatePrescription(prescriptionId, payload);
 
+      // Message success
       setTimeout(() => {
         messageApi.open({
           key,
@@ -206,12 +170,16 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
     } catch (error) {
       console.log("Error update prescription:", error);
+      messageApi.open({
+        key,
+        type: 'error',
+        content: "Failed to update prescription. Please try again",
+      });
     }
   };
   return (
     <>
       {contextHolder}
-
       <Modal
         width={1300}
         title={

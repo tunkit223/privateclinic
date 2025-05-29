@@ -136,10 +136,6 @@ export const createPrescription = async ({
 
 
     return {
-      // ...newPrescription.toObject(),
-      // _id: newPrescription._id.toString(),
-      // code: newPrescription.code,
-      // medicalReportId: newPrescription.medicalReportId.toString(),
       _id: newPrescription._id.toString(),
       medicalReportId: newPrescription.medicalReportId.toString(),
       isPaid: newPrescription.isPaid,

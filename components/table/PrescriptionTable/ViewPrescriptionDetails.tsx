@@ -31,8 +31,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         const data = await getPrescriptionById(prescriptionId);
         setDataTitlePrescription(data);
         const details = await getPrescriptionDetailsById(prescriptionId);
-        console.log(details);
-        console.log("data", data)
+
         if (data) {
           form.setFieldsValue({
             patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
@@ -62,7 +61,6 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
   const handleCancel = () => {
     setOpen(false);
   };
-  console.log("Data title", dataTitlePrescription)
 
   return (
     <>

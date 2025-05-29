@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, InputNumber, message, Row, Space } from 'antd';
 import { Select } from 'antd';
@@ -15,57 +15,25 @@ import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPres
 
 function CreatePrescription() {
   const router = useRouter();
+  const [form] = Form.useForm();
+
   const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
   const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
   const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const key = "updatable"
 
 
-  const [form] = Form.useForm();
-
-
-  // Fetch patient examined
   useEffect(() => {
-    const fetchPatient = async () => {
-      try {
-        const response = await getPatientExaminedList();
-        setPatientExaminedList(response);
-      } catch (err) {
-        console.log("Error fetch patient:", err);
-      }
-    }
-    fetchPatient();
+    Promise.all([getPatientExaminedList(), getMedicineList(), getEmployeesList()])
+      .then(([patients, medicines, doctors]) => {
+        setPatientExaminedList(patients);
+        setMedicineList(medicines.documents);
+        setDoctorList(doctors.documents);
+      })
+      .catch(err => console.error("Error fetching initial data", err))
   }, [])
-  // console.log("Patient", patientExaminedList);
-
-
-  // Fetch medicine list
-  useEffect(() => {
-    const fetchMedicine = async () => {
-      try {
-        const response = await getMedicineList();
-        setMedicineList(response.documents);
-      } catch (err) {
-        console.log("Error fetch medicine:", err);
-      }
-    }
-    fetchMedicine();
-  }, [])
-  // console.log("MedicineList", medicineList);
-
-  // Fetch doctor list 
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await getEmployeesList();
-        setDoctorList(response.documents);
-      } catch (error) {
-        console.log("Error fetch doctor in create prescription:", error);
-      }
-    }
-    fetchDoctor();
-  }, [])
-  // console.log("Doctor list:", doctorList);
 
   const onFinish = async (values: any) => {
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
@@ -83,9 +51,29 @@ function CreatePrescription() {
     }
     // console.log("Payload to create prescription:", payload);
     try {
+      messageApi.open({
+        key,
+        type: 'loading',
+        content: "Creating prescription",
+      });
       const result = await createPrescription(payload);
+      // Message success
+      setTimeout(() => {
+        messageApi.open({
+          key,
+          type: "success",
+          content: "Create prescription successfully",
+          duration: 2
+        })
+      }, 1000);
+
     } catch (error) {
       console.log("Error create prescription:", error);
+      messageApi.open({
+        key,
+        type: 'error',
+        content: "Failed to create prescription. Please try again",
+      });
     }
   };
 
@@ -95,19 +83,13 @@ function CreatePrescription() {
     // Check medicine is exist in another row ?
     const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.name === value);
     if (isDuplicate) {
-      // Reset value this row such that user re-selected
       setAlertDuplicateMedicine(true);
-      currentDetail[fieldName] = {
-        ...currentDetail[fieldName],
-        name: undefined,
-        unit: null,
-        quantity: undefined,
-        usage: undefined,
-        medicineId: undefined,
-      };
-      form.setFieldsValue({ prescriptionDetails: currentDetail });
       return;
     }
+    if (alertDuplicateMedicine) {
+      setAlertDuplicateMedicine(false);
+    }
+
     const medicine = medicineList.find((medicine) => medicine.name === value);
     if (medicine) {
       const currentDetail = form.getFieldValue('prescriptionDetails') || [];
@@ -120,9 +102,19 @@ function CreatePrescription() {
     }
   }
 
-
+  const handleSave = () => {
+    if (alertDuplicateMedicine) {
+      messageApi.open({
+        type: "error",
+        content: "Please fix duplicate medicine selection before saving"
+      });
+      return;
+    }
+    form.submit();
+  }
   return (
     <>
+      {contextHolder}
       <div >
         <Form
           form={form}
@@ -163,6 +155,7 @@ function CreatePrescription() {
                       {pt.name}
                     </Select.Option>
                   ))}
+                  {/* {renderSelectOptions(patientExaminedList, 'name', 'name')} */}
                 </Select>
               </Form.Item>
               <Form.Item
@@ -189,6 +182,7 @@ function CreatePrescription() {
                       {dt.name}
                     </Select.Option>
                   ))}
+                  {/* {renderSelectOptions(doctorList, 'name', '_id')} */}
                 </Select>
               </Form.Item>
             </div>
@@ -289,7 +283,7 @@ function CreatePrescription() {
                     </Space>
                   ))}
                   {alertDuplicateMedicine && (
-                    <Alert onClose={() => setAlertDuplicateMedicine(false)} style={{ marginBottom: 20, fontSize: 16 }} message="This medicine has already been selected in another row. Please choice another!" type="warning" showIcon closable />
+                    <Alert onClose={() => setAlertDuplicateMedicine(false)} style={{ marginBottom: 20, fontSize: 16 }} message="This medicine has already been selected in another row. Please choice another!" type="warning" showIcon />
                   )}
                   <Form.Item>
                     <Button style={{ width: 100, height: 35, }} color="primary" variant="filled" onClick={() => add()} block icon={<PlusOutlined />}>
@@ -302,7 +296,7 @@ function CreatePrescription() {
 
           </div>
           <Form.Item className='mt-10' >
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" onClick={handleSave}>
               Save
             </Button>
             <Button className='ml-4' color="default" variant="outlined" onClick={() => router.back()}>
