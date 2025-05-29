@@ -12,6 +12,9 @@ import { IMedicine } from '@/lib/interfaces/medicine.interface';
 import { IDoctor } from '@/lib/interfaces/doctor.interface';
 import { PatientExamined } from '@/lib/interfaces/patientExamined.interface';
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
+import { getLayoutOrPageModule } from 'next/dist/server/lib/app-dir-module';
+import { getUsageMethodList } from '@/lib/actions/usageMethod.action';
+import { IUsageMethod } from '@/database/usageMethod.model';
 
 function CreatePrescription() {
   const router = useRouter();
@@ -24,30 +27,36 @@ function CreatePrescription() {
   const [messageApi, contextHolder] = message.useMessage();
   const key = "updatable"
 
+  const [usageMethodList, setUsageMethodList] = useState<IUsageMethod[]>([]);
+
 
   useEffect(() => {
-    Promise.all([getPatientExaminedList(), getMedicineList(), getEmployeesList()])
-      .then(([patients, medicines, doctors]) => {
+    Promise.all([getPatientExaminedList(), getMedicineList(), getEmployeesList(), getUsageMethodList()])
+      .then(([patients, medicines, doctors, usageMethods]) => {
         setPatientExaminedList(patients);
         setMedicineList(medicines.documents);
         setDoctorList(doctors.documents);
+        setUsageMethodList(usageMethods);
       })
       .catch(err => console.error("Error fetching initial data", err))
   }, [])
 
   const onFinish = async (values: any) => {
+    console.log(values)
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
-    const prescriptionDetailsPrice = values.prescriptionDetails.map((item: any) => {
-      const medicine = medicineList.find(med => med.name === item.name);
+    const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
+      const medicineSelected = medicineList.find(med => med._id === item.medicineId);
       return {
-        ...item,
-        price: medicine?.price || 0
+        medicineId: medicineSelected?._id,
+        quantity: item.quantity,
+        usageMethodId: item.usage,
+        price: medicineSelected?.price || 0
       }
     })
     const payload: Create_EditPrescriptionPayload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
-      details: prescriptionDetailsPrice,
+      details: prescriptionDetails,
     }
     // console.log("Payload to create prescription:", payload);
     try {
@@ -85,7 +94,7 @@ function CreatePrescription() {
     const currentDetail = form.getFieldValue('prescriptionDetails') || [];
 
     // Check medicine is exist in another row ?
-    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.name === value);
+    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.medicineId === value);
     if (isDuplicate) {
       setAlertDuplicateMedicine(true);
       return;
@@ -94,13 +103,13 @@ function CreatePrescription() {
       setAlertDuplicateMedicine(false);
     }
 
-    const medicine = medicineList.find((medicine) => medicine.name === value);
+    const medicine = medicineList.find((medicine) => medicine._id === value);
+    // console.log(medicine);
     if (medicine) {
       const currentDetail = form.getFieldValue('prescriptionDetails') || [];
       currentDetail[fieldName] = {
         ...currentDetail[fieldName],
         unit: medicine.unit,
-        medicineId: medicine._id,
       };
       form.setFieldsValue({ prescriptionDetails: currentDetail });
     }
@@ -206,7 +215,7 @@ function CreatePrescription() {
                         layout='vertical'
                         style={{ width: 400, minHeight: 50 }}
                         {...restField}
-                        name={[name, 'name']}
+                        name={[name, 'medicineId']}
                         rules={[{ required: true, message: 'Missing medicine name' }]}
                       >
                         <Select
@@ -225,7 +234,7 @@ function CreatePrescription() {
                           }
                         >
                           {medicineList && medicineList.map((medicine) => (
-                            <Select.Option key={medicine._id} value={medicine.name}>
+                            <Select.Option key={medicine._id} value={medicine._id}>
                               {medicine.name}
                             </Select.Option>
                           ))}
@@ -272,7 +281,11 @@ function CreatePrescription() {
                             return false;
                           }
                           }>
-                          <Select.Option value="sample">Sample</Select.Option>
+                          {usageMethodList && usageMethodList.map((use) => (
+                            <Select.Option key={use._id.toString()} value={use._id} >
+                              {use.name}
+                            </Select.Option>
+                          ))}
                         </Select>
                       </Form.Item>
                       {/* <Form.Item >

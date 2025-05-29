@@ -1,15 +1,10 @@
-//Thuốc đã được kê trong đơn gồm mã PhieuKhamBenh, MaThuoc
 import { model, Schema, models, Types } from "mongoose";
-import { boolean } from "zod";
 export interface IPrescriptionDetail {
   medicineId: Types.ObjectId,
   prescriptionId: Types.ObjectId,
-  name: string
+  usageMethodId: Types.ObjectId,
   quantity: number;
-  unit: string;
-  usage?: string,
   price?: number
-  totalPriceDetail?: number
   deleted?: boolean,
   deletedAt?: Date,
 }
@@ -19,12 +14,9 @@ export interface IPrescriptionDetailDoc extends IPrescriptionDetail, Document { 
 const PrescriptionDetailSchema = new Schema<IPrescriptionDetail>({
   medicineId: { type: Schema.Types.ObjectId, ref: "Medicine", required: true },
   prescriptionId: { type: Schema.Types.ObjectId, ref: "Prescription", required: true },
-  name: { type: String, required: true },
+  usageMethodId: { type: Schema.Types.ObjectId, ref: "UsageMethod", required: true },
   quantity: { type: Number, required: true },
-  unit: { type: String, required: true },
-  usage: { type: String },
   price: { type: Number },
-  totalPriceDetail: { type: Number },
   deleted: { type: Boolean, default: false },
   deletedAt: { type: Date, default: null },
 },

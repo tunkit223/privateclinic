@@ -12,6 +12,8 @@ import { IMedicine } from "@/lib/interfaces/medicine.interface";
 import { PatientExamined } from "@/lib/interfaces/patientExamined.interface";
 import { IDoctor } from "@/lib/interfaces/doctor.interface";
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { IUsageMethod } from '@/database/usageMethod.model';
+
 import { getPrescriptionById, getPrescriptionDetailsById, getPatientExaminedList, UpdatePrescription, } from "@/lib/actions/prescription.action";
 import { useRouter } from "next/navigation";
 
@@ -19,6 +21,7 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
+import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
 
 interface EditPrescriptionDetailsProps {
   prescriptionId: string;
@@ -37,6 +40,8 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
   const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
   const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
+  const [usageMethodList, setUsageMethodList] = useState<IUsageMethod[]>([]);
+
   const [messageApi, contextHolder] = message.useMessage();
   const key = "updatable"
   const router = useRouter();
@@ -52,24 +57,34 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     setOpen(true);
     setLoading(true);
     try {
-      const [patients, medicines, doctors, prescription, details] = await Promise.all([
+      const [patients, medicines, doctors, prescription, details, usageMethods] = await Promise.all([
         getPatientExaminedList(),
         getMedicineList(),
         getEmployeesList(),
         getPrescriptionById(prescriptionId),
-        getPrescriptionDetailsById(prescriptionId)
+        getPrescriptionDetailsById(prescriptionId),
+        getUsageMethodList()
       ]);
 
       setPatientExaminedList(patients);
       setMedicineList(medicines.documents);
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
+      setUsageMethodList(usageMethods)
+
+      const formattedDetails = (details || []).map((item: any) => ({
+        medicineId: item.medicineId?._id || '',
+        unit: item.medicineId?.unit || '',
+        quantity: item.quantity || '',
+        usage: item.usageMethodId?._id || '',
+      }))
+      console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
         form.setFieldsValue({
           patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
           doctor: prescription?.prescribeByDoctor?._id,
-          prescriptionDetails: details || [],
+          prescriptionDetails: formattedDetails,
         });
       }
     } catch (err) {
@@ -102,9 +117,12 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   // Handle change select medicine
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
     const currentDetail = form.getFieldValue('prescriptionDetails') || [];
+    console.log("value", value);
+    console.log("field name", fieldName)
+    console.log("curr details", currentDetail);
 
     // Check medicine is exist in another row ?
-    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.name === value);
+    const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.medicineId === value);
     if (isDuplicate) {
       setAlertDuplicateMedicine(true);
       return;
@@ -112,14 +130,14 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     if (alertDuplicateMedicine) {
       setAlertDuplicateMedicine(false);
     }
-    const medicine = medicineList.find((medicine) => medicine.name === value);
+    const medicine = medicineList.find((medicine) => medicine._id === value);
     if (medicine) {
       const currentDetail = form.getFieldValue('prescriptionDetails') || [];
       currentDetail[fieldName] = {
         ...currentDetail[fieldName],
         unit: medicine.unit,
-        medicineId: medicine._id,
       };
+      console.log(currentDetail[fieldName])
       form.setFieldsValue({ prescriptionDetails: currentDetail });
     }
   }
@@ -127,23 +145,21 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   // On finish form
   const onFinish = async (values: any) => {
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
-    const prescriptionDetailsPrice = values.prescriptionDetails.map((item: any) => {
-      const medicineSelected = medicineList.find(med => med.name === item.name);
-
+    const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
+      const medicineSelected = medicineList.find(med => med._id === item.medicineId);
       return {
         medicineId: medicineSelected?._id,
         quantity: item.quantity,
-        name: medicineSelected?.name,
-        usage: item.usage,
-        unit: medicineSelected?.unit || "No data",
+        usageMethodId: item.usage,
         price: medicineSelected?.price || 0
       }
     })
     const payload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
-      details: prescriptionDetailsPrice,
+      details: prescriptionDetails,
     }
+    console.log("payload", payload);
     try {
       messageApi.open({
         key,
@@ -299,7 +315,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                           layout='vertical'
                           style={{ width: 300, minHeight: 50 }}
                           {...restField}
-                          name={[name, 'name']}
+                          name={[name, 'medicineId']}
                           rules={[{ required: true, message: 'Missing medicine name' }]}
                         >
                           <Select
@@ -318,13 +334,12 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                             }
                           >
                             {medicineList && medicineList.map((medicine) => (
-                              <Select.Option key={medicine._id} value={medicine.name}>
+                              <Select.Option key={medicine._id} value={medicine._id}>
                                 {medicine.name}
                               </Select.Option>
                             ))}
                           </Select>
                         </Form.Item>
-
                         <Form.Item
                           style={{ width: 150, minHeight: 50 }}
                           label="Unit"
@@ -369,8 +384,11 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                               return false;
                             }
                             }>
-                            <Select.Option value="sample">Sample</Select.Option>
-                          </Select>
+                            {usageMethodList && usageMethodList.map((use) => (
+                              <Select.Option key={use._id.toString()} value={use._id} >
+                                {use.name}
+                              </Select.Option>
+                            ))}                          </Select>
                         </Form.Item>
                         <div>
                           <MinusCircleOutlined

@@ -31,12 +31,19 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         const data = await getPrescriptionById(prescriptionId);
         setDataTitlePrescription(data);
         const details = await getPrescriptionDetailsById(prescriptionId);
+        console.log(details)
 
+        const formattedDetails = (details || []).map((item: any) => ({
+          name: item.medicineId?.name || '',
+          unit: item.medicineId?.unit || '',
+          quantity: item.quantity || '',
+          usage: item.usageMethodId?.name || '',
+        }))
         if (data) {
           form.setFieldsValue({
             patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
             doctor: data?.prescribeByDoctor?.name,
-            prescriptionDetails: details || [],
+            prescriptionDetails: formattedDetails,
           })
         }
       }

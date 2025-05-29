@@ -7,8 +7,7 @@ import PrescriptionDetail from "@/database/prescriptionDetail.model";
 import MedicalReport from "@/database/medicalReport.modal";
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
-import Success from "@/app/patient/[patientId]/appointment/success/page";
-import { message } from "antd";
+
 
 
 
@@ -78,10 +77,15 @@ export const getPrescriptionById = async (prescriptionId: string) => {
 
 export const getPrescriptionDetailsById = async (prescriptionId: string) => {
   try {
-    const details = await PrescriptionDetail.find({
-      prescriptionId,
-      // deleted: false
-    })
+    const details = await PrescriptionDetail.find({ prescriptionId, })
+      .populate({
+        path: "usageMethodId",
+        select: "name"
+      })
+      .populate({
+        path: "medicineId",
+        select: "name unit price"
+      })
       .lean();
     if (!details) {
       console.log("Details null");
@@ -123,6 +127,7 @@ export const createPrescription = async ({
     await PrescriptionDetail.insertMany(detailPrescription);
 
 
+    console.log(details);
     const totalPrice = details.reduce((sum, item) => {
       const itemTotal = (item.price || 0) * item.quantity;
       return sum + itemTotal;
@@ -217,12 +222,9 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
     const newDetails = payload.details.map(dt => ({
       medicineId: new ObjectId(dt.medicineId),
       prescriptionId: new ObjectId(prescriptionId),
-      name: dt.name,
       quantity: dt.quantity,
-      usage: dt.usage,
-      unit: dt.unit,
+      usageMethodId: dt.usageMethodId,
       price: dt.price,
-      totalPriceDetail: dt.quantity * (dt.price || 0),
     }));
     await PrescriptionDetail.insertMany(newDetails, { session });
 
@@ -234,7 +236,7 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
 
     // update totalPrice;
     await Prescription.updateOne(
-      { _id: prescriptionId },
+      { _id: new ObjectId(prescriptionId) },
       { $set: { totalPrice } },
       { session }
     );
