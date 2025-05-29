@@ -1,6 +1,6 @@
 import { RiDeleteBin6Line } from "react-icons/ri";
 import React, { useState } from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button, Popconfirm, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { deletePrescription } from "@/lib/actions/prescription.action";
 
@@ -38,25 +38,27 @@ const DeletePrescriptionDetails = ({ prescriptionId, onDeleted }: DeletePrescrip
 
 
   return (
-    <Popconfirm
-      title="Delete the prescription"
-      description="Are you sure to delete this prescription?"
-      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-      onConfirm={handleOk}
-      onCancel={handleCancel}
-      okButtonProps={{ loading: confirmLoading }}
-      open={open}
-    >
+    <Tooltip title="Delete">
+      <Popconfirm
+        title="Delete the prescription"
+        description="Are you sure to delete this prescription?"
+        icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+        onConfirm={handleOk}
+        onCancel={handleCancel}
+        okButtonProps={{ loading: confirmLoading }}
+        open={open}
+      >
 
-      <Button onClick={showPopconfirm} icon={<RiDeleteBin6Line />
-      } style={{
-        width: 30,
-        border: "none",
-        fontSize: "20px",
-        backgroundColor: "transparent",
-      }}>
-      </Button>
-    </Popconfirm>
+        <Button onClick={showPopconfirm} icon={<RiDeleteBin6Line />
+        } style={{
+          width: 30,
+          border: "none",
+          fontSize: "20px",
+          backgroundColor: "transparent",
+        }}>
+        </Button>
+      </Popconfirm>
+    </Tooltip>
 
   )
 }

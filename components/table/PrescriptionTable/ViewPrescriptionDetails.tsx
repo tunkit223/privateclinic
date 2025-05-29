@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import { Button, Skeleton } from "antd";
+import { Button, Skeleton, Tooltip } from "antd";
 import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
 import { Form, Input, Select, Space, InputNumber, Tag } from "antd";
@@ -64,14 +64,16 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
 
   return (
     <>
-      <Button onClick={showModal} icon={<GrView />
-      } style={{
-        width: 30,
-        border: "none",
-        fontSize: "20px",
-        backgroundColor: "transparent",
-      }}>
-      </Button>
+      <Tooltip title="View detail">
+        <Button onClick={showModal} icon={<GrView />
+        } style={{
+          width: 30,
+          border: "none",
+          fontSize: "20px",
+          backgroundColor: "transparent",
+        }}>
+        </Button>
+      </Tooltip>
       <Modal
         width={1300}
         title={

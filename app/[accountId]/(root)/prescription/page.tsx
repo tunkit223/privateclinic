@@ -40,7 +40,6 @@ function Prescription() {
   useEffect(() => {
     fetchPrescription();
   }, [])
-  // console.log(prescription);
 
   return (
     <>
@@ -60,9 +59,7 @@ function Prescription() {
           Create prescription
         </Button>
       </div>
-      {/* <DataTable columns={columns({ onDeleted: fetchPrescription })}
-        data={prescription.documents.reverse()} /> */}
-      <DataTable columns={columns({ onDeleted: fetchPrescription })} data={prescription.documents.reverse()} />
+      <DataTable columns={columns({ onDeleted: fetchPrescription, onUpdated: fetchPrescription })} data={prescription.documents.reverse()} />
 
     </>
   )

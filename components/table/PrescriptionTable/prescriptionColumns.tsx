@@ -13,9 +13,10 @@ import EditButton from "@/components/Button/EditButton";
 
 interface ColumnProps {
   onDeleted: () => void;
+  onUpdated: () => void;
 }
 
-export const columns = ({ onDeleted }: ColumnProps): ColumnDef<IPrescription>[] => [
+export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPrescription>[] => [
   {
     header: "No.",
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>
@@ -72,7 +73,8 @@ export const columns = ({ onDeleted }: ColumnProps): ColumnDef<IPrescription>[] 
       return (
         <PrescriptionStatusButton
           isPaid={isPaid}
-          prescriptionId={row.original._id.toString()} />
+          prescriptionId={row.original._id.toString()}
+          onUpdated={onUpdated} />
       )
     },
   },
@@ -85,7 +87,10 @@ export const columns = ({ onDeleted }: ColumnProps): ColumnDef<IPrescription>[] 
           <div className="flex items-center gap-4">
             <ViewPrescriptionDetails prescriptionId={row.original._id.toString()} />
             {/* <EditPrescriptionDetails prescriptionId={row.original._id.toString()} /> */}
-            <EditButton id={row.original._id.toString()} />
+            {/* <EditButton id={row.original._id.toString()}  /> */}
+            {!row.original.isPaid && (
+              <EditButton id={row.original._id.toString()} resource="prescription" />
+            )}
             <DeletePrescriptionDetails prescriptionId={row.original._id.toString()} onDeleted={onDeleted} />
           </div>
         </>
