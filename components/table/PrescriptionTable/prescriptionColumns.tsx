@@ -86,8 +86,6 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
         <>
           <div className="flex items-center gap-4">
             <ViewPrescriptionDetails prescriptionId={row.original._id.toString()} />
-            {/* <EditPrescriptionDetails prescriptionId={row.original._id.toString()} /> */}
-            {/* <EditButton id={row.original._id.toString()}  /> */}
             {!row.original.isPaid && (
               <EditButton id={row.original._id.toString()} resource="prescription" />
             )}

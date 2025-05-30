@@ -97,7 +97,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         </Button>
       </Tooltip>
       <Modal
-        width={1450}
+        width={1480}
         title={
           dataTitlePrescription ? (
             <>
@@ -190,13 +190,13 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                           <Input size='large' readOnly style={{ width: 80 }} placeholder="Unit" />
                         </Form.Item>
                         <Form.Item
-                          style={{ width: 80, minHeight: 50 }}
+                          style={{ width: 110, minHeight: 50 }}
                           label="Duration"
                           layout='vertical'
                           {...restField}
                           name={[name, 'duration']}
                         >
-                          <Input size='large' readOnly></Input>
+                          <Input size='large' addonAfter={"Day"} readOnly></Input>
                         </Form.Item>
                         <Form.Item
                           label="Dosage schedule"
