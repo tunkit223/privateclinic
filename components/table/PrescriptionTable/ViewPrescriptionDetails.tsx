@@ -47,8 +47,8 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
             duration: item.duration || '',
             morningDosage: item.morningDosage ?? '',
             noonDosage: item.noonDosage ?? '',
-            afternoonDosage: item.afternoonDosage || '',
-            eveningDosage: item.eveningDosage || '',
+            afternoonDosage: item.afternoonDosage ?? '',
+            eveningDosage: item.eveningDosage ?? '',
             quantity: quantity,
             usage: item.usageMethodId?.name || '',
             priceQuantity: quantity * priceMedicine

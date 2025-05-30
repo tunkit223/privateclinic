@@ -223,6 +223,11 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       medicineId: new ObjectId(dt.medicineId),
       prescriptionId: new ObjectId(prescriptionId),
       quantity: dt.quantity,
+      duration: dt.duration,
+      morningDosage: dt.morningDosage,
+      noonDosage: dt.noonDosage,
+      afternoonDosage: dt.afternoonDosage,
+      eveningDosage: dt.eveningDosage,
       usageMethodId: dt.usageMethodId,
       price: dt.price,
     }));

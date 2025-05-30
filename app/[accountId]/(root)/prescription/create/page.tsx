@@ -151,6 +151,12 @@ function CreatePrescription() {
       const evening = dt.eveningDosage || 0;
       const quantity = duration * (morning + noon + afternoon + evening);
 
+      // Check duplicate when remove row prescriptionDetail
+      const medicineIds = allValues.prescriptionDetails
+        .map((item: any) => item?.medicineId)
+        .filter(Boolean);
+      const uniqueIds = new Set(medicineIds);
+      setAlertDuplicateMedicine(uniqueIds.size !== medicineIds.length);
       return {
         ...dt,
         quantity: isNaN(quantity) ? undefined : quantity
