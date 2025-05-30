@@ -3,7 +3,7 @@ import Medicine from "@/database/medicine";
 import MedicineType from "@/database/medicineType";
 import dbConnect from "../mongoose";
 
-export const addMedicine = async (data : any) =>{
+export const addMedicine = async (data: any) => {
   try {
     await dbConnect();
     const newMedicine = await Medicine.create({
@@ -13,8 +13,8 @@ export const addMedicine = async (data : any) =>{
       amount: data.amount,
       price: data.price
     })
-    return{
-      ...newMedicine.toObject(), 
+    return {
+      ...newMedicine.toObject(),
       _id: newMedicine._id.toString(),
     }
   } catch (error) {
@@ -31,7 +31,7 @@ export const getMedicinesWithType = async () => {
 
   return medicines.map(med => ({
     ...med,
-    medicineTypeName: med.medicineTypeId ? med.medicineTypeId.name : 'Unknown'  
+    medicineTypeName: med.medicineTypeId ? med.medicineTypeId.name : 'Unknown'
   }));
 };
 export const getMedicineList = async () => {
@@ -40,11 +40,11 @@ export const getMedicineList = async () => {
     const medicines = await Medicine.find()
       .sort({ createdAt: -1 })
       .lean();
-    
+
     const data = {
       documents: medicines,
     };
-    
+
     return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error("Error fetching medicine:", error);
@@ -59,6 +59,13 @@ export const getMedicineByName = async (name: string): Promise<string> => {
   return medicine._id.toString();
 };
 
+export const getMedicineById = async (medicineId: string) => {
+  await dbConnect();
+  const medicine = await Medicine.findById({ medicineId });
+  if (!medicine) throw new Error(`Medicine "${medicine}" not found`);
+  return medicine._id.toString();
+};
+
 export const getMedicinePriceByAmount = async (name: string, amount: number): Promise<string> => {
   await dbConnect();
   const medicine = await Medicine.findOne({ name });
@@ -70,7 +77,7 @@ export const validateMedicine = async (name: string) => {
   try {
     await dbConnect();
     const medicine = await Medicine.findOne({ name });
-    return medicine.unit; 
+    return medicine.unit;
   } catch (error) {
     console.error("Error validating medicine", error);
     return null;

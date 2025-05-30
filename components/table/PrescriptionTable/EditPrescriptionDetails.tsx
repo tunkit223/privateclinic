@@ -6,7 +6,7 @@ import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
 import { Form, Input, Select, Space, InputNumber, Tag, Alert, } from "antd";
 import { getEmployeesList } from '@/lib/actions/employees.action';
-import { getMedicineList } from '@/lib/actions/medicine.action';
+import { getMedicineById, getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
 import { IMedicine } from "@/lib/interfaces/medicine.interface";
 import { PatientExamined } from "@/lib/interfaces/patientExamined.interface";
@@ -16,13 +16,16 @@ import { IUsageMethod } from '@/database/usageMethod.model';
 
 import { getPrescriptionById, getPrescriptionDetailsById, getPatientExaminedList, UpdatePrescription, } from "@/lib/actions/prescription.action";
 import { useRouter } from "next/navigation";
-
+import { BsFillSunriseFill } from "react-icons/bs";
+import { IoSunnySharp } from "react-icons/io5";
+import { BsFillSunsetFill } from "react-icons/bs";
+import { IoMoon } from "react-icons/io5";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
-
+import dayjs from "dayjs";
 interface EditPrescriptionDetailsProps {
   prescriptionId: string;
 }
@@ -71,18 +74,31 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
       setUsageMethodList(usageMethods)
+      console.log(patientExaminedList);
 
-      const formattedDetails = (details || []).map((item: any) => ({
-        medicineId: item.medicineId?._id || '',
-        unit: item.medicineId?.unit || '',
-        quantity: item.quantity || '',
-        usage: item.usageMethodId?._id || '',
-      }))
-      console.log("Formatted details set to form:", formattedDetails);
+      const formattedDetails = (details || []).map((item: any) => {
+        const priceMedicine = item.medicineId?.price || 0;
+        const quantity = item.quantity || 0;
+
+        return {
+          medicineId: item.medicineId?._id || '',
+          unit: item.medicineId?.unit || '',
+          duration: item.duration ?? '',
+          morningDosage: item.morningDosage ?? '',
+          noonDosage: item.noonDosage ?? '',
+          afternoonDosage: item.afternoonDosage ?? '',
+          eveningDosage: item.eveningDosage ?? '',
+          quantity: item.quantity || '',
+          usage: item.usageMethodId?._id || '',
+          priceQuantity: quantity * priceMedicine
+
+        }
+      })
+      // console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
         form.setFieldsValue({
-          patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+          patientId: prescription?.medicalReportId?.appointmentId?.patientId?.name,
           doctor: prescription?.prescribeByDoctor?._id,
           prescriptionDetails: formattedDetails,
         });
@@ -117,9 +133,6 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   // Handle change select medicine
   const handleChangeSelectMedicine = (value: string, fieldName: number) => {
     const currentDetail = form.getFieldValue('prescriptionDetails') || [];
-    console.log("value", value);
-    console.log("field name", fieldName)
-    console.log("curr details", currentDetail);
 
     // Check medicine is exist in another row ?
     const isDuplicate = currentDetail.some((item: any, index: number) => index !== fieldName && item?.medicineId === value);
@@ -142,15 +155,51 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     }
   }
 
+  const handleChangeValues = (changeValues: any, allValues: any) => {
+    if (!changeValues.prescriptionDetails) return;
+    const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
+      const duration = dt.duration || 0;
+      const morning = dt.morningDosage || 0;
+      const noon = dt.noonDosage || 0;
+      const afternoon = dt.afternoonDosage || 0;
+      const evening = dt.eveningDosage || 0;
+      const quantity = duration * (morning + noon + afternoon + evening);
+      const medicine = medicineList.find(m => m._id === dt.medicineId);
+      const price = medicine?.price || 0;
+
+
+      // Check duplicate when remove row prescriptionDetail
+      const medicineIds = allValues.prescriptionDetails
+        .map((item: any) => item?.medicineId)
+        .filter(Boolean);
+      const uniqueIds = new Set(medicineIds);
+      setAlertDuplicateMedicine(uniqueIds.size !== medicineIds.length);
+
+      return {
+        ...dt,
+        quantity: isNaN(quantity) ? undefined : quantity,
+        priceQuantity: quantity * price
+      }
+    });
+
+    form.setFieldsValue({ prescriptionDetails: updatedDetails })
+  }
+
   // On finish form
   const onFinish = async (values: any) => {
-    const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
+    const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
+    // console.log(values)
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
       return {
         medicineId: medicineSelected?._id,
         quantity: item.quantity,
         usageMethodId: item.usage,
+        duration: item.duration || '',
+        morningDosage: item.morningDosage ?? '',
+        noonDosage: item.noonDosage ?? '',
+        afternoonDosage: item.afternoonDosage ?? '',
+        eveningDosage: item.eveningDosage ?? '',
         price: medicineSelected?.price || 0
       }
     })
@@ -159,7 +208,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       prescribeByDoctor: values.doctor,
       details: prescriptionDetails,
     }
-    console.log("payload", payload);
+    // console.log("payload", payload);
     try {
       messageApi.open({
         key,
@@ -197,7 +246,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     <>
       {contextHolder}
       <Modal
-        width={1300}
+        width={1520}
         title={
           dataTitlePrescription ? (
             <>
@@ -231,6 +280,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       >
         {loading ? <Skeleton active /> : (
           <Form
+            onValuesChange={handleChangeValues}
             onFinish={onFinish}
             form={form}
             initialValues={{ prescriptionDetails: [{}] }}
@@ -246,12 +296,13 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                 <Form.Item
                   className='mr-[100px]'
                   label="Patient name"
-                  name="patientName"
+                  name="patientId"
                   layout='vertical'
                   style={{ width: 500, minHeight: 40 }}
                   rules={[{ required: true, message: 'Missing patient' }]}
                 >
                   <Select
+                    size="large"
                     dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                     placeholder="Select patient name"
                     showSearch
@@ -265,8 +316,8 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }
                     }>
                     {patientExaminedList && patientExaminedList.map((pt) => (
-                      <Select.Option key={pt.patientId} value={pt.name} >
-                        {pt.name}
+                      <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.patientId} >
+                        {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
                       </Select.Option>
                     ))}
                   </Select>
@@ -279,7 +330,9 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                   rules={[{ required: true, message: 'Missing doctor' }]}
 
                 >
-                  <Select placeholder="Select doctor"
+                  <Select
+                    size="large"
+                    placeholder="Select doctor"
                     dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                     showSearch
                     optionFilterProp="children"
@@ -292,7 +345,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }
                     }>
                     {doctorList && doctorList.map(dt => (
-                      <Select.Option key={dt._id} value={dt._id}>
+                      <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
                         {dt.name}
                       </Select.Option>
                     ))}
@@ -309,16 +362,17 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <Space key={key} style={{ display: 'flex', marginBottom: 20, gap: 20, alignItems: "flex-end", justifyContent: "space-between" }} >
+                      <Space key={key} style={{ display: 'flex', marginBottom: 20, gap: 20, alignItems: "flex-end", }} >
                         <Form.Item
                           label="Medicine name"
                           layout='vertical'
-                          style={{ width: 300, minHeight: 50 }}
+                          style={{ width: 200, minHeight: 50 }}
                           {...restField}
                           name={[name, 'medicineId']}
                           rules={[{ required: true, message: 'Missing medicine name' }]}
                         >
                           <Select
+                            size="large"
                             onChange={(value) => handleChangeSelectMedicine(value, name)}
                             dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                             placeholder="Select medicine"
@@ -334,14 +388,14 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                             }
                           >
                             {medicineList && medicineList.map((medicine) => (
-                              <Select.Option key={medicine._id} value={medicine._id}>
+                              <Select.Option style={{ fontSize: "17px" }} key={medicine._id} value={medicine._id}>
                                 {medicine.name}
                               </Select.Option>
                             ))}
                           </Select>
                         </Form.Item>
                         <Form.Item
-                          style={{ width: 150, minHeight: 50 }}
+                          style={{ width: 80, minHeight: 50 }}
                           label="Unit"
                           layout='vertical'
                           {...restField}
@@ -349,29 +403,64 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                           rules={[{ required: true, message: 'Missing unit' }]}
 
                         >
-                          <Input readOnly style={{ width: 150 }} placeholder="Unit" />
+                          <Input size="large" readOnly style={{ width: 80 }} placeholder="Unit" />
                         </Form.Item>
                         <Form.Item
-                          style={{ width: 150, minHeight: 50 }}
-                          label="Quantity"
+                          style={{ width: 110, minHeight: 50 }}
+                          label="Duration"
                           layout='vertical'
                           {...restField}
-                          name={[name, 'quantity']}
-                          rules={[{ required: true, message: 'Missing quantity' }]}
-
+                          name={[name, 'duration']}
+                          rules={[{ required: true, message: 'Missing duration' }]}
                         >
-                          <InputNumber style={{ width: 150 }} placeholder="Quantity" min={1} />
+                          <InputNumber min={1} addonAfter={"Day"} size='large' ></InputNumber>
+                        </Form.Item>
+                        <Form.Item
+                          label="Dosage schedule"
+                          layout='vertical'
+
+                          style={{ width: 350, minHeight: 50 }}
+                          required
+                        >
+                          <Space.Compact block size='large' >
+                            <Form.Item name={[name, 'morningDosage']} noStyle
+                              rules={[{ required: true, message: 'Missing morning dosage' }]}
+                            >
+                              <InputNumber addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
+
+                              } min={0} size='large' placeholder="Morning" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'noonDosage']} noStyle
+                              rules={[{ required: true, message: 'Missing noon dosage' }]}
+                            >
+                              <InputNumber addonBefore={<IoSunnySharp style={{ color: '#EB6440', fontSize: 20 }} />
+                              } min={0} placeholder="Noon" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'afternoonDosage']} noStyle
+                              rules={[{ required: true, message: 'Missing afternoon dosage' }]}
+                            >
+                              <InputNumber addonBefore={<BsFillSunsetFill style={{ color: '#A62C2C', fontSize: 20 }} />
+                              } min={0} placeholder="Afternoon" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'eveningDosage']} noStyle
+                              rules={[{ required: true, message: 'Missing evening dosage' }]}
+                            >
+                              <InputNumber addonBefore={<IoMoon style={{ color: '#27548A', fontSize: 20 }} />
+                              } min={0} placeholder="Evening" />
+                            </Form.Item>
+                          </Space.Compact>
                         </Form.Item>
                         <Form.Item
                           label="Usage"
                           layout='vertical'
-                          style={{ width: 450, minHeight: 50 }}
+                          style={{ width: 300, minHeight: 50 }}
                           {...restField}
                           name={[name, 'usage']}
                           rules={[{ required: true, message: 'Missing usage' }]}
 
                         >
                           <Select
+                            size="large"
                             dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                             placeholder="Select usage"
                             showSearch
@@ -385,14 +474,33 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                             }
                             }>
                             {usageMethodList && usageMethodList.map((use) => (
-                              <Select.Option key={use._id.toString()} value={use._id} >
+                              <Select.Option style={{ fontSize: "17px" }} key={use._id.toString()} value={use._id} >
                                 {use.name}
                               </Select.Option>
-                            ))}                          </Select>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          style={{ width: 70, minHeight: 50 }}
+                          label="Quantity"
+                          layout='vertical'
+                          {...restField}
+                          name={[name, 'quantity']}
+                        >
+                          <InputNumber readOnly size="large" style={{ width: 70 }} placeholder="Quantity" min={1} />
+                        </Form.Item>
+                        <Form.Item
+                          style={{ width: 160, minHeight: 50 }}
+                          label="Price"
+                          layout='vertical'
+                          {...restField}
+                          name={[name, 'priceQuantity']}
+                        >
+                          <Input size='large' addonAfter={"$"} readOnly></Input>
                         </Form.Item>
                         <div>
                           <MinusCircleOutlined
-                            style={{ fontSize: 20, color: '#ff4d4f', marginBottom: 18, cursor: 'pointer' }}
+                            style={{ fontSize: 20, color: '#ff4d4f', marginBottom: 15, cursor: 'pointer' }}
                             onClick={() => remove(name)}
                           />
                         </div>

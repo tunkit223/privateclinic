@@ -20,16 +20,19 @@ import {
 import { Button } from "../../ui/button"
 import Image from "next/image"
 import { Input } from "../../ui/input"
+import { useEffect } from "react"
 
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  globalFilter: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  globalFilter
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -38,9 +41,13 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   })
+  useEffect(() => {
+    table.getColumn("patient")?.setFilterValue(globalFilter)
+  }, [globalFilter])
 
   return (
     <>
+
       <div className="data-table">
 
         <Table className="shad-table">

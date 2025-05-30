@@ -26,6 +26,7 @@ function Prescription() {
     router.push(`/${accountId}/prescription/create`);
   }
   const [prescription, setPrescription] = useState<PrescriptionData>({ documents: [] });
+  const [filterValue, setFilterValue] = useState("");
 
   const fetchPrescription = async () => {
     try {
@@ -46,8 +47,10 @@ function Prescription() {
 
       <div className="header flex justify-between items-center">
         <Input
-          placeholder="Search by prescription..."
-          className="w-full max-w-[500px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
+          placeholder="Search by patient..."
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          className="w-full max-w-[500px] font-medium text-xl py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
         />
         <Button style={{
           backgroundColor: "#4EC092",
@@ -59,7 +62,7 @@ function Prescription() {
           Create prescription
         </Button>
       </div>
-      <DataTable columns={columns({ onDeleted: fetchPrescription, onUpdated: fetchPrescription })} data={prescription.documents.reverse()} />
+      <DataTable globalFilter={filterValue} columns={columns({ onDeleted: fetchPrescription, onUpdated: fetchPrescription })} data={prescription.documents.reverse()} />
 
     </>
   )

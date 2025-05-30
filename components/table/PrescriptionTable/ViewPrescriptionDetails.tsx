@@ -9,6 +9,10 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
+import { BsFillSunriseFill } from "react-icons/bs";
+import { IoSunnySharp } from "react-icons/io5";
+import { BsFillSunsetFill } from "react-icons/bs";
+import { IoMoon } from "react-icons/io5";
 import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
 
 
@@ -103,12 +107,23 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
       setUsageMethodList(usageMethods)
       console.log("dt", details)
 
-      const formattedDetails = (details || []).map((item: any) => ({
-        medicineId: item.medicineId?.name || '',
-        unit: item.medicineId?.unit || '',
-        quantity: item.quantity || '',
-        usage: item.usageMethodId?.name || '',
-      }))
+
+      const formattedDetails = (details || []).map((item: any) => {
+        const priceMedicine = item.medicineId?.price || 0;
+        const quantity = item.quantity || 0;
+        return {
+          medicineId: item.medicineId?.name || '',
+          unit: item.medicineId?.unit || '',
+          duration: item.duration || '',
+          morningDosage: item.morningDosage ?? '',
+          noonDosage: item.noonDosage ?? '',
+          afternoonDosage: item.afternoonDosage ?? '',
+          eveningDosage: item.eveningDosage ?? '',
+          quantity: quantity,
+          usage: item.usageMethodId?.name || '',
+          priceQuantity: quantity * priceMedicine
+        }
+      })
       console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
@@ -148,7 +163,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         </Button>
       </Tooltip>
       <Modal
-        width={1300}
+        width={1480}
         title={
           dataTitlePrescription ? (
             <>
@@ -199,8 +214,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                   layout='vertical'
                   style={{ width: 500, minHeight: 40 }}
                 >
-                  <Input readOnly>
-                  </Input>
+                  <Input size='large' readOnly></Input>
                 </Form.Item>
                 <Form.Item
                   label="Doctor"
@@ -208,7 +222,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                   layout='vertical'
                   style={{ width: 500 }}
                 >
-                  <Input readOnly></Input>
+                  <Input size='large' readOnly></Input>
                 </Form.Item>
               </div>
             </div>
@@ -225,39 +239,85 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                         <Form.Item
                           label="Medicine name"
                           layout='vertical'
-                          style={{ width: 400, minHeight: 50 }}
+                          style={{ width: 200, minHeight: 50 }}
                           {...restField}
                           name={[name, 'medicineId']}
                         >
-                          <Input readOnly></Input>
+                          <Input size='large' readOnly></Input>
                         </Form.Item>
 
                         <Form.Item
-                          style={{ width: 150, minHeight: 50 }}
+                          style={{ width: 80, minHeight: 50 }}
                           label="Unit"
                           layout='vertical'
                           {...restField}
                           name={[name, 'unit']}
                         >
-                          <Input readOnly style={{ width: 150 }} placeholder="Unit" />
+                          <Input size='large' readOnly style={{ width: 80 }} placeholder="Unit" />
                         </Form.Item>
                         <Form.Item
-                          style={{ width: 150, minHeight: 50 }}
+                          style={{ width: 110, minHeight: 50 }}
+                          label="Duration"
+                          layout='vertical'
+                          {...restField}
+                          name={[name, 'duration']}
+                        >
+                          <Input size='large' addonAfter={"Day"} readOnly></Input>
+                        </Form.Item>
+                        <Form.Item
+                          label="Dosage schedule"
+                          layout='vertical'
+
+                          style={{ width: 350, minHeight: 50 }}
+                          required
+                        >
+                          <Space.Compact block size='large' >
+                            <Form.Item name={[name, 'morningDosage']} noStyle>
+                              <InputNumber readOnly addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
+
+                              } min={0} size='large' placeholder="Morning" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'noonDosage']} noStyle>
+                              <InputNumber readOnly addonBefore={<IoSunnySharp style={{ color: '#EB6440', fontSize: 20 }} />
+                              } min={0} placeholder="Noon" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'afternoonDosage']} noStyle>
+                              <InputNumber readOnly addonBefore={<BsFillSunsetFill style={{ color: '#A62C2C', fontSize: 20 }} />
+                              } min={0} placeholder="Afternoon" />
+                            </Form.Item>
+                            <Form.Item name={[name, 'eveningDosage']} noStyle>
+                              <InputNumber readOnly addonBefore={<IoMoon style={{ color: '#27548A', fontSize: 20 }} />
+                              } min={0} placeholder="Evening" />
+                            </Form.Item>
+                          </Space.Compact>
+                        </Form.Item>
+
+                        <Form.Item
+                          label="Usage"
+                          layout='vertical'
+                          style={{ width: 300, minHeight: 50 }}
+                          {...restField}
+                          name={[name, 'usage']}
+                        >
+                          <Input size='large' readOnly></Input>
+                        </Form.Item>
+                        <Form.Item
+                          style={{ width: 70, minHeight: 50 }}
                           label="Quantity"
                           layout='vertical'
                           {...restField}
                           name={[name, 'quantity']}
                         >
-                          <Input readOnly></Input>
+                          <Input size='large' readOnly></Input>
                         </Form.Item>
                         <Form.Item
-                          label="Usage"
+                          style={{ width: 160, minHeight: 50 }}
+                          label="Price"
                           layout='vertical'
-                          style={{ width: 450, minHeight: 50 }}
                           {...restField}
-                          name={[name, 'usage']}
+                          name={[name, 'priceQuantity']}
                         >
-                          <Input readOnly></Input>
+                          <Input size='large' addonAfter={"$"} readOnly></Input>
                         </Form.Item>
                       </Space>
                     ))}

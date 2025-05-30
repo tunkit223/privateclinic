@@ -130,7 +130,7 @@ export const createPrescription = async ({
     await PrescriptionDetail.insertMany(detailPrescription);
 
 
-    console.log(details);
+    // console.log(details);
     const totalPrice = details.reduce((sum, item) => {
       const itemTotal = (item.price || 0) * item.quantity;
       return sum + itemTotal;
@@ -164,6 +164,7 @@ export const getPatientExaminedList = async () => {
     const medicalReportExamined = await MedicalReport.find({ status: "examined" })
       .populate({
         path: "appointmentId",
+        select: "date",
         populate: {
           path: "patientId",
           select: "name",
@@ -173,6 +174,7 @@ export const getPatientExaminedList = async () => {
       medicalReportId: item._id,
       patientId: item.appointmentId.patientId._id,
       name: item.appointmentId.patientId.name,
+      dateAppointment: item.appointmentId.date
     }))
 
     return JSON.parse(JSON.stringify(formatted));
@@ -226,6 +228,11 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       medicineId: new ObjectId(dt.medicineId),
       prescriptionId: new ObjectId(prescriptionId),
       quantity: dt.quantity,
+      duration: dt.duration,
+      morningDosage: dt.morningDosage,
+      noonDosage: dt.noonDosage,
+      afternoonDosage: dt.afternoonDosage,
+      eveningDosage: dt.eveningDosage,
       usageMethodId: dt.usageMethodId,
       price: dt.price,
     }));
