@@ -15,7 +15,11 @@ import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPres
 import { getLayoutOrPageModule } from 'next/dist/server/lib/app-dir-module';
 import { getUsageMethodList } from '@/lib/actions/usageMethod.action';
 import { IUsageMethod } from '@/database/usageMethod.model';
-import { CiCloudSun } from "react-icons/ci";
+import { BsFillSunriseFill } from "react-icons/bs";
+import { IoSunnySharp } from "react-icons/io5";
+import { BsFillSunsetFill } from "react-icons/bs";
+import { IoMoon } from "react-icons/io5";
+
 
 function CreatePrescription() {
   const router = useRouter();
@@ -43,13 +47,24 @@ function CreatePrescription() {
   }, [])
 
   const onFinish = async (values: any) => {
-    console.log(values)
+    console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
+
+      const morning = item.morning || 0;
+      const noon = item.noonDosage || 0;
+      const afternoon = item.afternoonDosage || 0;
+      const evening = item.eveningDosage || 0;
+      const totalPerDay = morning + noon + afternoon + evening;
       return {
         medicineId: medicineSelected?._id,
-        quantity: item.quantity,
+        quantity: (item.duration || 0) * totalPerDay,
+        duration: item.duration,
+        morningDosage: morning,
+        afternoonDosage: afternoon,
+        noonDosage: noon,
+        eveningDosage: evening,
         usageMethodId: item.usage,
         price: medicineSelected?.price || 0
       }
@@ -59,7 +74,7 @@ function CreatePrescription() {
       prescribeByDoctor: values.doctor,
       details: prescriptionDetails,
     }
-    // console.log("Payload to create prescription:", payload);
+    console.log("Payload to create prescription:", payload);
     try {
       messageApi.open({
         key,
@@ -126,11 +141,30 @@ function CreatePrescription() {
     }
     form.submit();
   }
+  const handleChangeValue = (changeValues: any, allValues: any) => {
+    if (!changeValues.prescriptionDetails) return;
+    const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
+      const duration = dt.duration || 0;
+      const morning = dt.morning || 0;
+      const noon = dt.noonDosage || 0;
+      const afternoon = dt.afternoonDosage || 0;
+      const evening = dt.eveningDosage || 0;
+      const quantity = duration * (morning + noon + afternoon + evening);
+
+      return {
+        ...dt,
+        quantity: isNaN(quantity) ? undefined : quantity
+      }
+    });
+    form.setFieldsValue({ prescriptionDetails: updatedDetails })
+
+  }
   return (
     <>
       {contextHolder}
       <div >
         <Form
+          onValuesChange={handleChangeValue}
           form={form}
           initialValues={{ prescriptionDetails: [{}] }}
           name="dynamic_form_nest_item"
@@ -152,6 +186,7 @@ function CreatePrescription() {
                 rules={[{ required: true, message: 'Missing patient name' }]}
               >
                 <Select
+                  size='large'
                   dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                   placeholder="Select patient name"
                   showSearch
@@ -179,7 +214,8 @@ function CreatePrescription() {
                 style={{ width: 500 }}
                 rules={[{ required: true, message: 'Missing doctor' }]}
               >
-                <Select placeholder="Select doctor"
+                <Select
+                  size='large' placeholder="Select doctor"
                   dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                   showSearch
                   optionFilterProp="children"
@@ -220,6 +256,7 @@ function CreatePrescription() {
                         rules={[{ required: true, message: 'Missing medicine name' }]}
                       >
                         <Select
+                          size='large'
                           onChange={(value) => handleChangeSelectMedicine(value, name)}
                           dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                           placeholder="Select medicine"
@@ -249,17 +286,17 @@ function CreatePrescription() {
                         {...restField}
                         name={[name, 'unit']}
                       >
-                        <Input readOnly style={{ width: 150 }} placeholder="Unit" />
+                        <Input size='large' readOnly style={{ width: 150 }} placeholder="Unit" />
                       </Form.Item>
                       <Form.Item
                         style={{ width: 150, minHeight: 50 }}
-                        label="Quantity"
+                        label="Duration (days)"
                         layout='vertical'
                         {...restField}
-                        name={[name, 'quantity']}
+                        name={[name, 'duration']}
                         rules={[{ required: true, message: 'Missing quantity' }]}
                       >
-                        <InputNumber style={{ width: 150 }} placeholder="Quantity" min={1} />
+                        <InputNumber size='large' style={{ width: 150 }} placeholder="Duration" min={1} />
                       </Form.Item>
 
 
@@ -272,17 +309,21 @@ function CreatePrescription() {
                       >
                         <Space.Compact block size='large'>
                           <Form.Item name={[name, 'morning']} noStyle>
-                            <InputNumber addonBefore={<CiCloudSun style={{ color: 'orange' }} />
+                            <InputNumber addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
+
                             } min={0} size='large' placeholder="Morning" />
                           </Form.Item>
-                          <Form.Item name={[name, 'noon']} noStyle>
-                            <InputNumber addonBefore="N" min={0} placeholder="Noon" />
+                          <Form.Item name={[name, 'noonDosage']} noStyle>
+                            <InputNumber addonBefore={<IoSunnySharp style={{ color: '#EB6440', fontSize: 20 }} />
+                            } min={0} placeholder="Noon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'afternoon']} noStyle>
-                            <InputNumber addonBefore="A" min={0} placeholder="Afternoon" />
+                          <Form.Item name={[name, 'afternoonDosage']} noStyle>
+                            <InputNumber addonBefore={<BsFillSunsetFill style={{ color: '#A62C2C', fontSize: 20 }} />
+                            } min={0} placeholder="Afternoon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'evening']} noStyle>
-                            <InputNumber addonBefore="E" min={0} placeholder="Evening" />
+                          <Form.Item name={[name, 'eveningDosage']} noStyle>
+                            <InputNumber addonBefore={<IoMoon style={{ color: '#27548A', fontSize: 20 }} />
+                            } min={0} placeholder="Evening" />
                           </Form.Item>
                         </Space.Compact>
                       </Form.Item>
@@ -296,7 +337,7 @@ function CreatePrescription() {
                         rules={[{ required: true, message: 'Missing usage' }]}
                       >
                         <Select
-                          // size='large'
+                          size='large'
                           dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                           placeholder="Select usage"
                           showSearch
@@ -325,7 +366,7 @@ function CreatePrescription() {
                         name={[name, 'quantity']}
                         rules={[{ required: true, message: 'Missing quantity' }]}
                       >
-                        <Input style={{ width: 100 }} placeholder="Quantity" min={1} />
+                        <Input readOnly size='large' style={{ width: 100 }} placeholder="Quantity" min={1} />
                       </Form.Item>
 
                       {/* <Form.Item >

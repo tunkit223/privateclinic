@@ -127,7 +127,7 @@ export const createPrescription = async ({
     await PrescriptionDetail.insertMany(detailPrescription);
 
 
-    console.log(details);
+    // console.log(details);
     const totalPrice = details.reduce((sum, item) => {
       const itemTotal = (item.price || 0) * item.quantity;
       return sum + itemTotal;

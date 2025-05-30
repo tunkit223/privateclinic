@@ -5,6 +5,11 @@ export interface Create_EditPrescriptionPayload {
     quantity: number;
     medicineId: string;
     usageMethodId?: string;
+    duration: number,
+    morningDosage: number,
+    afternoonDosage: number,
+    noonDosage: number,
+    eveningDosage: number,
     price?: number;
   }[];
 }
