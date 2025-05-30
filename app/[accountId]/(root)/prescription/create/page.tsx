@@ -15,6 +15,7 @@ import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPres
 import { getLayoutOrPageModule } from 'next/dist/server/lib/app-dir-module';
 import { getUsageMethodList } from '@/lib/actions/usageMethod.action';
 import { IUsageMethod } from '@/database/usageMethod.model';
+import { CiCloudSun } from "react-icons/ci";
 
 function CreatePrescription() {
   const router = useRouter();
@@ -269,18 +270,19 @@ function CreatePrescription() {
                         style={{ width: 350, minHeight: 50 }}
                         required
                       >
-                        <Space.Compact block>
+                        <Space.Compact block size='large'>
                           <Form.Item name={[name, 'morning']} noStyle>
-                            <InputNumber min={0} placeholder="Morning" />
+                            <InputNumber addonBefore={<CiCloudSun style={{ color: 'orange' }} />
+                            } min={0} size='large' placeholder="Morning" />
                           </Form.Item>
                           <Form.Item name={[name, 'noon']} noStyle>
-                            <InputNumber min={0} placeholder="Noon" />
+                            <InputNumber addonBefore="N" min={0} placeholder="Noon" />
                           </Form.Item>
                           <Form.Item name={[name, 'afternoon']} noStyle>
-                            <InputNumber min={0} placeholder="Afternoon" />
+                            <InputNumber addonBefore="A" min={0} placeholder="Afternoon" />
                           </Form.Item>
                           <Form.Item name={[name, 'evening']} noStyle>
-                            <InputNumber min={0} placeholder="Evening" />
+                            <InputNumber addonBefore="E" min={0} placeholder="Evening" />
                           </Form.Item>
                         </Space.Compact>
                       </Form.Item>
@@ -294,6 +296,7 @@ function CreatePrescription() {
                         rules={[{ required: true, message: 'Missing usage' }]}
                       >
                         <Select
+                          // size='large'
                           dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                           placeholder="Select usage"
                           showSearch
