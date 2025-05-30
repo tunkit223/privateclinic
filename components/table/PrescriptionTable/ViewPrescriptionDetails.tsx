@@ -3,12 +3,22 @@ import { useEffect, useState } from "react";
 import { Button, Skeleton, Tooltip } from "antd";
 import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
-import { Form, Input, Select, Space, InputNumber, Tag } from "antd";
-import { getPrescriptionById, getPrescriptionDetailsById } from "@/lib/actions/prescription.action";
+import { Form, Input, Select, Space, InputNumber, Tag, message } from "antd";
+import { getPrescriptionById, getPrescriptionDetailsById, getPatientExaminedList, UpdatePrescription, } from "@/lib/actions/prescription.action";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
+import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
+
+
+import { IMedicine } from "@/lib/interfaces/medicine.interface";
+import { PatientExamined } from "@/lib/interfaces/patientExamined.interface";
+import { IDoctor } from "@/lib/interfaces/doctor.interface";
+import { IUsageMethod } from "@/lib/interfaces/usageMethod.interface";
+import { useRouter } from "next/navigation";
+import { getEmployeesList } from '@/lib/actions/employees.action';
+import { getMedicineList } from '@/lib/actions/medicine.action';
 
 interface ViewPrescriptionDetailsProps {
   prescriptionId: string;
@@ -19,45 +29,101 @@ interface DataTitleViewPrescription {
   isPaid: boolean;
 }
 const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProps) => {
+  // const [open, setOpen] = useState(false);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [form] = Form.useForm();
+  // const [dataTitlePrescription, setDataTitlePrescription] = useState<DataTitleViewPrescription | null>(null);
+
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [form] = Form.useForm();
   const [dataTitlePrescription, setDataTitlePrescription] = useState<DataTitleViewPrescription | null>(null);
+  const [medicineList, setMedicineList] = useState<IMedicine[]>([]);
+  const [patientExaminedList, setPatientExaminedList] = useState<PatientExamined[]>([]);
+  const [doctorList, setDoctorList] = useState<IDoctor[]>([]);
+  const [alertDuplicateMedicine, setAlertDuplicateMedicine] = useState(false);
+  const [usageMethodList, setUsageMethodList] = useState<IUsageMethod[]>([]);
+
+  const [messageApi, contextHolder] = message.useMessage();
+  const key = "updatable"
+  const router = useRouter();
+  const [form] = Form.useForm();
 
 
-  useEffect(() => {
-    if (open) {
-      const fetchPrescription = async () => {
-        const data = await getPrescriptionById(prescriptionId);
-        setDataTitlePrescription(data);
-        const details = await getPrescriptionDetailsById(prescriptionId);
-        console.log(details)
 
-        const formattedDetails = (details || []).map((item: any) => ({
-          name: item.medicineId?.name || '',
-          unit: item.medicineId?.unit || '',
-          quantity: item.quantity || '',
-          usage: item.usageMethodId?.name || '',
-        }))
-        if (data) {
-          form.setFieldsValue({
-            patientName: data?.medicalReportId?.appointmentId?.patientId?.name,
-            doctor: data?.prescribeByDoctor?.name,
-            prescriptionDetails: formattedDetails,
-          })
-        }
-      }
-      fetchPrescription();
-    }
-  }, [open, prescriptionId])
-
+  // const showModal = async () => {
+  //   setOpen(true);
+  //   setLoading(true);
+  //   try {
+  //     const [prescription, details, usageMethods] = await Promise.all([
+  //       getPrescriptionById(prescriptionId),
+  //       getPrescriptionDetailsById(prescriptionId),
+  //       getUsageMethodList()
+  //     ]);
+  //     setDataTitlePrescription(prescription);
+  //     const formattedDetails = (details || []).map((item: any) => ({
+  //       name: item.medicineId?.name || "",
+  //       unit: item.medicineId?.unit || "",
+  //       quantity: item.quantity || "",
+  //       usage: item.usageMethodId?.name || ""
+  //     }))
+  //     console.log("dtail", formattedDetails)
+  //     if (prescription) {
+  //       form.setFieldsValue({
+  //         patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+  //         doctor: prescription?.prescribeByDoctor?.name,
+  //         prescriptionDetails: formattedDetails,
+  //       });
+  //     }
+  //     console.log(prescription)
+  //   } catch (error) {
+  //     console.error("Error fetching prescription details VIEW:", error);
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // };
 
   const showModal = async () => {
     setOpen(true);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false)
-    }, 1500);
+    try {
+      const [patients, medicines, doctors, prescription, details, usageMethods] = await Promise.all([
+        getPatientExaminedList(),
+        getMedicineList(),
+        getEmployeesList(),
+        getPrescriptionById(prescriptionId),
+        getPrescriptionDetailsById(prescriptionId),
+        getUsageMethodList()
+      ]);
+
+      setPatientExaminedList(patients);
+      setMedicineList(medicines.documents);
+      setDoctorList(doctors.documents);
+      setDataTitlePrescription(prescription);
+      setUsageMethodList(usageMethods)
+      console.log("dt", details)
+
+      const formattedDetails = (details || []).map((item: any) => ({
+        medicineId: item.medicineId?.name || '',
+        unit: item.medicineId?.unit || '',
+        quantity: item.quantity || '',
+        usage: item.usageMethodId?.name || '',
+      }))
+      console.log("Formatted details set to form:", formattedDetails);
+
+      if (prescription) {
+        form.setFieldsValue({
+          patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+          doctor: prescription?.prescribeByDoctor?.name,
+          prescriptionDetails: formattedDetails,
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      messageApi.error("Failed to load prescription data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOk = () => {
@@ -161,7 +227,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                           layout='vertical'
                           style={{ width: 400, minHeight: 50 }}
                           {...restField}
-                          name={[name, 'name']}
+                          name={[name, 'medicineId']}
                         >
                           <Input readOnly></Input>
                         </Form.Item>

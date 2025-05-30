@@ -5,6 +5,7 @@ import Prescription from "@/database/prescription.model";
 import dbConnect from "../mongoose"
 import PrescriptionDetail from "@/database/prescriptionDetail.model";
 import MedicalReport from "@/database/medicalReport.modal";
+
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
 
@@ -77,6 +78,7 @@ export const getPrescriptionById = async (prescriptionId: string) => {
 
 export const getPrescriptionDetailsById = async (prescriptionId: string) => {
   try {
+    await dbConnect();
     const details = await PrescriptionDetail.find({ prescriptionId, })
       .populate({
         path: "usageMethodId",
@@ -94,6 +96,7 @@ export const getPrescriptionDetailsById = async (prescriptionId: string) => {
     return JSON.parse(JSON.stringify(details));
   } catch (error) {
     console.log("Get prescription details by Id", error)
+    return null
   }
 }
 export const createPrescription = async ({
