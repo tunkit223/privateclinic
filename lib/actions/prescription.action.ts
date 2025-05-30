@@ -161,6 +161,7 @@ export const getPatientExaminedList = async () => {
     const medicalReportExamined = await MedicalReport.find({ status: "examined" })
       .populate({
         path: "appointmentId",
+        select: "date",
         populate: {
           path: "patientId",
           select: "name",
@@ -170,6 +171,7 @@ export const getPatientExaminedList = async () => {
       medicalReportId: item._id,
       patientId: item.appointmentId.patientId._id,
       name: item.appointmentId.patientId.name,
+      dateAppointment: item.appointmentId.date
     }))
 
     return JSON.parse(JSON.stringify(formatted));

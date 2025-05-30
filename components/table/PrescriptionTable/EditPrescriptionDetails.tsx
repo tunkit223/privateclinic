@@ -25,7 +25,7 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
-
+import dayjs from "dayjs";
 interface EditPrescriptionDetailsProps {
   prescriptionId: string;
 }
@@ -74,6 +74,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
       setUsageMethodList(usageMethods)
+      console.log(patientExaminedList);
 
       const formattedDetails = (details || []).map((item: any) => {
         const priceMedicine = item.medicineId?.price || 0;
@@ -97,7 +98,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
       if (prescription) {
         form.setFieldsValue({
-          patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+          patientId: prescription?.medicalReportId?.appointmentId?.patientId?.name,
           doctor: prescription?.prescribeByDoctor?._id,
           prescriptionDetails: formattedDetails,
         });
@@ -186,7 +187,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
   // On finish form
   const onFinish = async (values: any) => {
-    const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
+    const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
     // console.log(values)
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
@@ -295,7 +296,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                 <Form.Item
                   className='mr-[100px]'
                   label="Patient name"
-                  name="patientName"
+                  name="patientId"
                   layout='vertical'
                   style={{ width: 500, minHeight: 40 }}
                   rules={[{ required: true, message: 'Missing patient' }]}
@@ -315,8 +316,8 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }
                     }>
                     {patientExaminedList && patientExaminedList.map((pt) => (
-                      <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.name} >
-                        {pt.name}
+                      <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.patientId} >
+                        {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
                       </Select.Option>
                     ))}
                   </Select>

@@ -19,6 +19,7 @@ import { BsFillSunriseFill } from "react-icons/bs";
 import { IoSunnySharp } from "react-icons/io5";
 import { BsFillSunsetFill } from "react-icons/bs";
 import { IoMoon } from "react-icons/io5";
+import dayjs from "dayjs";
 
 
 function CreatePrescription() {
@@ -46,9 +47,10 @@ function CreatePrescription() {
       .catch(err => console.error("Error fetching initial data", err))
   }, [])
 
+  console.log(patientExaminedList);
   const onFinish = async (values: any) => {
-    console.log("values", values)
-    const selectedPatient = patientExaminedList.find(pt => pt.name === values.patientName);
+    // console.log("values", values)
+    const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
 
@@ -186,7 +188,7 @@ function CreatePrescription() {
               <Form.Item
                 className='mr-[100px]'
                 label="Patient name"
-                name="patientName"
+                name="patientId"
                 layout='vertical'
                 style={{ width: 500, minHeight: 40 }}
                 rules={[{ required: true, message: 'Missing patient name' }]}
@@ -206,8 +208,8 @@ function CreatePrescription() {
                   }
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => (
-                    <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.name} >
-                      {pt.name}
+                    <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.patientId} >
+                      {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
                     </Select.Option>
                   ))}
                   {/* {renderSelectOptions(patientExaminedList, 'name', 'name')} */}
