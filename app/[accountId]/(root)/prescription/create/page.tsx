@@ -49,12 +49,12 @@ function CreatePrescription() {
 
   console.log(patientExaminedList);
   const onFinish = async (values: any) => {
-    // console.log("values", values)
+    console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
 
-      const morning = item.morning || 0;
+      const morning = item.morningDosage || 0;
       const noon = item.noonDosage || 0;
       const afternoon = item.afternoonDosage || 0;
       const evening = item.eveningDosage || 0;
