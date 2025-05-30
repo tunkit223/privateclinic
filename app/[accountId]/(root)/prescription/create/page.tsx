@@ -145,7 +145,7 @@ function CreatePrescription() {
     if (!changeValues.prescriptionDetails) return;
     const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
       const duration = dt.duration || 0;
-      const morning = dt.morning || 0;
+      const morning = dt.morningDosage || 0;
       const noon = dt.noonDosage || 0;
       const afternoon = dt.afternoonDosage || 0;
       const evening = dt.eveningDosage || 0;
@@ -200,7 +200,7 @@ function CreatePrescription() {
                   }
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => (
-                    <Select.Option key={pt.patientId} value={pt.name} >
+                    <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.name} >
                       {pt.name}
                     </Select.Option>
                   ))}
@@ -228,7 +228,7 @@ function CreatePrescription() {
                   }
                   }>
                   {doctorList && doctorList.map(dt => (
-                    <Select.Option key={dt._id} value={dt._id}>
+                    <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
                       {dt.name}
                     </Select.Option>
                   ))}
@@ -272,7 +272,7 @@ function CreatePrescription() {
                           }
                         >
                           {medicineList && medicineList.map((medicine) => (
-                            <Select.Option key={medicine._id} value={medicine._id}>
+                            <Select.Option style={{ fontSize: "17px" }} key={medicine._id} value={medicine._id}>
                               {medicine.name}
                             </Select.Option>
                           ))}
@@ -308,7 +308,7 @@ function CreatePrescription() {
                         required
                       >
                         <Space.Compact block size='large'>
-                          <Form.Item name={[name, 'morning']} noStyle>
+                          <Form.Item name={[name, 'morningDosage']} noStyle>
                             <InputNumber addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
 
                             } min={0} size='large' placeholder="Morning" />
@@ -351,7 +351,7 @@ function CreatePrescription() {
                           }
                           }>
                           {usageMethodList && usageMethodList.map((use) => (
-                            <Select.Option key={use._id.toString()} value={use._id} >
+                            <Select.Option style={{ fontSize: "17px" }} key={use._id.toString()} value={use._id} >
                               {use.name}
                             </Select.Option>
                           ))}
