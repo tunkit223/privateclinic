@@ -5,6 +5,9 @@ import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PRO
 import { InputFile } from "node-appwrite/file";
 import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
+import { Types } from "mongoose";
+import { IPatient } from "@/database/patient.model";
+import Success from "@/app/patient/[patientId]/appointment/success/page";
 
 // Trang viet cac funtion cho backend
 
@@ -42,32 +45,107 @@ export const registerPatient = async (data: any) => {
       phone: data.phone,
       gender: data.gender,
       address: data.address,
-      birthdate: data.birthDate,
+      birthdate: data.birthdate,
       // Thêm các trường khác nếu cần
     });
 
     return {
-      ...newPatient.toObject(), // Chuyển mongoose document sang plain object
-      _id: newPatient._id.toString() // Đảm bảo _id là string
+      ...newPatient.toObject(), 
+      _id: newPatient._id.toString() 
     }
   } catch (error) {
     throw error;
   }
 };
 
-export const getPatientList = async () => {
+async function addDeletedFieldToExistingPatients() {
+  await dbConnect();
+
+  const result = await Patient.updateMany(
+    { deleted: { $exists: false } },  // chỉ cập nhật những bản ghi chưa có trường deleted
+    { $set: { deleted: false, deletedAt: null } }
+  );
+
+  console.log("Updated documents count:", result.modifiedCount);
+}
+
+addDeletedFieldToExistingPatients().catch(console.error);
+export const getPatientList = async (): Promise<{ documents: (IPatient & { _id: string })[] } | null> => {
   try {
-    const patient = await Patient.find()
+    const patients = await Patient.find({deleted : {$ne: true}}) // Lọc các bệnh nhân chưa bị xóa
       .sort({ createdAt: -1 })
-      .lean();
+      .lean<Array<{ _id: Types.ObjectId } & IPatient>>(); // khai báo mảng rõ ràng
 
-    const data = {
-      documents: patient,
+    return {
+      documents: patients.map((p) => ({
+        ...p,
+        _id: p._id.toString(),
+      })),
     };
-
-    return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error("Error fetching patient:", error);
     return null;
+  }
+};
+export const deletePatient = async (id: Types.ObjectId | string) => {
+  try {
+    await dbConnect();
+
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      id,
+      { deleted: true, deletedAt: new Date() },
+      { new: true }
+    );
+
+    if (!updatedPatient) {
+      throw new Error("Patient not found");
+    }
+
+    return { success: true, message: "Deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting patient:", error);
+    return { success: false, message: "Error deleting patient" };
+  }
+};
+export const updatePatient = async (id: Types.ObjectId | string, data: any) => {
+  try {
+    await dbConnect();
+
+    if (data.deleted === true) {
+      data.deletedAt = new Date();
+    } else if (data.deleted === false) {
+      data.deletedAt = null;
+    }
+
+    const updatedPatient = await Patient.findByIdAndUpdate(id, data, { new: true });
+
+    if (!updatedPatient) {
+      throw new Error("Patient not found");
+    }
+
+    return {
+      success: true,
+      message: "Patient updated successfully",
+      updatedPatient,
+    };
+  } catch (error) {
+    console.error("Error updating Patient:", error);
+    return { success: false, message: "Error updating Patient" };
+  }
+};
+
+export const restorePatient = async (id: Types.ObjectId | string) => {
+  try {
+    await dbConnect();
+    const restoredPatient = await Patient.findByIdAndUpdate(
+      id,
+      { deleted: false, deletedAt: null },
+      { new: true }
+    );
+    if (!restoredPatient) throw new Error("Patient not found");
+    return { success: true, message: "Restored successfully" };
+  } catch (error) {
+    console.error("Error restoring patient:", error);
+    return { success: false, message: "Error restoring patient" };
   }
 };

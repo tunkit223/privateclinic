@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { bigint, z } from "zod";
 // Trang check các thuộc tính của user
 export const AccountFormValidation = z.object({
   password: z.string()
@@ -46,7 +46,7 @@ export const ForgetPassFormValidation = z.object({
   path: ["newpasswordagain"], // Hiển thị lỗi tại trường `newpasswordagain`
 });
 
-export const PatientFormValidation = z.object({
+export const PatientRegisterFormValidation = z.object({
   name: z
     .string()
     .min(1, "Name must be at least 1 characters")
@@ -55,7 +55,29 @@ export const PatientFormValidation = z.object({
   phone: z
     .string()
     .refine((phone) => /^((\+84|0)[3|5|7|8|9])+([0-9]{8})$/.test(phone), 'Invalid phone number'),
-  birthdate: z.coerce.date(),
+    birthdate: z
+    .coerce.date()
+    .max(new Date(), { message: "Birthdate must be before today" })
+    ,
+  gender: z.enum(["Male", "Female", "Other"]),
+  address: z
+    .string()
+    .min(5, "Address must be at least 5 characters")
+    .max(500, "Address must be at most 500 characters"),
+
+});
+export const PatientEditFormValidation = z.object({
+  name: z
+    .string()
+    .min(1, "Name must be at least 1 characters")
+    .max(50, "Name must be at most 50 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z
+    .string()
+    .refine((phone) => /^((\+84|0)[3|5|7|8|9])+([0-9]{8})$/.test(phone), 'Invalid phone number'),
+  birthdate: z.string()
+    .refine(val => /^\d{4}-\d{2}-\d{2}$/.test(val), { message: "Invalid date format" })
+    .refine(val => new Date(val) < new Date(), { message: "Birthdate must be before today" }),
   gender: z.enum(["Male", "Female", "Other"]),
   address: z
     .string()
