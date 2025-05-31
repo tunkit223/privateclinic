@@ -1,19 +1,24 @@
 import NewMedicineModal from '@/components/NewMedicineModal'
-import DataTable from '@/components/table/MedicineTable'
-import { columns } from '@/components/table/medicineColumns';
-import { getMedicineList } from '@/lib/actions/medicine.action';
-import React from 'react'
-
+import MedicineTableClient from '@/components/table/MedicineTableClient'  // client wrapper
+import { getMedicineList, getMedicineTypes } from '@/lib/actions/medicine.action';
 
 const Medicine = async () => {
   const medicine = await getMedicineList();
+  const medicineTypes = await getMedicineTypes();
+
+  // Chuyển _id về string để tránh lỗi so sánh ObjectId với string
+  const parsedTypes = medicineTypes.map((t: any) => ({
+    _id: t._id.toString(),
+    name: t.name,
+  }));
+
   return (
-    
     <div className='relative mx-auto flex max-w-4xl flex-col space-y-14'>
       <div className='absolute right-0 -top-5'><NewMedicineModal/></div>
-      <DataTable columns={columns} data={medicine.documents}/>   
+      {/* Truyền data + types cho component client */}
+      <MedicineTableClient data={medicine.documents} medicineTypes={parsedTypes} />
     </div>
   )
 }
 
-export default Medicine
+export default Medicine;

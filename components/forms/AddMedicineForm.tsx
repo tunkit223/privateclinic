@@ -1,5 +1,5 @@
 "use client";
-import { addMedicineFormValidation } from '@/lib/validation'
+import { medicineFormSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -35,8 +35,8 @@ const AddMedicineForm = () => {
   }, []);
      
   // Set up the form with react-hook-form and validation
-  const form = useForm<z.infer<typeof addMedicineFormValidation>>({
-    resolver: zodResolver(addMedicineFormValidation),
+  const form = useForm<z.infer<typeof medicineFormSchema>>({
+    resolver: zodResolver(medicineFormSchema),
     defaultValues: {
       name: "",
       medicineTypeId: "",
@@ -47,7 +47,7 @@ const AddMedicineForm = () => {
   });
 
   // Handle form submission
-  async function onSubmit(values: z.infer<typeof addMedicineFormValidation>) {
+  async function onSubmit(values: z.infer<typeof medicineFormSchema>) {
     setIsLoading(true);
     try {
       const medicineData = {

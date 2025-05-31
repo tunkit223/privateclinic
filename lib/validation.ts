@@ -153,16 +153,23 @@ export function getAppointmentSchema(type: string) {
   }
 }
 
-export const addMedicineFormValidation = z.object({
+export const medicineFormSchema = z.object({
   name: z
     .string()
-    .min(1, "Name must be at least 1 characters")
+    .min(1, "Name must be at least 1 character")
     .max(50, "Name must be at most 50 characters"),
-  medicineTypeId: z.string(),
-  unit: z.string(),
-  amount: z.string(),
-  price: z.string(),
-})
+    
+  medicineTypeId: z.string().min(1, "Medicine type is required"),
+  unit: z.string().min(1, "Unit is required"),
+
+  amount: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, {
+    message: "Amount must be a valid number",
+  }),
+
+  price: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, {
+    message: "Price must be a valid number",
+  }),
+});
 
 export const addMedicineTypeFormValidation = z.object({
   name:z
