@@ -136,7 +136,7 @@ export default function EditMedicineForm({
 
     <button
       type="submit"
-      className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"
+      className="w-full bg-blue-500 hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded-md"
     >
       Save Changes
     </button>
