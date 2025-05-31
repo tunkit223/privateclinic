@@ -1,6 +1,6 @@
 'use server'
 
-import MedicalRPDetail from "@/database/medicalRPDetail.model";
+import MedicalRPDetail from "@/database/prescriptionDetail.model";
 import dbConnect from "../mongoose";
 import { Types } from "mongoose";
 import Medicine from "@/database/medicine";

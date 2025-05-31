@@ -132,62 +132,67 @@ export const MedicalStatusIcon = {
   unexamined: "/assets/icons/cancelled.svg",
 };
 
-export const sidebarLinks=[
+export const sidebarLinks = [
   {
-    imgURL:'/assets/icons/dashboard-icon.png',
-    label:'Dashboard',
-    route:'/'
+    imgURL: '/assets/icons/dashboard-icon.png',
+    label: 'Dashboard',
+    route: '/',
   },
   {
-    imgURL:'/assets/icons/appointment-icon.png',
-    label:'Appointment',
-    route:'/appointment'
-  },
-   {
-    imgURL:'/assets/images/medical-report.png',
-    label:'Medical Report',
-    route:'/medicalreport'
+    imgURL: '/assets/icons/appointment-icon.png',
+    label: 'Appointment',
+    route: '/appointment'
   },
   {
-    imgURL:'/assets/icons/revenue.png',
-    label:'Bill',
-    route:'/bill'
+    imgURL: '/assets/images/medical-report.png',
+    label: 'Medical Report',
+    route: '/medicalreport'
   },
   {
-    imgURL:'/assets/icons/patient-icon.png',
-    label:'Patient',
-    route:'/patientList'
+    imgURL: '/assets/images/medical-report.png',
+    label: 'Prescription',
+    route: '/prescription'
   },
   {
-    imgURL:'/assets/icons/medicine.png',
-    label:'Medicine',
-    route:'/medicine'
+    imgURL: '/assets/icons/revenue.png',
+    label: 'Bill',
+    route: '/bill'
   },
   {
-    imgURL:'/assets/icons/tags-icon.png',
-    label:'Medicine Type',
-    route:'/Type'
-  },
- 
-  
-  {
-    imgURL:'/assets/icons/employee.png',
-    label:'Employees',
-    route:'/employee'
+    imgURL: '/assets/icons/patient-icon.png',
+    label: 'Patient',
+    route: '/patientList'
   },
   {
-    imgURL:'/assets/icons/import.png',
-    label:'Import',
-    route:'/import'
+    imgURL: '/assets/icons/medicine.png',
+    label: 'Medicine',
+    route: '/medicine'
   },
   {
-    imgURL:'/assets/icons/setting-icon.png',
-    label:'Setting',
-    route:'/setting'
+    imgURL: '/assets/icons/tags-icon.png',
+    label: 'Medicine Type',
+    route: '/Type'
+  },
+
+
+  {
+    imgURL: '/assets/icons/employee.png',
+    label: 'Employees',
+    route: '/employee'
   },
   {
-    imgURL:'/assets/icons/trash.png',
-    label:'Garbage',
-    route:'/garbage'
+    imgURL: '/assets/icons/import.png',
+    label: 'Import',
+    route: '/import'
+  },
+  {
+    imgURL: '/assets/icons/setting-icon.png',
+    label: 'Setting',
+    route: '/setting'
+  },
+  {
+    imgURL: '/assets/icons/trash.png',
+    label: 'Garbage',
+    route: '/garbage'
   },
 ]

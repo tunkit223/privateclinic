@@ -1,6 +1,9 @@
+import Counter from "@/database/counter.model";
+import RefAutoComplete from "antd/es/auto-complete/AutoComplete";
 import { type ClassValue, clsx } from "clsx";
 import { Percent } from "lucide-react";
 import { Model } from "mongoose";
+import { resourceUsage } from "process";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -135,4 +138,48 @@ export const getFigureByModel = async <T>(Model: Model<T>, filter: Record<string
     console.log(`Error fetch figure by ${Model.modelName}:`, error);
     return null;
   }
+}
+
+
+export const generatePrescriptionId = async () => {
+  const result = await Counter.findByIdAndUpdate(
+    { _id: "prescription" },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  const code = "Rx" + String(result.seq).padStart(6, "0");
+  return code;
+}
+
+import MedicalReport from "@/database/medicalReport.modal";
+import PatientReport from "@/database/patientReport.model";
+import Appointment from "@/database/appointment.model";
+
+export async function addData() {
+  const reports = await MedicalReport.find();
+  for (const report of reports) {
+    const appointment = await Appointment.findById(report.appointmentId);
+
+    if (!appointment) {
+      console.log("Appointment not found for report:", report.appointmentId);
+      continue;
+    }
+    const patientId = appointment.patientId;
+    if (!patientId) {
+      console.log("Patient ID not found for appointment:", appointment._id);
+      continue;
+    }
+    const existing = await PatientReport.findOne({
+      patientId,
+      medicalReportId: report._id
+    });
+    if (!existing) {
+      await PatientReport.create({
+        patientId,
+        medicalReportId: report._id,
+      })
+      console.log("Created PatientReport for patientId:", patientId, "and medicalReportId:", report._id);
+    }
+  }
+  console.log("Data added successfully");
 }

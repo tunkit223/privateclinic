@@ -30,10 +30,11 @@ const PatientSchema = new Schema<IPatient>({
     type: Date,
     default: null,
   },
-},
-{timestamps: true});
 
-const Patient = models?.Patient|| model<IPatient>('Patient', PatientSchema);
+},
+  { timestamps: true });
+
+const Patient = models?.Patient || model<IPatient>('Patient', PatientSchema);
 
 export default Patient
 
