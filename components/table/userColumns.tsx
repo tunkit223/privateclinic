@@ -40,6 +40,15 @@ export const columns: ColumnDef<IUser>[] = [
     )
   },
   {
+    accessorKey: "role",
+    header: "Role",
+    cell:({row}) =>(
+      <p className="text-14-regular min-w-[100px]">
+        {row.original.role}
+      </p>
+    )
+  },
+  {
     accessorKey: "image",
     header: "Image",
     cell:({row}) =>(
