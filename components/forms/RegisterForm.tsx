@@ -14,6 +14,7 @@ import { FormFieldType } from "./PatientForm"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
+import toast from "react-hot-toast"
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -43,9 +44,6 @@ const RegisterForm = () => {
         phone: cleanedPhone,
         birthdate: new Date(values.birthdate),
       };
-
-
-
       // Gọi action Mongoose trực tiếp
       const newPatient = await registerPatient(patientData);
 
