@@ -10,6 +10,7 @@ import { Delete, Edit } from "lucide-react";
 import EditPrescriptionDetails from "./EditPrescriptionDetails";
 import DeletePrescriptionDetails from "./DeletePrescription";
 import EditButton from "@/components/Button/EditButton";
+import PrescriptionPDF from "./PrescriptionPDF";
 
 interface ColumnProps {
   onDeleted: () => void;
@@ -82,6 +83,18 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
+      const downloadPDF = async (id: string) => {
+        const res = await fetch(`/api/prescription/${id}/pdf`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
       return (
         <>
           <div className="flex items-center gap-4">
@@ -90,6 +103,7 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
               <EditButton id={row.original._id.toString()} resource="prescription" />
             )}
             <DeletePrescriptionDetails prescriptionId={row.original._id.toString()} onDeleted={onDeleted} />
+            <Button onClick={() => downloadPDF(row.original._id.toString())}>PDF</Button>
           </div>
         </>
       )

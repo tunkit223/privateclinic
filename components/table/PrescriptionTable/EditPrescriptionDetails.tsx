@@ -97,8 +97,9 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       // console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
+        // console.log("pres", prescription)
         form.setFieldsValue({
-          patientId: prescription?.medicalReportId?.appointmentId?.patientId?.name,
+          patientId: prescription?.medicalReportId?.appointmentId?.patientId._id,
           doctor: prescription?.prescribeByDoctor?._id,
           prescriptionDetails: formattedDetails,
         });
@@ -150,7 +151,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         ...currentDetail[fieldName],
         unit: medicine.unit,
       };
-      console.log(currentDetail[fieldName])
+      // console.log(currentDetail[fieldName])s
       form.setFieldsValue({ prescriptionDetails: currentDetail });
     }
   }
@@ -187,7 +188,9 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
   // On finish form
   const onFinish = async (values: any) => {
+    // console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
+    // console.log("patient", selectedPatient)
     // console.log(values)
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);

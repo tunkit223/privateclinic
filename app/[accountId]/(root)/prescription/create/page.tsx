@@ -51,6 +51,7 @@ function CreatePrescription() {
   const onFinish = async (values: any) => {
     console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
+    // console.log("")
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
 
