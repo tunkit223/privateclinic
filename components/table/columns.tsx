@@ -14,6 +14,8 @@ import { ConfirmAppointment } from "@/lib/actions/appointment.action"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import toast from "react-hot-toast"
+import { getDoctorInfo } from "@/lib/actions/workschedules.action"
+import DoctorCell from "../Doctorcell"
 
 
 
@@ -54,26 +56,10 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
     )
   },
   {
-    accessorKey: "primaryPhysician",
-    header: () => 'Doctor',
-    cell: ({ row }) => {
-      const doctor = Doctors.find((doc)=> doc.name === row.original.doctor)
-      return (
-        <div className="flex items-center gap-3">
-          <Image
-            src={doctor!.image}
-            alt={doctor!.name}
-            width={100}
-            height={100}
-            className='size-8'
-          />
-          <p className="whitespace-nowrap">
-              Dr. {doctor?.name}
-          </p>
-        </div>
-      )
-    },
-  },
+  accessorKey: "doctor",
+  header: () => "Doctor",
+  cell: ({ row }) => <DoctorCell doctorId={row.original.doctor.toString()} />,
+},
   {
     id: "actions",
     header: () => <div className="pl-4">Actions</div>,

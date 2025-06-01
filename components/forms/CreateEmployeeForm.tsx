@@ -10,7 +10,7 @@ import { useState } from "react"
 import {  AccountFormValidation, UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { FormFieldType } from "./PatientForm"
-import { Tag } from "@/constants"
+import { Role } from "@/constants"
 import { createAccount , createUser} from "@/lib/actions/user.action"
 import { SelectItem } from "../ui/select"
 import toast from "react-hot-toast";
@@ -30,6 +30,7 @@ const CreateEmployeeForm = () => {
       name: "",
       username:"",
       phone:"",
+      role:"",
       address:""
     },
   })
@@ -44,7 +45,6 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
     const accountData = {
       email: values.email,
       password: values.password,
-      tag: values.tag,
     };
 
     const newAccount = await createAccount(accountData);
@@ -84,6 +84,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
       accountId:accountId.toString(), // Lấy accountId từ state
       name: values.name,
       username: values.username,
+      role:values.role,
       phone: values.phone,
       address: values.address,
     };
@@ -131,25 +132,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
         iconSrc = '/assets/icons/key.png'
         iconAlt = 'password'
       />
-       <CustomFormField
-              fieldType={FormFieldType.SELECT}
-              control={form1.control}
-              name='tag'
-              label='Tag'
-              placeholder='Select a tag'
-            >
-              {Tag.map((tag) => (
-                <SelectItem
-                  key={tag.name}
-                  value={tag.name}
-                  onClick={() => form1.setValue("tag", tag.name)}>
-                  <div className="flex items-center gap-2 cursor-pointer">
-                    <p>
-                      {tag.name}
-                    </p>
-                  </div>
-                </SelectItem>))}
-            </CustomFormField>
+       
 
       <SubmitButton isLoading={isLoading}>Create account</SubmitButton>
     </form>
@@ -176,6 +159,24 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
           iconAlt = 'username'
         />
       </div>
+      <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form2.control}
+            name='role'
+            label='Role'
+            placeholder='Select a role'
+          >
+            {Role.map((role) => (
+              <SelectItem
+                key={role.name}
+                value={role.name} 
+              >
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <p>{role.name}</p>
+                </div>
+              </SelectItem>
+            ))}
+          </CustomFormField>
             <CustomFormField
               fieldType = {FormFieldType.PHONE_INPUT}
               control = {form2.control}
