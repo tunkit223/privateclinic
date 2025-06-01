@@ -84,6 +84,10 @@ const AppointmentForm = ({
 
     } catch (error) {
       console.log(error);
+      toast.error("The date is full of appointments, please choose another date.", {
+          position: "top-left",
+          duration: 3000,
+        });
     }
     setisLoading(false);
   }

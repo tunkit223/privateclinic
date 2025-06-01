@@ -10,27 +10,51 @@ import MedicalReport from "@/database/medicalReport.modal";
 export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
-    console.log("createAppointment");
-    const patientIdString = typeof data.patientId === "object" ? data.patientId._id : data.patientId;
-    const patientIdObject = new mongoose.Types.ObjectId(patientIdString)
-    
+
+    // Chuyển đổi patientId thành ObjectId
+    const patientIdString =
+      typeof data.patientId === "object" ? data.patientId._id : data.patientId;
+    const patientIdObject = new mongoose.Types.ObjectId(patientIdString);
+
+    // Kiểm tra bệnh nhân tồn tại
     const patient = await Patient.findById(patientIdObject);
     if (!patient) {
       throw new Error("Bệnh nhân không tồn tại.");
     }
 
+    // Tính ngày bắt đầu và kết thúc của ngày đặt lịch
+    const appointmentDate = new Date(data.date);
+    const startOfDay = new Date(appointmentDate);
+    startOfDay.setHours(0, 0, 0, 0);
 
-    const newAppointment = await Appointment.create(data);
+    const endOfDay = new Date(appointmentDate);
+    endOfDay.setHours(23, 59, 59, 999);
 
+    // Đếm các lịch hẹn KHÔNG ở trạng thái 'cancel' trong ngày đó
+    const count = await Appointment.countDocuments({
+      date: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+      status: { $ne: "cancelled" }, // Chỉ đếm các lịch không bị hủy
+    });
 
-    return JSON.parse(
-      JSON.stringify({
-        ...newAppointment.toObject(),
-        _id: newAppointment._id.toString(),
-        patientId: newAppointment.patientId.toString(),
-        date: newAppointment.date.toISOString(), 
-      })
-    );
+    if (count >=40 ) {
+      throw new Error("Đã đủ 40 lịch hẹn hợp lệ trong ngày này. Vui lòng chọn ngày khác.");
+    }
+
+    // Tạo lịch hẹn mới
+    const newAppointment = await Appointment.create({
+      ...data,
+      patientId: patientIdObject,
+    });
+
+    return {
+      ...newAppointment.toObject(),
+      _id: newAppointment._id.toString(),
+      patientId: newAppointment.patientId.toString(),
+      date: newAppointment.date.toISOString(),
+    };
   } catch (error) {
     throw error;
   }

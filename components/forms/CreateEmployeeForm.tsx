@@ -7,17 +7,12 @@ import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
-import { PatientFormValidation, AccountFormValidation, UserFormValidation } from "@/lib/validation"
+import {  AccountFormValidation, UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import { registerPatient } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import { Doctors, GenderOptions, Tag } from "@/constants"
-import { Label } from "../ui/label"
+import { Tag } from "@/constants"
 import { createAccount , createUser} from "@/lib/actions/user.action"
 import { SelectItem } from "../ui/select"
-import Image from "next/image"
-import mongoose from "mongoose";
 import toast from "react-hot-toast";
 const CreateEmployeeForm = () => {
   const router = useRouter();
