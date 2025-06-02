@@ -159,15 +159,10 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   const handleChangeValues = (changeValues: any, allValues: any) => {
     if (!changeValues.prescriptionDetails) return;
     const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
-      const duration = dt.duration || 0;
-      const morning = dt.morningDosage || 0;
-      const noon = dt.noonDosage || 0;
-      const afternoon = dt.afternoonDosage || 0;
-      const evening = dt.eveningDosage || 0;
-      const quantity = duration * (morning + noon + afternoon + evening);
+
+      const quantity = dt.quantity || 0;
       const medicine = medicineList.find(m => m._id === dt.medicineId);
       const price = medicine?.price || 0;
-
 
       // Check duplicate when remove row prescriptionDetail
       const medicineIds = allValues.prescriptionDetails
@@ -178,7 +173,6 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
       return {
         ...dt,
-        quantity: isNaN(quantity) ? undefined : quantity,
         priceQuantity: quantity * price
       }
     });
@@ -490,7 +484,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                           {...restField}
                           name={[name, 'quantity']}
                         >
-                          <InputNumber readOnly size="large" style={{ width: 70 }} placeholder="Quantity" min={1} />
+                          <InputNumber size="large" style={{ width: 70 }} placeholder="Quantity" min={1} />
                         </Form.Item>
                         <Form.Item
                           style={{ width: 160, minHeight: 50 }}

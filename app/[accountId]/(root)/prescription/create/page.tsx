@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, InputNumber, message, Row, Space, Tag, Typography } from 'antd';
-import { Select } from 'antd';
+import { Select, Tooltip } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
@@ -19,6 +19,8 @@ import { BsFillSunriseFill } from "react-icons/bs";
 import { IoSunnySharp } from "react-icons/io5";
 import { BsFillSunsetFill } from "react-icons/bs";
 import { IoMoon } from "react-icons/io5";
+import { ImCalculator } from "react-icons/im";
+
 import dayjs from "dayjs";
 
 
@@ -49,25 +51,18 @@ function CreatePrescription() {
 
   console.log(patientExaminedList);
   const onFinish = async (values: any) => {
-    console.log("values", values)
+    // console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
-    // console.log("")
     const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
       const medicineSelected = medicineList.find(med => med._id === item.medicineId);
-
-      const morning = item.morningDosage || 0;
-      const noon = item.noonDosage || 0;
-      const afternoon = item.afternoonDosage || 0;
-      const evening = item.eveningDosage || 0;
-      const totalPerDay = morning + noon + afternoon + evening;
       return {
         medicineId: medicineSelected?._id,
-        quantity: (item.duration || 0) * totalPerDay,
+        quantity: item.quantity,
         duration: item.duration,
-        morningDosage: morning,
-        afternoonDosage: afternoon,
-        noonDosage: noon,
-        eveningDosage: evening,
+        morningDosage: item.morningDosage,
+        afternoonDosage: item.afternoonDosage,
+        noonDosage: item.noonDosage,
+        eveningDosage: item.eveningDosage,
         usageMethodId: item.usage,
         price: medicineSelected?.price || 0
       }
@@ -147,13 +142,6 @@ function CreatePrescription() {
   const handleChangeValue = (changeValues: any, allValues: any) => {
     if (!changeValues.prescriptionDetails) return;
     const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
-      const duration = dt.duration || 0;
-      const morning = dt.morningDosage || 0;
-      const noon = dt.noonDosage || 0;
-      const afternoon = dt.afternoonDosage || 0;
-      const evening = dt.eveningDosage || 0;
-      const quantity = duration * (morning + noon + afternoon + evening);
-
       // Check duplicate when remove row prescriptionDetail
       const medicineIds = allValues.prescriptionDetails
         .map((item: any) => item?.medicineId)
@@ -162,11 +150,9 @@ function CreatePrescription() {
       setAlertDuplicateMedicine(uniqueIds.size !== medicineIds.length);
       return {
         ...dt,
-        quantity: isNaN(quantity) ? undefined : quantity
       }
     });
     form.setFieldsValue({ prescriptionDetails: updatedDetails })
-
   }
   return (
     <>
@@ -303,7 +289,7 @@ function CreatePrescription() {
                         layout='vertical'
                         {...restField}
                         name={[name, 'duration']}
-                        rules={[{ required: true, message: 'Missing quantity' }]}
+                        rules={[{ required: true, message: 'Missing duration' }]}
                       >
                         <InputNumber size='large' style={{ width: 150 }} placeholder="Duration" min={1} />
                       </Form.Item>
@@ -375,7 +361,8 @@ function CreatePrescription() {
                         name={[name, 'quantity']}
                         rules={[{ required: true, message: 'Missing quantity' }]}
                       >
-                        <Input readOnly size='large' style={{ width: 100 }} placeholder="Quantity" min={1} />
+                        <InputNumber
+                          size='large' style={{ width: 100 }} placeholder="Quantity" min={1} />
                       </Form.Item>
 
                       {/* <Form.Item >

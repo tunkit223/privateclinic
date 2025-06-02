@@ -9,7 +9,9 @@ Font.register({
   family: 'Roboto',
   fonts: [
     { src: path.join(process.cwd(), 'public', 'fonts', 'Roboto-Regular.ttf'), fontWeight: 'normal' },
-    { src: path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf'), fontWeight: 'bold' }
+    { src: path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf'), fontWeight: 'bold' },
+    { src: path.join(process.cwd(), 'public', 'fonts', 'Roboto-Italic.ttf'), fontStyle: 'italic' }
+
   ]
 });
 
@@ -42,15 +44,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 2,
   },
+  italicUsage: {
+    fontStyle: 'italic'
+  },
   col1: { width: '5%' },
-  col2: { width: '27%' },
-  col3: { width: '7%' },
-  col4: { width: '7%' },
-  col5: { width: '7%' },
-  col6: { width: '7%' },
-  col7: { width: '7%' },
-  col8: { width: '7%' },
-  col9: { width: '26%' },
+  col2: { width: '35%' },
+  col3: { width: '10%' },
+  col4: { width: '10%' },
+  col5: { width: '10%' },
+  col6: { width: '10%' },
+  col7: { width: '10%' },
+  col8: { width: '10%' },
 });
 
 export const PrescriptionDocument = ({ prescription, details }: {
@@ -111,19 +115,27 @@ export const PrescriptionDocument = ({ prescription, details }: {
         <Text style={styles.col6}>Eve</Text>
         <Text style={styles.col7}>Qty</Text>
         <Text style={styles.col8}>Unit</Text>
-        <Text style={styles.col9}>Usage</Text>
+        {/* <Text style={styles.col9}>Usage</Text> */}
       </View>
       {details.map((item, index) => (
-        <View key={index} style={styles.tableRow}>
-          <Text style={styles.col1}>{index + 1}</Text>
-          <Text style={styles.col2}>{item.medicineId?.name || 'N/A'}</Text>
-          <Text style={styles.col3}>{item.morningDosage || '0'}</Text>
-          <Text style={styles.col4}>{item.noonDosage || '0'}</Text>
-          <Text style={styles.col5}>{item.afternoonDosage || '0'}</Text>
-          <Text style={styles.col6}>{item.eveningDosage || '0'}</Text>
-          <Text style={styles.col7}>{item.quantity}</Text>
-          <Text style={styles.col8}>Pill</Text>
-          <Text style={styles.col9}>{item.usageMethodId?.name || 'N/A'}</Text>
+        <View key={index} >
+          <View style={styles.tableRow}>
+            <Text style={styles.col1}>{index + 1}</Text>
+            <Text style={styles.col2}>{item.medicineId?.name || 'N/A'}</Text>
+            <Text style={styles.col3}>{item.morningDosage || '0'}</Text>
+            <Text style={styles.col4}>{item.noonDosage || '0'}</Text>
+            <Text style={styles.col5}>{item.afternoonDosage || '0'}</Text>
+            <Text style={styles.col6}>{item.eveningDosage || '0'}</Text>
+            <Text style={styles.col7}>{item.quantity}</Text>
+            <Text style={styles.col8}>{item.medicineId?.unit}</Text>
+          </View>
+          {/* <Text style={styles.col9}>{item.usageMethodId?.name || 'N/A'}</Text> */}
+          <View>
+            <Text style={{ marginBottom: 10, }}>
+              <Text>Usage: </Text>
+              <Text style={styles.italicUsage}>{item.usageMethodId.name ? `(${item.usageMethodId.name})` : "N/A"}</Text>
+            </Text>
+          </View>
         </View>
       ))}
       <View style={{ marginTop: 25 }}>
@@ -147,27 +159,7 @@ export const PrescriptionDocument = ({ prescription, details }: {
           <Text style={{ marginRight: 60 }}>Treating doctor</Text>
         </View>
       </View>
-      {/* <View style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginRight: 70,
-        marginTop: 50
-      }} >
-        <View style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
-          <Text>
-            {prescription.createdAt ?
-              dayjs(prescription.createdAt).format("DD/MM/YYYY") : 'N/A'}
-          </Text>
-          <Text>Treating doctor</Text>
-        </View>
-        <Text>Prescribing pharmacist</Text>
-      </View> */}
+
     </Page>
   </Document>
 );
