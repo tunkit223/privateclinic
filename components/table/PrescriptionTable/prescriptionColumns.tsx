@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import Prescription, { IPrescription } from "@/database/prescription.model";
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import { useState } from "react";
 import PrescriptionStatusButton from "@/components/Button/PrescriptionStatusButton";
 import ViewPrescriptionDetails from "./ViewPrescriptionDetails";
@@ -11,6 +11,9 @@ import EditPrescriptionDetails from "./EditPrescriptionDetails";
 import DeletePrescriptionDetails from "./DeletePrescription";
 import EditButton from "@/components/Button/EditButton";
 import PrescriptionPDF from "./PrescriptionPDF";
+import { RiPrinterFill } from "react-icons/ri";
+import DownloadPDFButton from "@/components/Button/DownloadPDFButton";
+
 
 interface ColumnProps {
   onDeleted: () => void;
@@ -103,7 +106,7 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
               <EditButton id={row.original._id.toString()} resource="prescription" />
             )}
             <DeletePrescriptionDetails prescriptionId={row.original._id.toString()} onDeleted={onDeleted} />
-            <Button onClick={() => downloadPDF(row.original._id.toString())}>PDF</Button>
+            <DownloadPDFButton prescriptionId={row.original._id.toString()} />
           </div>
         </>
       )
