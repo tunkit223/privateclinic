@@ -11,6 +11,10 @@ export interface IPrescription {
       patientId: {
         _id: Types.ObjectId;
         name: string;
+        phone: string;
+        address: string;
+        gender: string;
+        birthdate: Date;
       }
     }
   }
@@ -23,6 +27,7 @@ export interface IPrescription {
   code?: string,
   deleted?: boolean,
   deletedAt?: Date,
+  createdAt: Date,
 }
 export interface IPrescriptionDoc extends IPrescription, Document {
   _id: Types.ObjectId;
