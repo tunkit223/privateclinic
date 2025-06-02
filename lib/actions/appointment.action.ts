@@ -82,7 +82,7 @@ export const createAppointment = async (data: any) => {
 export const getAppointment = async (appointmentId: string) => {
   try {
     const appointment = await Appointment.findById(appointmentId).lean();
-    
+
     if (!appointment) {
       throw new Error("Appointment not found");
     }
@@ -92,7 +92,7 @@ export const getAppointment = async (appointmentId: string) => {
     console.error("Error fetching appointment:", error);
     return null;
   }
-  
+
 }
 
 export const getRecentAppointmentList = async () => {
@@ -100,13 +100,14 @@ export const getRecentAppointmentList = async () => {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
       .populate("patientId", "name")
+      .populate("doctor", "name _id")
       .lean();
     const initialCounts = {
       confirmedCount: 0,
       pendingCount: 0,
       cancelledCount: 0,
     };
-    
+
     const counts = appointments.reduce((acc, appointment) => {
       switch (appointment.status) {
         case "confirmed":
@@ -121,13 +122,13 @@ export const getRecentAppointmentList = async () => {
       }
       return acc;
     }, initialCounts);
-    
+
     const data = {
       totalCount: appointments.length,
       ...counts,
       documents: appointments,
     };
-    
+
     return JSON.parse(JSON.stringify(data));
   } catch (error) {
     console.error("Error fetching recent appointments:", error);
@@ -166,7 +167,7 @@ export const cancelAppointment = async (appointmentId: string, cancellationReaso
     if (!appointment) {
       throw new Error("Cuộc hẹn không tồn tại");
     }
-    if(appointment.status !== "pending"){
+    if (appointment.status !== "pending") {
       throw new Error("Cuộc hẹn đã bị hủy hoặc kết thúc");
     }
     // Cập nhật trạng thái và lý do hủy
@@ -176,7 +177,7 @@ export const cancelAppointment = async (appointmentId: string, cancellationReaso
 
     return { success: true, message: "Cuộc hẹn đã được hủy thành công" };
   } catch (error) {
-    console.log({error})
+    console.log({ error })
   }
 };
 
@@ -286,7 +287,7 @@ export const ConfirmAppointment = async ({
       appointmentId: appointmentId,
       status: "unexamined",
     });
-    
+
     return {
       _id: appointment._id.toString(),
     };

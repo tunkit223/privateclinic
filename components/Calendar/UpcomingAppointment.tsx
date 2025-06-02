@@ -25,8 +25,8 @@ dayjs.updateLocale('en', {
 
 type Appointment = {
   _id: string;
-  patientId: any;
-  doctor: string;
+  patientId: { name: string };
+  doctor: { name: string };
   date: string;
   reason: string;
   status: string;
@@ -48,8 +48,8 @@ const UpcomingAppointment = () => {
           time: dayjs(item.date).format('h:mm A'),
           description: (
             <>
-              <div>Doctor: <span className='font-bold'>{item.doctor}</span></div>
-              <div>Patient: <span className='font-bold'>{item.patientId.name}</span></div>
+              <div>Doctor: <span className='font-bold'>{item.doctor.name}</span></div>
+              <div>Patient: <span className='font-bold'>{item.patientId?.name}</span></div>
             </>
           )
         }));
@@ -94,7 +94,7 @@ const UpcomingAppointment = () => {
 
     const statusColorMap: { [key: string]: string } = {
       pending: '#4062BB',
-      finished: '#2E8B57',
+      confirmed: '#2E8B57',
       cancelled: '#FF4D4F',
     };
 
