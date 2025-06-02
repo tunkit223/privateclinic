@@ -95,6 +95,7 @@ export const getAllMedicalReports = async () => {
       },
     });
 
+
   return JSON.parse(JSON.stringify(reports));
 };
 

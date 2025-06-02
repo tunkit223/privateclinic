@@ -33,10 +33,7 @@ interface DataTitleViewPrescription {
   isPaid: boolean;
 }
 const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProps) => {
-  // const [open, setOpen] = useState(false);
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [form] = Form.useForm();
-  // const [dataTitlePrescription, setDataTitlePrescription] = useState<DataTitleViewPrescription | null>(null);
+
 
 
   const [open, setOpen] = useState(false);
@@ -54,38 +51,6 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
   const [form] = Form.useForm();
 
 
-
-  // const showModal = async () => {
-  //   setOpen(true);
-  //   setLoading(true);
-  //   try {
-  //     const [prescription, details, usageMethods] = await Promise.all([
-  //       getPrescriptionById(prescriptionId),
-  //       getPrescriptionDetailsById(prescriptionId),
-  //       getUsageMethodList()
-  //     ]);
-  //     setDataTitlePrescription(prescription);
-  //     const formattedDetails = (details || []).map((item: any) => ({
-  //       name: item.medicineId?.name || "",
-  //       unit: item.medicineId?.unit || "",
-  //       quantity: item.quantity || "",
-  //       usage: item.usageMethodId?.name || ""
-  //     }))
-  //     console.log("dtail", formattedDetails)
-  //     if (prescription) {
-  //       form.setFieldsValue({
-  //         patientName: prescription?.medicalReportId?.appointmentId?.patientId?.name,
-  //         doctor: prescription?.prescribeByDoctor?.name,
-  //         prescriptionDetails: formattedDetails,
-  //       });
-  //     }
-  //     console.log(prescription)
-  //   } catch (error) {
-  //     console.error("Error fetching prescription details VIEW:", error);
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // };
 
   const showModal = async () => {
     setOpen(true);
@@ -105,7 +70,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
       setUsageMethodList(usageMethods)
-      console.log("dt", details)
+      // console.log("dt", details);
 
 
       const formattedDetails = (details || []).map((item: any) => {

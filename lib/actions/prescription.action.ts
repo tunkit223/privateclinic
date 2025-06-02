@@ -45,6 +45,7 @@ export const getPrescriptionList = async () => {
 
 export const getPrescriptionById = async (prescriptionId: string) => {
   try {
+    await dbConnect();
     if (!prescriptionId) {
       console.log("Null prescriptionId");
       return null;
@@ -56,7 +57,7 @@ export const getPrescriptionById = async (prescriptionId: string) => {
           path: "appointmentId",
           populate: {
             path: "patientId",
-            select: "name",
+            select: "name phone birthdate address gender",
           },
         },
       })

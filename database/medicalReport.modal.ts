@@ -1,6 +1,13 @@
 import { model, Schema, models, Types } from "mongoose";
 export interface IMedicalReport {
-  appointmentId: Types.ObjectId,
+  appointmentId: {
+    _id: Types.ObjectId;
+    date: Date,
+    patientId: {
+      _id: Types.ObjectId;
+      name: string
+    }
+  }
   diseaseType?: Diseasetype,
   symptom?: string,
   status: MedicalStatus,
