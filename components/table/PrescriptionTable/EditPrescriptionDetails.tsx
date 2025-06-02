@@ -300,7 +300,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                 >
                   <Select
                     size="large"
-                    dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                    dropdownStyle={{ maxHeight: 200, overflow: 'auto', }}
                     placeholder="Select patient name"
                     showSearch
                     optionFilterProp="children"
@@ -330,7 +330,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                   <Select
                     size="large"
                     placeholder="Select doctor"
-                    dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
+                    dropdownStyle={{ maxHeight: 200, overflow: 'auto', }}
                     showSearch
                     optionFilterProp="children"
                     filterOption={(input: string, option?: DefaultOptionType) => {
