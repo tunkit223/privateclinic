@@ -74,7 +74,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
       setUsageMethodList(usageMethods)
-      console.log(patientExaminedList);
+      // console.log("pt", patientExaminedList);
 
       const formattedDetails = (details || []).map((item: any) => {
         const priceMedicine = item.medicineId?.price || 0;
@@ -99,7 +99,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       if (prescription) {
         // console.log("pres", prescription)
         form.setFieldsValue({
-          patientId: prescription?.medicalReportId?.appointmentId?.patientId._id,
+          patientId: prescription?.medicalReportId?.appointmentId?.patientId?._id,
           doctor: prescription?.prescribeByDoctor?._id,
           prescriptionDetails: formattedDetails,
         });
@@ -151,7 +151,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         ...currentDetail[fieldName],
         unit: medicine.unit,
       };
-      // console.log(currentDetail[fieldName])s
+      // console.log(currentDetail[fieldName])
       form.setFieldsValue({ prescriptionDetails: currentDetail });
     }
   }
