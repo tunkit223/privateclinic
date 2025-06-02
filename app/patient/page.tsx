@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { resolve } from 'path';
 import { Flag } from 'node-appwrite';
 import HealthCard from '@/components/HealthCard'
+import Chat from '@/components/Chat';
 
 export default function HomePage() {
   const router = useRouter();
@@ -127,6 +128,7 @@ export default function HomePage() {
       <footer className="w-full text-center mt-12 text-gray-600">
         <p>&copy; 2025 CarePulse. All rights reserved.</p>
       </footer>
+         
     </div>
   );
 }

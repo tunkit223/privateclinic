@@ -16,8 +16,9 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { IMedicalReport } from "@/database/medicalReport.modal"
 import StatusBadgeMedical from "../StatusBadgeMedicalRP"
-import { examiningMedicalReport } from "@/lib/actions/medicalReport.action"
+import { examiningMedicalReport, ExaminedMedicalReport } from "@/lib/actions/medicalReport.action"
 import medicalreport from "@/app/[accountId]/(root)/medicalreport/page"
+import DoctorCell from "../Doctorcell"
 
 
 
@@ -58,26 +59,9 @@ export const columns: ColumnDef<IMedicalReport>[] = [
     },
   },
   {
-    accessorKey: "primaryPhysician",
-    header: () => 'Doctor',
-    cell: ({ row }) => {
-      const doctorName = row.original.appointmentId?.doctor;
-      const doctor = Doctors.find((doc) => doc.name === doctorName);
-      return (
-        <div className="flex items-center gap-3">
-          <Image
-            src={doctor!.image}
-            alt={doctor!.name}
-            width={100}
-            height={100}
-            className='size-8'
-          />
-          <p className="whitespace-nowrap">
-            Dr. {doctor?.name}
-          </p>
-        </div>
-      )
-    },
+    accessorKey: "doctor",
+    header: () => "Doctor",
+    cell: ({ row }) => <DoctorCell doctorId={row.original.appointmentId?.doctor.toString()} />,
   },
   {
     accessorKey: "symptom",
@@ -145,14 +129,14 @@ export const columns: ColumnDef<IMedicalReport>[] = [
             medicalreportId: row.original._id.toString(),
           });
 
-          if (!res?.error) {
+          if (res) {
             router.refresh();
-            toast.success("Confirm appointment successfully.", {
+            toast.success("Examined appointment successfully.", {
               position: "top-left",
               duration: 3000,
             });
           } else {
-            toast.error("Cannot confirm appointment.", {
+            toast.error("Cannot Examined appointment.", {
               position: "top-left",
               duration: 3000,
             });

@@ -104,6 +104,8 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
                 showTimeSelect={showTimeSelect ?? false}
                 timeInputLabel="Time:"
                 wrapperClassName="date-picker"
+                minTime={new Date(new Date().setHours(7, 30, 0))}
+                maxTime={new Date(new Date().setHours(17, 0, 0))}
                 /> 
             </FormControl>
         </div>

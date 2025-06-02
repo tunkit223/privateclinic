@@ -17,7 +17,6 @@ export async function createAccount(data: any) {
       {
         email: data.email,
         password: data.password,
-        tag: data.tag,
       }
     );
 
@@ -45,6 +44,7 @@ export async function createUser(data: any) {
       accountId: patientIdObject,
       name: data.name,
       username: data.username,
+      role: data.role,
       phone: data.phone,
       address: data.address,
     });

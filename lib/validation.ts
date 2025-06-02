@@ -5,8 +5,7 @@ export const AccountFormValidation = z.object({
     .min(6, "Password must be at least 6 characters.")
     .max(50, "Password must be at most 50 characters."),
   email: z.string().email("Invalid email address."),
-  tag: z.string()
-  .min(1, "Tag must be at least 1 property"),
+  
 })
 export const VerifyEmailValidation = z.object({
   email: z.string().email("Invalid email address."),
@@ -24,6 +23,8 @@ export const UserFormValidation = z.object({
   username: z.string()
     .min(1, "Username must be at least 1 characters.")
     .max(50, "Username must be at most 50 characters."),
+  role: z.string()
+    .min(1, "Role must be at least 1 property"),
   phone: z
     .string()
     .refine((phone) => /^((\+84|0)[3|5|7|8|9])+([0-9]{8})$/.test(phone), 'Invalid phone number'),

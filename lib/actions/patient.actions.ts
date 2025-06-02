@@ -30,16 +30,22 @@ export const registerPatient = async (data: any) => {
   try {
     await dbConnect();
 
-    // Kiểm tra trùng lặp
-    const existingPatient = await Patient.findOne({
-      $or: [
-        { email: data.email },
-        { phone: data.phone }
-      ]
-    });
+    // Tìm bệnh nhân theo email
+    const existingByEmail = await Patient.findOne({ email: data.email });
 
-    if (existingPatient) {
-      throw new Error('Email hoặc số điện thoại đã tồn tại');
+    if (existingByEmail) {
+      // Nếu đã có email này rồi, trả về luôn bệnh nhân đó
+      return {
+        ...existingByEmail.toObject(),
+        _id: existingByEmail._id.toString()
+      };
+    }
+
+    // Nếu chưa có email, kiểm tra trùng số điện thoại
+    const existingByPhone = await Patient.findOne({ phone: data.phone });
+
+    if (existingByPhone) {
+      throw new Error('Số điện thoại đã được sử dụng bởi bệnh nhân khác');
     }
 
     // Tạo patient mới

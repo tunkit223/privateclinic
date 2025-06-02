@@ -7,31 +7,74 @@ import dbConnect from "../mongoose";
 import Patient from "@/database/patient.model";
 import mongoose from "mongoose";
 import MedicalReport from "@/database/medicalReport.modal";
+import User from "@/database/user.model";
 export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
-    console.log("createAppointment");
-    const patientIdString = typeof data.patientId === "object" ? data.patientId._id : data.patientId;
-    const patientIdObject = new mongoose.Types.ObjectId(patientIdString)
-    
-    const patient = await Patient.findById(patientIdObject);
+
+    // Chuyển patientId sang ObjectId
+    const patientId =
+      typeof data.patientId === "object"
+        ? data.patientId._id
+        : data.patientId;
+    const patientObjectId = new mongoose.Types.ObjectId(patientId);
+
+    // Kiểm tra bệnh nhân tồn tại
+    const patient = await Patient.findById(patientObjectId);
     if (!patient) {
       throw new Error("Bệnh nhân không tồn tại.");
     }
 
+    // Chuyển doctor sang ObjectId
+    const doctorId =
+      typeof data.doctor === "object"
+        ? data.doctor._id
+        : data.doctor;
+    const doctorObjectId = new mongoose.Types.ObjectId(doctorId);
 
-    const newAppointment = await Appointment.create(data);
+    // (Tùy chọn) Kiểm tra bác sĩ có tồn tại không
+    const doctor = await User.findById(doctorObjectId);
+    if (!doctor) {
+      throw new Error("Bác sĩ không tồn tại.");
+    }
 
+    // Tính khoảng thời gian của ngày đặt lịch
+    const appointmentDate = new Date(data.date);
+    const startOfDay = new Date(appointmentDate);
+    startOfDay.setHours(0, 0, 0, 0);
 
-    return JSON.parse(
-      JSON.stringify({
-        ...newAppointment.toObject(),
-        _id: newAppointment._id.toString(),
-        patientId: newAppointment.patientId.toString(),
-        date: newAppointment.date.toISOString(), 
-      })
-    );
+    const endOfDay = new Date(appointmentDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Đếm số lịch hẹn chưa hủy trong ngày đó
+    const count = await Appointment.countDocuments({
+      date: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+      status: { $ne: "cancelled" },
+    });
+
+    if (count >= 40) {
+      throw new Error("Đã đủ 40 lịch hẹn hợp lệ trong ngày này. Vui lòng chọn ngày khác.");
+    }
+
+    // Tạo lịch hẹn mới
+    const newAppointment = await Appointment.create({
+      ...data,
+      patientId: patientObjectId,
+      doctor: doctorObjectId,
+    });
+
+    return {
+      ...newAppointment.toObject(),
+      _id: newAppointment._id.toString(),
+      patientId: newAppointment.patientId.toString(),
+      doctor: newAppointment.doctor.toString(),
+      date: newAppointment.date.toISOString(),
+    };
   } catch (error) {
+    console.error("Lỗi khi tạo lịch hẹn:", error);
     throw error;
   }
 };

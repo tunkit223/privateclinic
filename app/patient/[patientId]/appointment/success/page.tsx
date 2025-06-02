@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Doctors } from '@/constants';
 import { getAppointment } from '@/lib/actions/appointment.action';
+import { getDoctorInfo } from '@/lib/actions/workschedules.action';
 import { formatDateTime } from '@/lib/utils';
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,8 +15,7 @@ const Success = async ({ params, searchParams }: SearchParamProps) => {
   const patientId = params.patientId;
   const appointmentId = (searchParams?.appointmentId as string) || '';
   const appointment = await getAppointment(appointmentId);
-  const doctor = Doctors.find((doc) => doc.name === appointment.doctor)
-
+  const doctorr = await getDoctorInfo(appointment.doctor.toString());
   return (
     <div className='flex h-screen max-h-screen px-[5%]' >
       <div className='success-img'>
@@ -45,14 +45,14 @@ const Success = async ({ params, searchParams }: SearchParamProps) => {
           <p>Requested appointment details:</p>
           <div className='flex items-center gap-3'>
             <Image
-              src={doctor?.image!}
+              src={doctorr?.image||"/assets/images/employee.png"}
               alt='doctor'
               width={100}
               height={100}
               className='size-6'
             />
             <p className='whitespace-nowrap'>
-              Dr. {doctor?.name}
+              Dr. {doctorr?.name}
             </p>
           </div>
           <div className='flex gap-2'>

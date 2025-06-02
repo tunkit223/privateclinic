@@ -1,13 +1,16 @@
 import { finished } from "stream";
 
 export const GenderOptions = ["Male", "Female", "Other"];
-export const Tag = [
+export const Role = [
   {
-    name: "Admin",
+    name: "admin",
   },
   {
-    name: "User",
+    name: "receptionist",
   },
+  {
+    name: "doctor",
+  }
 ]
 export const Unit = [
   {

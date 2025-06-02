@@ -1,7 +1,7 @@
 import { model, Schema, models, Types, Document  } from "mongoose";
 export interface IAppointment{
   patientId: Types.ObjectId;
-  doctor:string,
+  doctor:Types.ObjectId,
   date:Date,
   reason?:string,
   note?:string,
@@ -14,7 +14,7 @@ export interface IAppointmentDoc extends IAppointment, Document {
 
 const AppointmentSchema = new Schema<IAppointment>({
   patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true },
-  doctor:{type:String, require:true},
+  doctor:{type:Schema.Types.ObjectId, ref: "User", require:true},
   date:{type:Date, required:true},
   reason:{type: String},
   note:{type: String},
