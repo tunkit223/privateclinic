@@ -151,10 +151,8 @@ export const columns: ColumnDef<IMedicalReport>[] = [
       return(
         
         <div className="flex gap-1">
-            {/* <MedicalReportModal
-             type="finish"
-             appointmentId={row.original._id.toString()}
-             /> */}
+           
+            {row.original.status === "unexamined" &&
               <Button
                 variant="ghost"
                 className="capitalize text-blue-500"
@@ -162,7 +160,9 @@ export const columns: ColumnDef<IMedicalReport>[] = [
                 disabled={isLoading}
               >
                 {isLoading ? "Loading..." : "examining"}
-              </Button>
+              </Button>}
+              
+               {row.original.status === "examining" &&
               <Button
                 variant="ghost"
                 className="capitalize text-green-500"
@@ -170,7 +170,9 @@ export const columns: ColumnDef<IMedicalReport>[] = [
                 disabled={isLoading}
               >
                 {isLoading ? "Loading..." : "examined"}
-              </Button>
+              </Button>}
+
+
              {row.original.status === "examining" &&
              <MedicalReportModal
               appointmentId={row.original.appointmentId._id.toString()}
