@@ -47,6 +47,15 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
           showTimeSelect, 
           dateFormat,
           renderSkeleton} = props;
+    const isToday = (date: Date | null) => {
+      if (!date) return false;
+      const today = new Date();
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      );
+    };
 
   switch(fieldType){
     case FormFieldType.INPUT:
@@ -104,7 +113,12 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
                 showTimeSelect={showTimeSelect ?? false}
                 timeInputLabel="Time:"
                 wrapperClassName="date-picker"
-                minTime={new Date(new Date().setHours(7, 30, 0))}
+                minDate={new Date()}
+                minTime={
+                  isToday(field.value)
+                    ? new Date() 
+                    : new Date(new Date().setHours(7, 30, 0)) 
+                }
                 maxTime={new Date(new Date().setHours(17, 0, 0))}
                 /> 
             </FormControl>

@@ -1,8 +1,8 @@
 'use server'
 import Account, { IAccount } from "@/database/account.modal";
 import dbConnect from "../mongoose";
-import User from "@/database/user.model";
-import mongoose from "mongoose";
+import User, { IUser } from "@/database/user.model";
+import mongoose, { Types } from "mongoose";
 
 export async function createAccount(data: any) {
   try {
@@ -75,4 +75,17 @@ export const getUserByAccountId = async (accountId: string) => {
 }
 
 
-
+export async function updateUser(accountId: string, data: IUser) {
+  try {
+    await dbConnect();
+    const updatedUser = await User.findOneAndUpdate(
+      { accountId: new Types.ObjectId(accountId) },
+      { $set: data },
+      { new: true } 
+    )
+    return {success:true}
+  } catch (error) {
+    console.error("Error updating user:", error)
+    throw new Error("Không thể cập nhật thông tin người dùng.")
+  }
+}
