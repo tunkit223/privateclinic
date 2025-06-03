@@ -1,11 +1,11 @@
 [
   {
     "question": "Phòng khám mở cửa lúc mấy giờ?",
-    "answer": "Dạ, phòng khám mở cửa từ 7:00 sáng đến 20:00 tối mỗi ngày, kể cả cuối tuần ạ."
+    "answer": "Dạ, phòng khám mở cửa từ 7:30 sáng đến 17:00 tối mỗi ngày, kể cả cuối tuần ạ."
   },
   {
     "question": "Phòng khám có làm việc vào cuối tuần không?",
-    "answer": "Dạ có ạ, bên em hoạt động tất cả các ngày trong tuần từ 7h sáng đến 8h tối."
+    "answer": "Dạ có ạ, bên em hoạt động tất cả các ngày trong tuần từ 7h30 sáng đến 5h chiều."
   },
   {
     "question": "Em muốn đặt lịch khám thì cần làm gì?",
@@ -24,36 +24,12 @@
     "answer": "Dạ, gói khám tổng quát dao động từ 30.000đ tùy danh mục. Anh/chị có thể gọi hotline 1900 888 888 để được báo giá cụ thể nha."
   },
   {
-    "question": "Chi phí khám có bao gồm xét nghiệm không?",
-    "answer": "Dạ, một số gói khám đã bao gồm xét nghiệm cơ bản. Tuy nhiên, nếu cần xét nghiệm chuyên sâu thì tính thêm chi phí ạ."
-  },
-  {
-    "question": "Phòng khám có chấp nhận bảo hiểm y tế không?",
-    "answer": "Dạ, hiện tại bên em chưa áp dụng bảo hiểm y tế. Anh/chị vui lòng thanh toán trực tiếp khi đến khám ạ."
-  },
-  {
-    "question": "Giá khám chuyên khoa nội là bao nhiêu?",
-    "answer": "Dạ, khám nội tổng quát có giá từ 150.000đ - 300.000đ tuỳ bác sĩ và dịch vụ kèm theo ạ."
-  },
-  {
-    "question": "Bác sĩ nào khám da liễu giỏi?",
-    "answer": "Dạ, bên em có bác sĩ A chuyên khoa Da liễu, nhiều năm kinh nghiệm. Anh/chị đặt lịch khám với bác vui lòng báo trước giúp em ạ."
-  },
-  {
     "question": "Có bác sĩ nữ khám không?",
     "answer": "Dạ có ạ. Nếu anh/chị muốn khám với bác sĩ nữ, em sẽ ghi chú lại khi đặt lịch nha."
   },
   {
     "question": "Em có được chọn bác sĩ khi đặt lịch không?",
     "answer": "Dạ được ạ. Anh/chị có thể chọn bác sĩ mong muốn, nếu bác còn lịch trống em sẽ sắp xếp phù hợp."
-  },
-  {
-    "question": "Phòng khám có làm xét nghiệm tại chỗ không?",
-    "answer": "Dạ có ạ. Bên em có các dịch vụ xét nghiệm máu, nước tiểu, test nhanh ngay tại phòng khám."
-  },
-  {
-    "question": "Có test nhanh Covid không?",
-    "answer": "Dạ có test nhanh Covid-19, kết quả trong 15 phút ạ."
   },
   {
     "question": "Có dịch vụ khám tại nhà không?",
@@ -72,39 +48,19 @@
     "answer": "Dạ được ạ. Anh/chị gọi 1900 888 888 để đặt lịch nhanh chóng nha."
   },
   {
-    "question": "Em gửi thông tin để nhân viên gọi lại được không?",
-    "answer": "Dạ được anh/chị nha. Em sẽ chuyển thông tin để nhân viên gọi lại hỗ trợ đặt lịch sớm nhất."
-  },
-  {
-    "question": "Em bị sốt, đau họng, ho thì sao ạ?",
+    "question": "Tôi bị sốt, đau họng.",
     "answer": "Dạ có thể anh/chị đang bị cảm cúm, viêm họng hoặc viêm đường hô hấp trên. Tuy nhiên, để chắc chắn thì mình nên đến khám ạ."
   },
   {
-    "question": "Em đau bụng, buồn nôn với tiêu chảy nữa?",
+    "question": "Tôi bị đau bụng, buồn nôn với tiêu chảy.",
     "answer": "Dạ triệu chứng này có thể do rối loạn tiêu hóa hoặc viêm ruột. Anh/chị nên đến khám để bác sĩ chẩn đoán chính xác nha."
   },
   {
-    "question": "Em bị đau đầu, chóng mặt suốt mấy ngày rồi?",
+    "question": "Tôi bị đau đầu, chóng mặt suốt mấy ngày.",
     "answer": "Dạ có thể là do thiếu máu, rối loạn tiền đình hoặc tăng huyết áp. Anh/chị cần được đo huyết áp và kiểm tra trực tiếp ạ."
   },
   {
-    "question": "Em bị đau ngực, hồi hộp, khó thở?",
+    "question": "Tôi bị đau ngực, hồi hộp, khó thở.",
     "answer": "Dạ đây có thể là dấu hiệu tim mạch hoặc viêm phổi. Anh/chị nên đến phòng khám để kiểm tra sớm nha."
-  },
-  {
-    "question": "Em bị nổi mẩn đỏ, ngứa da?",
-    "answer": "Dạ có thể là dị ứng, viêm da hoặc nổi mề đay ạ. Em khuyên anh/chị nên khám da liễu để bác sĩ tư vấn cụ thể nha."
-  },
-  {
-    "question": "Em bị rối loạn kinh nguyệt?",
-    "answer": "Dạ rối loạn kinh nguyệt có thể do thay đổi nội tiết tố, u xơ tử cung hoặc buồng trứng đa nang. Mình nên khám phụ khoa nha anh/chị."
-  },
-  {
-    "question": "Em tiểu buốt, tiểu rắt, tiểu nhiều lần?",
-    "answer": "Dạ có thể anh/chị bị nhiễm trùng đường tiết niệu hoặc viêm bàng quang. Mình nên đi khám sớm để điều trị kịp thời ạ."
-  },
-  {
-    "question": "Em ho cả tháng không khỏi?",
-    "answer": "Dạ nếu ho lâu ngày có thể do viêm phế quản mạn, trào ngược hoặc lao phổi. Anh/chị nên đến khám để xác định chính xác nha."
   }
 ]
