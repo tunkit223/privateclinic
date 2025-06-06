@@ -8,6 +8,7 @@ import MedicalReport from "@/database/medicalReport.modal";
 
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
+import Invoice from "@/database/invoice.model";
 
 
 
@@ -111,9 +112,6 @@ export const createPrescription = async ({
     await dbConnect();
     console.log("Đã kết nối cơ sở dữ liệu");
 
-    // const newPrescription = await Prescription.create({
-    //   medicalReportId,
-    // })
     const newPrescription = new Prescription({
       medicalReportId,
       prescribeByDoctor,
@@ -138,11 +136,29 @@ export const createPrescription = async ({
     }, 0)
 
 
-    // update totalPrice;
+    // Update totalPrice;
     newPrescription.totalPrice = totalPrice;
     await newPrescription.save();
     console.log("Prescription sau khi lưu lần thứ hai:", newPrescription.toObject());
 
+    // Update invoice
+    const invoice = await Invoice.findOne({ 'medicalReportId': medicalReportId });
+    if (invoice) {
+      // invoice.prescriptionId = {
+      //   _id: newPrescription.id,
+      //   code: newPrescription.code,
+      //   totalPrice: newPrescription.totalPrice,
+      //   isPaid: newPrescription.isPaid
+      // };
+      invoice.prescriptionId = newPrescription._id;
+      invoice.medicationFee = newPrescription.totalPrice || 0;
+      invoice.totalAmount = invoice.consultationFee + invoice.medicationFee;
+      console.log("invoice", invoice)
+      await invoice.save();
+      console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${newPrescription._id} `)
+    } else {
+      console.log(`No invoice found for MedicalReport ${medicalReportId} at prescription.action.ts`)
+    }
 
     return {
       _id: newPrescription._id.toString(),
@@ -246,11 +262,31 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
 
 
     // update totalPrice;
-    await Prescription.updateOne(
+    const updatedPrescription = await Prescription.findOneAndUpdate(
       { _id: new ObjectId(prescriptionId) },
       { $set: { totalPrice } },
       { session }
     );
+
+
+    // Update invoice
+    const invoice = await Invoice.findOne({ 'medicalReportId': updatedPrescription.medicalReportId },
+      null, { session }
+    );
+    if (invoice) {
+      invoice.prescriptionId = {
+        _id: updatedPrescription._id,
+        code: updatedPrescription.code,
+        totalPrice: updatedPrescription.totalPrice,
+        isPaid: updatedPrescription.isPaid
+      }
+      invoice.medicationFee = updatedPrescription.totalPrice || 0;
+      invoice.totalAmount = invoice.medicationFee + invoice.consultationFee;
+      await invoice.save({ session });
+      console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${prescriptionId}`);
+    } else {
+      console.log(`No invoice found for MedicalReport ${updatedPrescription.medicalReportId}`);
+    }
 
     await session.commitTransaction();
     session.endSession();

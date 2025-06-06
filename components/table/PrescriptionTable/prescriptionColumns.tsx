@@ -86,18 +86,6 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
-      const downloadPDF = async (id: string) => {
-        const res = await fetch(`/api/prescription/${id}/pdf`);
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${id}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
       return (
         <>
           <div className="flex items-center gap-4">

@@ -158,8 +158,8 @@ export const sidebarLinks = [
   },
   {
     imgURL: '/assets/icons/revenue.png',
-    label: 'Bill',
-    route: '/bill'
+    label: 'Invoice',
+    route: '/invoice'
   },
   {
     imgURL: '/assets/icons/patient-icon.png',
