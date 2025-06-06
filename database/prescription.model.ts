@@ -1,4 +1,4 @@
-import { autoGenerateCode } from "@/lib/middlewares/autoGenerateCodel";
+import { autoGenerateCode } from "@/lib/middlewares/autoGenerateCode";
 import { model, Schema, models, Types, Document } from "mongoose";
 
 export interface IPrescription {

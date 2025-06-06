@@ -51,7 +51,10 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
         .findById(doc._id)
         .populate({
           path: 'appointmentId',
-          populate: { path: 'patientId' },
+          populate: [
+            { path: 'patientId' },
+            { path: 'doctor' }
+          ]
         });
 
       if (!medicalReport) {
@@ -67,12 +70,22 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
       let medicationFee = 0;
       let prescriptionData = null;
       if (prescription) {
+        // Get all PrescriptionDetail relevant with prescription
+        const prescriptionDetails = await getPrescriptionDetailsById(prescription._id);
         medicationFee = prescription.totalPrice || 0;
         prescriptionData = {
           _id: prescription._id,
           code: prescription.code,
           totalPrice: prescription.totalPrice,
-          isPaid: prescription.isPaid
+          isPaid: prescription.isPaid,
+          details: prescriptionDetails.map((detail: any) => ({
+            medicineName: detail.medicineId.name,
+            usageMethodName: detail.usageMethodId.name,
+            duration: detail.duration,
+            dosage: `Morning: ${detail.morningDosage}, Noon: ${detail.noonDosage}, Afternoon: ${detail.afternoonDosage}, Evening: ${detail.eveningDosage}`,
+            quantity: detail.quantity,
+            price: detail.price
+          }))
         }
       }
 
@@ -103,7 +116,6 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
         consultationFee,
         medicationFee,
         totalAmount: consultationFee + medicationFee,
-        invoiceCode: `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: 'pending'
       });
       console.log("invoice before saving", invoice)
@@ -119,4 +131,3 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
 const MedicalReport = models?.MedicalReport || model<IMedicalReport>('MedicalReport', MedicalReportSchema);
 
 export default MedicalReport
-// Tạo phiếu khám bệnh ban đầu với status là chưa khám, sau đó sẽ update dần và có 1 button chuyển thành examined

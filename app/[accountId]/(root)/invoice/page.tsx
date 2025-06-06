@@ -1,4 +1,3 @@
-// app/[accountId]/Invoice/page.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -8,31 +7,39 @@ import { FaPlus } from "react-icons/fa"
 import { useRouter, useParams } from "next/navigation"
 import { InvoiceDataTable } from "@/components/table/InvoiceTable/InvoiceDataTable"
 import { IInvoice } from "@/database/invoice.model"
-import { getBillList } from "@/lib/actions/invoice.action"
 import { invoiceColumns } from "@/components/table/InvoiceTable/invoiceColumns"
+import { getInvoiceList } from "@/lib/actions/invoice.action"
 
 interface InvoiceData {
   documents: IInvoice[];
 }
 
 function InvoicePage() {
-  const [Invoices, setInvoices] = useState<InvoiceData>({ documents: [] })
+  const [invoiceList, setInvoiceList] = useState<InvoiceData>({ documents: [] })
   const [filterValue, setFilterValue] = useState("")
-  const router = useRouter()
-  const params = useParams()
+  const router = useRouter();
+  const params = useParams();
 
-  const fetchInvoices = async () => {
-    // try {
-    //   const response = await getInvoiceList()
-    //   setInvoices(response)
-    // } catch (err) {
-    //   console.log("Failed to fetch Invoices", err)
-    // }
+  const fetchInvoice = async () => {
+    try {
+      const response = await fetch("/api/invoices");
+      if (!response) {
+        console.log("Not response invoice")
+        return;
+      }
+      const data = await response.json();
+      setInvoiceList(data);
+
+    } catch (error) {
+      console.log("Failed to fetch invoice", error)
+    }
   }
+  useEffect(() => {
+    fetchInvoice();
+  }, [])
+  console.log("Invoice list: ", invoiceList)
 
-  // useEffect(() => {
-  //   fetchInvoices()
-  // }, [])
+
 
   const handleAddInvoice = () => {
     const accountId = params?.accountId
@@ -63,8 +70,8 @@ function InvoicePage() {
       </div>
       <InvoiceDataTable
         globalFilter={filterValue}
-        columns={invoiceColumns({ onDeleted: fetchInvoices, onUpdated: fetchInvoices })}
-        data={Invoices.documents.reverse()}
+        columns={invoiceColumns({ onDeleted: fetchInvoice, onUpdated: fetchInvoice })}
+        data={invoiceList.documents.reverse()}
       />
     </>
   )

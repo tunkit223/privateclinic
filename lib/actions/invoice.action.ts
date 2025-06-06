@@ -1,21 +1,19 @@
-import Bill from "@/database/invoice.model";
 import dbConnect from "../mongoose";
 import Invoice from "@/database/invoice.model";
 
 export async function getInvoiceList() {
   try {
     await dbConnect();
-    const prescription = await Bill.find({ deleted: false })
-
+    const invoices = await Invoice.find({ deleted: false })
       .lean();
 
     const data = {
-      documents: prescription,
+      documents: invoices,
     };
     return JSON.parse(JSON.stringify(data));
 
   } catch (error) {
-    console.log("Error get prescription", error);
+    console.log("Error get invoice list", error);
     return null;
   }
 }

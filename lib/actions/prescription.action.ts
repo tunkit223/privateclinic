@@ -81,7 +81,10 @@ export const getPrescriptionById = async (prescriptionId: string) => {
 export const getPrescriptionDetailsById = async (prescriptionId: string) => {
   try {
     await dbConnect();
-    const details = await PrescriptionDetail.find({ prescriptionId, })
+    const details = await PrescriptionDetail.find({
+      prescriptionId,
+      deleted: { $ne: true }
+    })
       .populate({
         path: "usageMethodId",
         select: "name"
@@ -142,15 +145,14 @@ export const createPrescription = async ({
     console.log("Prescription sau khi lưu lần thứ hai:", newPrescription.toObject());
 
     // Update invoice
-    const invoice = await Invoice.findOne({ 'medicalReportId': medicalReportId });
+    const invoice = await Invoice.findOne({ 'medicalReportId._id': medicalReportId });
     if (invoice) {
-      // invoice.prescriptionId = {
-      //   _id: newPrescription.id,
-      //   code: newPrescription.code,
-      //   totalPrice: newPrescription.totalPrice,
-      //   isPaid: newPrescription.isPaid
-      // };
-      invoice.prescriptionId = newPrescription._id;
+      invoice.prescriptionId = {
+        _id: newPrescription.id,
+        code: newPrescription.code,
+        totalPrice: newPrescription.totalPrice,
+        isPaid: newPrescription.isPaid
+      };
       invoice.medicationFee = newPrescription.totalPrice || 0;
       invoice.totalAmount = invoice.consultationFee + invoice.medicationFee;
       console.log("invoice", invoice)
