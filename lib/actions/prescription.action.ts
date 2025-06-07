@@ -144,6 +144,23 @@ export const createPrescription = async ({
     await newPrescription.save();
     console.log("Prescription sau khi lưu lần thứ hai:", newPrescription.toObject());
 
+    // Get prescription details for invoice
+    const prescriptionDetails = await getPrescriptionDetailsById(newPrescription._id.toString());
+    if (!prescriptionDetails) {
+      console.log("No prescription details found");
+      throw new Error("Not found prescription details")
+    }
+
+    // Create details[] for invoice
+    const invoicePrescriptionDetails = prescriptionDetails.map((detailInvoice: any) => ({
+      medicineName: detailInvoice.medicineId.name,
+      usageMethodName: detailInvoice.usageMethodId.name,
+      duration: detailInvoice.duration,
+      dosage: `${detailInvoice.morningDosage || 0}/${detailInvoice.noonDosage || 0}/${detailInvoice.afternoonDosage || 0}/${detailInvoice.eveningDosage || 0}`,
+      quantity: detailInvoice.quantity,
+      price: detailInvoice.price
+    }))
+
     // Update invoice
     const invoice = await Invoice.findOne({ 'medicalReportId._id': medicalReportId });
     if (invoice) {
@@ -151,7 +168,8 @@ export const createPrescription = async ({
         _id: newPrescription.id,
         code: newPrescription.code,
         totalPrice: newPrescription.totalPrice,
-        isPaid: newPrescription.isPaid
+        isPaid: newPrescription.isPaid,
+        details: invoicePrescriptionDetails
       };
       invoice.medicationFee = newPrescription.totalPrice || 0;
       invoice.totalAmount = invoice.consultationFee + invoice.medicationFee;
