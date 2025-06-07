@@ -77,8 +77,6 @@ useEffect(() => {
     });
 }, [watchedDate?.toISOString()]); 
 
-console.log("watchedDate:", watchedDate);
-
 
 
 
