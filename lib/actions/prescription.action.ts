@@ -9,6 +9,7 @@ import MedicalReport from "@/database/medicalReport.modal";
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
 import Invoice from "@/database/invoice.model";
+import { updateInvoiceWithPrescription } from "./invoice.action";
 
 
 
@@ -78,13 +79,16 @@ export const getPrescriptionById = async (prescriptionId: string) => {
   }
 }
 
-export const getPrescriptionDetailsById = async (prescriptionId: string) => {
+export const getPrescriptionDetailsById = async (prescriptionId: string, session: any = null) => {
   try {
     await dbConnect();
     const details = await PrescriptionDetail.find({
       prescriptionId,
       deleted: { $ne: true }
-    })
+    },
+      null,
+      session ? { session } : {}
+    )
       .populate({
         path: "usageMethodId",
         select: "name"
@@ -109,6 +113,8 @@ export const createPrescription = async ({
   prescribeByDoctor = "Unknown Doctor",
   details,
 }: Create_EditPrescriptionPayload) => {
+  const session = await Prescription.startSession();
+  session.startTransaction();
   try {
     console.log("Bắt đầu tạo prescription với medicalReportId:", medicalReportId);
 
@@ -121,7 +127,7 @@ export const createPrescription = async ({
     });
     console.log("Prescription trước khi lưu:", newPrescription.toObject());
 
-    await newPrescription.save();
+    await newPrescription.save({ session });
     console.log("Prescription sau khi lưu lần đầu:", newPrescription.toObject());
 
 
@@ -129,7 +135,7 @@ export const createPrescription = async ({
       ...detail,
       prescriptionId: newPrescription._id,
     }));
-    await PrescriptionDetail.insertMany(detailPrescription);
+    await PrescriptionDetail.insertMany(detailPrescription, { session });
 
 
     // console.log(details);
@@ -139,46 +145,23 @@ export const createPrescription = async ({
     }, 0)
 
 
-    // Update totalPrice;
-    newPrescription.totalPrice = totalPrice;
-    await newPrescription.save();
+
+    const updatedPrescription = await Prescription.findOneAndUpdate(
+      { _id: newPrescription._id },
+      { $set: { totalPrice } },
+      { session, new: true }
+    ).lean();
+
     console.log("Prescription sau khi lưu lần thứ hai:", newPrescription.toObject());
 
-    // Get prescription details for invoice
-    const prescriptionDetails = await getPrescriptionDetailsById(newPrescription._id.toString());
-    if (!prescriptionDetails) {
-      console.log("No prescription details found");
-      throw new Error("Not found prescription details")
-    }
-
-    // Create details[] for invoice
-    const invoicePrescriptionDetails = prescriptionDetails.map((detailInvoice: any) => ({
-      medicineName: detailInvoice.medicineId.name,
-      usageMethodName: detailInvoice.usageMethodId.name,
-      duration: detailInvoice.duration,
-      dosage: `${detailInvoice.morningDosage || 0}/${detailInvoice.noonDosage || 0}/${detailInvoice.afternoonDosage || 0}/${detailInvoice.eveningDosage || 0}`,
-      quantity: detailInvoice.quantity,
-      price: detailInvoice.price
-    }))
-
-    // Update invoice
-    const invoice = await Invoice.findOne({ 'medicalReportId._id': medicalReportId });
-    if (invoice) {
-      invoice.prescriptionId = {
-        _id: newPrescription.id,
-        code: newPrescription.code,
-        totalPrice: newPrescription.totalPrice,
-        isPaid: newPrescription.isPaid,
-        details: invoicePrescriptionDetails
-      };
-      invoice.medicationFee = newPrescription.totalPrice || 0;
-      invoice.totalAmount = invoice.consultationFee + invoice.medicationFee;
-      console.log("invoice", invoice)
-      await invoice.save();
-      console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${newPrescription._id} `)
-    } else {
-      console.log(`No invoice found for MedicalReport ${medicalReportId} at prescription.action.ts`)
-    }
+    // Update invoice with prescription
+    await updateInvoiceWithPrescription({
+      medicalReportId,
+      prescription: updatedPrescription,
+      session
+    })
+    await session.commitTransaction();
+    session.endSession();
 
     return {
       _id: newPrescription._id.toString(),
@@ -192,7 +175,10 @@ export const createPrescription = async ({
       totalPrice: newPrescription.totalPrice,
     }
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     console.log("Create prescription:", error)
+    throw error;
   }
 }
 
@@ -279,34 +265,26 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       const itemTotal = (item.price || 0) * item.quantity;
       return sum + itemTotal;
     }, 0)
+    console.log("total price", totalPrice)
 
 
     // update totalPrice;
     const updatedPrescription = await Prescription.findOneAndUpdate(
       { _id: new ObjectId(prescriptionId) },
       { $set: { totalPrice } },
-      { session }
+      { session, new: true }
     );
 
 
-    // Update invoice
-    const invoice = await Invoice.findOne({ 'medicalReportId': updatedPrescription.medicalReportId },
-      null, { session }
-    );
-    if (invoice) {
-      invoice.prescriptionId = {
-        _id: updatedPrescription._id,
-        code: updatedPrescription.code,
-        totalPrice: updatedPrescription.totalPrice,
-        isPaid: updatedPrescription.isPaid
-      }
-      invoice.medicationFee = updatedPrescription.totalPrice || 0;
-      invoice.totalAmount = invoice.medicationFee + invoice.consultationFee;
-      await invoice.save({ session });
-      console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${prescriptionId}`);
-    } else {
-      console.log(`No invoice found for MedicalReport ${updatedPrescription.medicalReportId}`);
-    }
+    console.log("Start updated invoice in update Prescription")
+    console.log("medicalreport id", updatedPrescription.medicalReportId.toString())
+    console.log("prescription", updatedPrescription)
+
+    await updateInvoiceWithPrescription({
+      medicalReportId: updatedPrescription.medicalReportId.toString(),
+      prescription: updatedPrescription,
+      session
+    })
 
     await session.commitTransaction();
     session.endSession();
