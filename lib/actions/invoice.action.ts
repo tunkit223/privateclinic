@@ -7,7 +7,6 @@ export async function getInvoiceList() {
     await dbConnect();
     const invoices = await Invoice.find({ deleted: false })
       .lean();
-
     const data = {
       documents: invoices,
     };
@@ -18,18 +17,18 @@ export async function getInvoiceList() {
     return null;
   }
 }
-export async function createInvoice(data: any) {
-  try {
-    await dbConnect();
-    const newInvoice = new Invoice({
-      data,
-    })
-    await newInvoice.save();
+// export async function createInvoice(data: any) {
+//   try {
+//     await dbConnect();
+//     const newInvoice = new Invoice({
+//       data,
+//     })
+//     await newInvoice.save();
 
-  } catch (error) {
-    console.log("Error create Invoice in action file", error);
-  }
-}
+//   } catch (error) {
+//     console.log("Error create Invoice in action file", error);
+//   }
+// }
 
 export const updateInvoiceWithPrescription = async ({
   medicalReportId,
@@ -42,7 +41,7 @@ export const updateInvoiceWithPrescription = async ({
 }) => {
 
   // Get prescription details for invoice
-  const prescriptionDetails = await getPrescriptionDetailsById(prescription._id.toString());
+  const prescriptionDetails = await getPrescriptionDetailsById(prescription._id.toString(), session);
   if (!prescriptionDetails) {
     console.log("No prescription details found");
     throw new Error("Not found prescription details")
@@ -58,6 +57,7 @@ export const updateInvoiceWithPrescription = async ({
     price: invoiceDetail.price
   }))
 
+  console.log("invoice details", invoicePrescriptionDetails);
   // Update invoice
   const invoice = await Invoice.findOne(
     { "medicalReportId._id": medicalReportId },
@@ -66,6 +66,8 @@ export const updateInvoiceWithPrescription = async ({
   );
   if (!invoice) {
     console.log(`No invoice found for MedicalReport ${medicalReportId} at invoice.action.ts`)
+    throw new Error(`No invoice found for MedicalReport ${medicalReportId}`);
+
   }
   invoice.prescriptionId = {
     _id: prescription._id,
@@ -76,6 +78,7 @@ export const updateInvoiceWithPrescription = async ({
   }
   invoice.medicationFee = prescription.totalPrice || 0;
   invoice.totalAmount = invoice.consultationFee + invoice.medicationFee;
+
   console.log("invoice before save with prescription", invoice.toObject())
   await invoice.save(session ? { session } : {});
   console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${prescription._id}`);

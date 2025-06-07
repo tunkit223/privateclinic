@@ -81,7 +81,7 @@ export const getPrescriptionById = async (prescriptionId: string) => {
 
 export const getPrescriptionDetailsById = async (prescriptionId: string, session: any = null) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const details = await PrescriptionDetail.find({
       prescriptionId,
       deleted: { $ne: true }
@@ -113,8 +113,10 @@ export const createPrescription = async ({
   prescribeByDoctor = "Unknown Doctor",
   details,
 }: Create_EditPrescriptionPayload) => {
+
   const session = await Prescription.startSession();
   session.startTransaction();
+
   try {
     console.log("Bắt đầu tạo prescription với medicalReportId:", medicalReportId);
 
@@ -261,6 +263,7 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
     }));
     await PrescriptionDetail.insertMany(newDetails, { session });
 
+    // Calculate totalPrice
     const totalPrice = newDetails.reduce((sum, item) => {
       const itemTotal = (item.price || 0) * item.quantity;
       return sum + itemTotal;
@@ -275,6 +278,9 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       { session, new: true }
     );
 
+    if (!updatedPrescription) {
+      throw new Error("Prescription not found after update - (in prescription.action func update for invoice)")
+    }
 
     console.log("Start updated invoice in update Prescription")
     console.log("medicalreport id", updatedPrescription.medicalReportId.toString())
