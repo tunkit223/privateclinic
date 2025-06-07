@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { IUser } from "@/database/user.model"
 import { formatDateTime } from "@/lib/utils";
-
+import Image from "next/image";
 
 export const columns: ColumnDef<IUser>[] = [
   {
@@ -52,9 +52,12 @@ export const columns: ColumnDef<IUser>[] = [
     accessorKey: "image",
     header: "Image",
     cell:({row}) =>(
-      <p className="text-14-regular min-w-[100px]">
-        {row.original.image}
-      </p>
+      <Image
+        src={row.original.image || "/images/user.png"}
+        alt="user image"
+        width={40}
+        height={40}
+        className="rounded-full"/>
     )
   },
   {

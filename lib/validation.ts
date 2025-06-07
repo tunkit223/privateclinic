@@ -47,6 +47,21 @@ export const ForgetPassFormValidation = z.object({
   path: ["newpasswordagain"], // Hiển thị lỗi tại trường `newpasswordagain`
 });
 
+export const ChangePassFormValidation = z.object({
+  newpassword: z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  newpasswordagain:z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  oldpassword:z.string()
+    .min(1, "Password must be at least 1 characters.")
+})
+.refine((data) => data.newpassword === data.newpasswordagain, {
+  message: "Passwords do not match.",
+  path: ["newpasswordagain"], // Hiển thị lỗi tại trường `newpasswordagain`
+});
+
 export const PatientRegisterFormValidation = z.object({
   name: z
     .string()

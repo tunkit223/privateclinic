@@ -8,6 +8,7 @@ import Patient from "@/database/patient.model";
 import mongoose from "mongoose";
 import MedicalReport from "@/database/medicalReport.modal";
 import User from "@/database/user.model";
+import Setting from "@/database/setting.model";
 export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
@@ -45,6 +46,8 @@ export const createAppointment = async (data: any) => {
 
     const endOfDay = new Date(appointmentDate);
     endOfDay.setHours(23, 59, 59, 999);
+    const latestSetting = await Setting.findOne().sort({ createdAt: -1 });
+    const maxPatientPerDay = latestSetting?.MaxPatientperDay ?? 40; // fallback nếu chưa có Setting
 
     // Đếm số lịch hẹn chưa hủy trong ngày đó
     const count = await Appointment.countDocuments({
@@ -54,9 +57,14 @@ export const createAppointment = async (data: any) => {
       },
       status: { $ne: "cancelled" },
     });
-
-    if (count >= 40) {
-      throw new Error("Đã đủ 40 lịch hẹn hợp lệ trong ngày này. Vui lòng chọn ngày khác.");
+    console.log("Max patient per day:", maxPatientPerDay);
+    console.log("Current count:", count);
+    console.log("Appointments on date:", await Appointment.find({
+      date: { $gte: startOfDay, $lte: endOfDay },
+      status: { $ne: "cancelled" },
+    }));
+    if (count >= maxPatientPerDay) {
+      throw new Error("Đã đủ lịch hẹn hợp lệ trong ngày này. Vui lòng chọn ngày khác.");
     }
 
     // Tạo lịch hẹn mới
@@ -100,7 +108,6 @@ export const getRecentAppointmentList = async () => {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
       .populate("patientId", "name")
-      .populate("doctor", "name _id")
       .lean();
     const initialCounts = {
       confirmedCount: 0,

@@ -96,34 +96,44 @@ const RenderField = ({field, props}: {field:any; props: CustomProps}) =>{
       )
 
     case FormFieldType.DATE_PICKER:
-      return (
-        <div className="flex rounded-md border border-dark-500 bg-blue-200">
-            <Image
-              src="/assets/icons/calendar.png"
-              height={24}
-              width={24}
-              alt='calender'
-              className="ml-2 object-contain"
-            />
-            <FormControl>
-              <DatePicker 
-                selected={field.value} 
-                onChange={(date)=> field.onChange(date)}
-                dateFormat={dateFormat ?? 'dd/MM/yyyy'}
-                showTimeSelect={showTimeSelect ?? false}
-                timeInputLabel="Time:"
-                wrapperClassName="date-picker"
-                minDate={new Date()}
-                minTime={
-                  isToday(field.value)
-                    ? new Date() 
-                    : new Date(new Date().setHours(7, 30, 0)) 
-                }
-                maxTime={new Date(new Date().setHours(17, 0, 0))}
-                /> 
-            </FormControl>
-        </div>
-      )
+  const isAppointment = props.name === 'date';
+  const isBirthdate = props.name === 'birthdate';
+  const now = new Date();
+
+  return (
+    <div className="flex rounded-md border border-dark-500 bg-blue-200">
+      <Image
+        src="/assets/icons/calendar.png"
+        height={24}
+        width={24}
+        alt="calendar"
+        className="ml-2 object-contain"
+      />
+      <FormControl>
+        <DatePicker
+          selected={field.value}
+          onChange={(date) => field.onChange(date)}
+          dateFormat={dateFormat ?? 'dd/MM/yyyy'}
+          showTimeSelect={showTimeSelect ?? false}
+          timeInputLabel="Time:"
+          wrapperClassName="date-picker"
+          minDate={isAppointment ? now : undefined}
+          minTime={
+            isAppointment && showTimeSelect
+              ? isToday(field.value)
+                ? now
+                : new Date(new Date().setHours(7, 30, 0))
+              : undefined
+          }
+          maxTime={
+            isAppointment && showTimeSelect
+              ? new Date(new Date().setHours(17, 0, 0))
+              : undefined
+          }
+        />
+      </FormControl>
+    </div>
+  );
     
     case FormFieldType.SELECT:
       return(

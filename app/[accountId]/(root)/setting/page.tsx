@@ -10,7 +10,10 @@ import { getUserByAccountId, updateUser } from '@/lib/actions/user.action'
 import { UploadDropzone } from '@/lib/uploadthing'
 import '@uploadthing/react/styles.css'
 import toast from 'react-hot-toast'
-import { createSetting } from '@/lib/actions/setting.action'
+import { createSetting, getLatestSetting } from '@/lib/actions/setting.action'
+import ForgetPasswordForm from '@/components/forms/ForgetPasswordForm'
+import ChangePassWord from '@/components/forms/ChangePassWordForm'
+import ImageUploader from '@/components/forms/ImageUploader'
 
 const setting = () => {
   const params = useParams()
@@ -19,16 +22,24 @@ const setting = () => {
   const [user, setUser] = useState<IUser | null>(null)
   const [maxPatients, setMaxPatients] = useState<number>(40)
   const [examFee, setExamFee] = useState<number>(30000)
-
+  
 
   useEffect(() => {
     async function fetchUser() {
       const userData = await getUserByAccountId(accountId)
       setUser(userData)
+      const latestSetting = await getLatestSetting();
+      if (latestSetting) {
+      setMaxPatients(latestSetting.MaxPatientperDay || 40);
+      setExamFee(latestSetting.ExamineFee || 30000);
+    }
     }
     fetchUser()
   }, [])
-
+   const handleImageUploadComplete = (url: string) => {
+    if (!user) return
+    setUser({ ...user, image: url }) // cập nhật url ảnh vào user state
+  }
   const handleSaveUser = async () => {
     
     if (!user) return
@@ -83,15 +94,7 @@ const setting = () => {
               </div>
 
             )}
-            <UploadDropzone
-              endpoint="avatarUploader"
-              onClientUploadComplete={(res) => {
-                if (!res) return
-                const uploadedUrl = res[0].url
-                setUser({ ...user, image: uploadedUrl })
-              }}
-              onUploadError={(err) => alert(`Upload failed: ${err.message}`)}
-            />
+            <ImageUploader  onUploadComplete={handleImageUploadComplete}/>
             </div>
            <p className='text-18-bold'>Name</p>
             <Input
@@ -155,6 +158,9 @@ const setting = () => {
           />
           
           <Button onClick={handleSaveSetting} className='mt-5 p-5 w-full text-[24px] font-bold bg-blue-400 hover:bg-blue-300'>Save</Button>
+          <div className='pt-20'>
+            <ChangePassWord />  
+          </div>
         </div>
       </div>
     </div>
