@@ -177,7 +177,11 @@ export const sidebarLinks = [
     route: '/Type'
   },
 
-
+  {
+    imgURL: '/assets/images/workschedule.png',
+    label: 'Work Schedule',
+    route: '/workschedule'
+  },
   {
     imgURL: '/assets/icons/employee.png',
     label: 'Employees',
