@@ -26,6 +26,7 @@ import {
 } from '@ant-design/icons';
 import { getUsageMethodList } from "@/lib/actions/usageMethod.action";
 import dayjs from "dayjs";
+
 interface EditPrescriptionDetailsProps {
   prescriptionId: string;
 }
@@ -60,14 +61,16 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     setOpen(true);
     setLoading(true);
     try {
-      const [patients, medicines, doctors, prescription, details, usageMethods] = await Promise.all([
-        getPatientExaminedList(),
+      const [medicines, doctors, prescription, details, usageMethods] = await Promise.all([
+        // getPatientExaminedList(prescriptionId.medicalReportId),
         getMedicineList(),
         getEmployeesList(),
         getPrescriptionById(prescriptionId),
         getPrescriptionDetailsById(prescriptionId),
         getUsageMethodList()
       ]);
+      const patients = await getPatientExaminedList(prescription.medicalReportId);
+
 
       setPatientExaminedList(patients);
       setMedicineList(medicines.documents);
@@ -303,20 +306,27 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     dropdownStyle={{ maxHeight: 200, overflow: 'auto', }}
                     placeholder="Select patient name"
                     showSearch
-                    optionFilterProp="children"
+                    optionFilterProp="label"
                     filterOption={(input: string, option?: DefaultOptionType) => {
-                      const label = option?.children;
+                      const label = option?.label;
                       if (typeof label === 'string') {
                         return (label as string).toLowerCase().includes(input.toLowerCase());
                       }
                       return false;
                     }
                     }>
-                    {patientExaminedList && patientExaminedList.map((pt) => (
-                      <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.patientId} >
-                        {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
-                      </Select.Option>
-                    ))}
+                    {patientExaminedList && patientExaminedList.map((pt) => {
+                      const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                      return (
+                        <Select.Option
+                          style={{ fontSize: "17px" }}
+                          key={pt.patientId}
+                          value={pt.patientId}
+                          label={pt.name}>
+                          {label}
+                        </Select.Option>
+                      )
+                    })}
                   </Select>
                 </Form.Item>
                 <Form.Item
@@ -517,7 +527,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
             </div>
           </Form >
         )}
-      </Modal>
+      </Modal >
     </>
   )
 }

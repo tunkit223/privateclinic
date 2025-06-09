@@ -180,7 +180,7 @@ function CreatePrescription() {
                 style={{ width: 500, minHeight: 40 }}
                 rules={[{ required: true, message: 'Missing patient name' }]}
               >
-                <Select
+                {/* <Select
                   size='large'
                   dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
                   placeholder="Select patient name"
@@ -199,7 +199,33 @@ function CreatePrescription() {
                       {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
                     </Select.Option>
                   ))}
-                  {/* {renderSelectOptions(patientExaminedList, 'name', 'name')} */}
+                </Select> */}
+                <Select
+                  size="large"
+                  dropdownStyle={{ maxHeight: 200, overflow: 'auto', }}
+                  placeholder="Select patient name"
+                  showSearch
+                  optionFilterProp="label"
+                  filterOption={(input: string, option?: DefaultOptionType) => {
+                    const label = option?.label;
+                    if (typeof label === 'string') {
+                      return (label as string).toLowerCase().includes(input.toLowerCase());
+                    }
+                    return false;
+                  }
+                  }>
+                  {patientExaminedList && patientExaminedList.map((pt) => {
+                    const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                    return (
+                      <Select.Option style={{ fontSize: "17px" }}
+                        key={pt.patientId}
+                        value={pt.patientId}
+                        label={pt.name}>
+                        {label}
+                      </Select.Option>
+
+                    )
+                  })}
                 </Select>
               </Form.Item>
               <Form.Item

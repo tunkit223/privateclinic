@@ -184,9 +184,17 @@ export const createPrescription = async ({
   }
 }
 
-export const getPatientExaminedList = async () => {
+export const getPatientExaminedList = async (includeMedicalReportId?: string) => {
   try {
-    const medicalReportExamined = await MedicalReport.find({ status: "examined" })
+    const usedMedicalReportIds = await Prescription.find().distinct("medicalReportId");
+
+    const filteredIds = includeMedicalReportId
+      ? usedMedicalReportIds.filter(id => id.toString() !== includeMedicalReportId) : usedMedicalReportIds;
+
+    const medicalReportExamined = await MedicalReport.find({
+      status: "examined",
+      _id: { $nin: filteredIds }
+    })
       .populate({
         path: "appointmentId",
         select: "date",
@@ -195,6 +203,19 @@ export const getPatientExaminedList = async () => {
           select: "name",
         }
       })
+    if (includeMedicalReportId) {
+      const includeReport = await MedicalReport.findById(includeMedicalReportId).populate({
+        path: "appointmentId",
+        select: "date",
+        populate: {
+          path: "patientId",
+          select: "name",
+        }
+      })
+      if (includeReport) {
+        medicalReportExamined.push(includeReport);
+      }
+    }
     const formatted = medicalReportExamined.map((item: any) => ({
       medicalReportId: item._id,
       patientId: item.appointmentId.patientId._id,
