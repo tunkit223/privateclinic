@@ -94,8 +94,6 @@ export const getAllMedicalReports = async () => {
         model: "Patient",
       },
     });
-
-
   return JSON.parse(JSON.stringify(reports));
 };
 
@@ -127,6 +125,9 @@ export const ExaminedMedicalReport = async (data: any) => {
       throw new Error("Phiếu khám không tồn tại");
     }
     medicalReport.status = "examined";
+    if (!medicalReport.examinationDate) {
+      medicalReport.examinationDate = new Date();
+    }
     await medicalReport.save();
     return {
       _id: medicalReport._id.toString(),

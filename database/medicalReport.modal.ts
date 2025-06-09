@@ -19,7 +19,8 @@ export interface IMedicalReport {
       _id: Types.ObjectId,
       name: string,
     }
-  }
+  },
+  examinationDate?: Date,
   diseaseType?: Diseasetype,
   symptom?: string,
   status: MedicalStatus,
@@ -28,9 +29,11 @@ export interface IMedicalReport {
 
 const MedicalReportSchema = new Schema<IMedicalReport>({
   appointmentId: { type: Schema.Types.ObjectId, ref: "Appointment", required: true },
+  examinationDate: { type: Date, default: null },
   diseaseType: { type: String },
   symptom: { type: String },
   status: { type: String, required: true },
+
 },
   { timestamps: true }
 );
@@ -98,6 +101,7 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
       const invoice = new Invoice({
         medicalReportId: {
           _id: medicalReport._id,
+          examinationDate: medicalReport?.examinationDate,
           appointmentId: {
             _id: medicalReport.appointmentId._id,
             patientId: {

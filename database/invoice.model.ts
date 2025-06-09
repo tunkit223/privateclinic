@@ -14,6 +14,7 @@ export interface IInvoice {
   _id: Types.ObjectId,
   medicalReportId: {
     _id: Types.ObjectId;
+    examinationDate: Date,
     appointmentId: {
       _id: Types.ObjectId;
       patientId: {
@@ -64,6 +65,7 @@ const IInvoicePrescriptionDetailSchema = new Schema<IInvoicePrescriptionDetail>(
 const InvoiceSchema = new Schema<IInvoice>({
   medicalReportId: {
     _id: { type: Schema.Types.ObjectId, ref: 'MedicalReport', required: true },
+    examinationDate: { type: Date, default: null },
     appointmentId: {
       _id: { type: Schema.Types.ObjectId, ref: 'Appointment', required: true },
       patientId: {

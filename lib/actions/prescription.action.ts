@@ -303,9 +303,9 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       throw new Error("Prescription not found after update - (in prescription.action func update for invoice)")
     }
 
-    console.log("Start updated invoice in update Prescription")
-    console.log("medicalreport id", updatedPrescription.medicalReportId.toString())
-    console.log("prescription", updatedPrescription)
+    // console.log("Start updated invoice in update Prescription")
+    // console.log("medicalreport id", updatedPrescription.medicalReportId.toString())
+    // console.log("prescription", updatedPrescription)
 
     await updateInvoiceWithPrescription({
       medicalReportId: updatedPrescription.medicalReportId.toString(),
