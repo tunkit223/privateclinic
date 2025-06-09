@@ -1,6 +1,7 @@
 import dbConnect from "../mongoose";
 import Invoice from "@/database/invoice.model";
 import { getPrescriptionDetailsById } from "./prescription.action";
+import { Session } from "inspector/promises";
 
 export async function getInvoiceList() {
   try {
@@ -17,18 +18,7 @@ export async function getInvoiceList() {
     return null;
   }
 }
-// export async function createInvoice(data: any) {
-//   try {
-//     await dbConnect();
-//     const newInvoice = new Invoice({
-//       data,
-//     })
-//     await newInvoice.save();
 
-//   } catch (error) {
-//     console.log("Error create Invoice in action file", error);
-//   }
-// }
 
 export const updateInvoiceWithPrescription = async ({
   medicalReportId,
@@ -82,4 +72,38 @@ export const updateInvoiceWithPrescription = async ({
   console.log("invoice before save with prescription", invoice.toObject())
   await invoice.save(session ? { session } : {});
   console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${prescription._id}`);
+}
+
+
+// delete Prescription from Invoice
+export const removePrescriptionFromInvoice = async ({
+  medicalReportId,
+  session = null,
+}: {
+  medicalReportId: string,
+  session: any;
+}) => {
+  try {
+    // Find invoice
+    const invoice = await Invoice.findOne(
+      { "medicalReportId._id": medicalReportId },
+      null,
+      session ? { session } : {}
+    )
+    if (!invoice) {
+      console.log("Not found invoice to delete prescription at invoice.action.ts")
+      return;
+    }
+
+    // Remove prescription and reset fees
+    invoice.prescriptionId = undefined;
+    invoice.medicationFee = 0;
+    invoice.totalAmount = invoice.consultationFee;
+    console.log("Invoice before save after moving prescription", invoice.toObject());
+    await invoice.save(session ? { session } : {});
+    console.log("Invoice updated after moving prescription", invoice.toObject());
+  } catch (error) {
+    console.log("Error removing prescription from invoice", error);
+    throw error
+  }
 }

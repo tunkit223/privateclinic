@@ -35,6 +35,10 @@ export interface IInvoice {
     code?: string;
     totalPrice?: number;
     isPaid?: boolean;
+    prescribeByDoctor?: {
+      _id: Types.ObjectId;
+      name: string
+    }
     details: IInvoicePrescriptionDetail[];
   },
   code?: string,
@@ -81,6 +85,10 @@ const InvoiceSchema = new Schema<IInvoice>({
     code: { type: String },
     totalPrice: { type: Number },
     isPaid: { type: Boolean, default: false },
+    prescribeByDoctor: {
+      _id: { type: Schema.Types.ObjectId, ref: "User" },
+      name: { type: String },
+    },
     details: [IInvoicePrescriptionDetailSchema]
   },
   code: { type: String, unique: true },

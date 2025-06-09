@@ -180,26 +180,6 @@ function CreatePrescription() {
                 style={{ width: 500, minHeight: 40 }}
                 rules={[{ required: true, message: 'Missing patient name' }]}
               >
-                {/* <Select
-                  size='large'
-                  dropdownStyle={{ maxHeight: 200, overflow: 'auto' }}
-                  placeholder="Select patient name"
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input: string, option?: DefaultOptionType) => {
-                    const label = option?.children;
-                    if (typeof label === 'string') {
-                      return (label as string).toLowerCase().includes(input.toLowerCase());
-                    }
-                    return false;
-                  }
-                  }>
-                  {patientExaminedList && patientExaminedList.map((pt) => (
-                    <Select.Option style={{ fontSize: "17px" }} key={pt.patientId} value={pt.patientId} >
-                      {pt.name} - {dayjs(pt.dateAppointment).format("DD/MM/YYYY")}
-                    </Select.Option>
-                  ))}
-                </Select> */}
                 <Select
                   size="large"
                   dropdownStyle={{ maxHeight: 200, overflow: 'auto', }}

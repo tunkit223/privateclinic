@@ -44,6 +44,7 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
       const existingInvoice = await Invoice.findOne({ 'medicalReportId._id': doc._id });
       if (existingInvoice) {
         console.log(`Invoice already exists for MedicalRp ${doc._id}`);
+        return;
       }
 
       // Get data medicalReport
@@ -78,6 +79,10 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
           code: prescription.code,
           totalPrice: prescription.totalPrice,
           isPaid: prescription.isPaid,
+          prescribeByDoctor: prescription.prescribeByDoctor ? {
+            _id: prescription.prescribeByDoctor._id,
+            name: prescription.prescribeByDoctor.name
+          } : undefined,
           details: prescriptionDetails.map((detail: any) => ({
             medicineName: detail.medicineId.name,
             usageMethodName: detail.usageMethodId.name,

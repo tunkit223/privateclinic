@@ -9,7 +9,7 @@ import MedicalReport from "@/database/medicalReport.modal";
 import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPrescriptionPayload.interface';
 import { ObjectId } from "mongodb";
 import Invoice from "@/database/invoice.model";
-import { updateInvoiceWithPrescription } from "./invoice.action";
+import { removePrescriptionFromInvoice, updateInvoiceWithPrescription } from "./invoice.action";
 
 
 
@@ -186,7 +186,7 @@ export const createPrescription = async ({
 
 export const getPatientExaminedList = async (includeMedicalReportId?: string) => {
   try {
-    const usedMedicalReportIds = await Prescription.find().distinct("medicalReportId");
+    const usedMedicalReportIds = await Prescription.find({ deleted: false }).distinct("medicalReportId");
 
     const filteredIds = includeMedicalReportId
       ? usedMedicalReportIds.filter(id => id.toString() !== includeMedicalReportId) : usedMedicalReportIds;
@@ -333,6 +333,12 @@ export const deletePrescription = async (prescriptionId: string) => {
     if (!prescriptionId) throw new Error("PrescriptionId is required");
     await dbConnect();
 
+    // Find the prescription to get medicalReportId
+    const prescription = await Prescription.findById(prescriptionId).session(session);
+    if (!prescription) {
+      throw new Error("Prescription not found to get medicalReportId")
+    }
+
     // First, soft delete prescription
     await Prescription.updateOne(
       { _id: new ObjectId(prescriptionId) },
@@ -347,6 +353,13 @@ export const deletePrescription = async (prescriptionId: string) => {
       { $set: { deleted: true } },
       { session }
     )
+
+    // Remove prescription from invoice
+    await removePrescriptionFromInvoice({
+      medicalReportId: prescription.medicalReportId.toString(),
+      session
+    })
+
 
     await session.commitTransaction();
     session.endSession();
