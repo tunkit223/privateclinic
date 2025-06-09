@@ -30,6 +30,7 @@ export const updateInvoiceWithPrescription = async ({
   session: any,
 }) => {
 
+  console.log("prescription data", prescription.prescribeByDoctor)
   // Get prescription details for invoice
   const prescriptionDetails = await getPrescriptionDetailsById(prescription._id.toString(), session);
   if (!prescriptionDetails) {
@@ -64,6 +65,10 @@ export const updateInvoiceWithPrescription = async ({
     code: prescription.code,
     totalPrice: prescription.totalPrice,
     isPaid: prescription.isPaid,
+    prescribeByDoctor: prescription.prescribeByDoctor ? {
+      _id: prescription.prescribeByDoctor._id,
+      name: prescription.prescribeByDoctor.name,
+    } : undefined,
     details: invoicePrescriptionDetails
   }
   invoice.medicationFee = prescription.totalPrice || 0;
@@ -71,7 +76,7 @@ export const updateInvoiceWithPrescription = async ({
 
   console.log("invoice before save with prescription", invoice.toObject())
   await invoice.save(session ? { session } : {});
-  console.log(`Invoice ${invoice.invoiceCode} updated with Prescription ${prescription._id}`);
+  console.log(`Invoice ${invoice.code} updated with Prescription ${prescription._id}`);
 }
 
 

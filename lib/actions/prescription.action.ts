@@ -152,7 +152,7 @@ export const createPrescription = async ({
       { _id: newPrescription._id },
       { $set: { totalPrice } },
       { session, new: true }
-    ).lean();
+    ).populate('prescribeByDoctor');
 
     console.log("Prescription sau khi lưu lần thứ hai:", newPrescription.toObject());
 
@@ -297,7 +297,7 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
       { _id: new ObjectId(prescriptionId) },
       { $set: { totalPrice } },
       { session, new: true }
-    );
+    ).populate('prescribeByDoctor');
 
     if (!updatedPrescription) {
       throw new Error("Prescription not found after update - (in prescription.action func update for invoice)")

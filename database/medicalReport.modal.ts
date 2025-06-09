@@ -121,11 +121,12 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
         consultationFee,
         medicationFee,
         totalAmount: consultationFee + medicationFee,
+        // code: `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: 'pending'
       });
       console.log("invoice before saving", invoice)
       await invoice.save();
-      console.log(`Invoice created for MedicalReport ${doc._id}: ${invoice.invoiceCode}`)
+      console.log(`Invoice created for MedicalReport ${doc._id}`)
 
     } catch (error) {
       console.log("Error create invoice automatically", error);

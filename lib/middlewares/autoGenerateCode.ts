@@ -10,7 +10,7 @@ import { Document } from "mongoose";
 export function autoGenerateCode(prefix: string, counterId: string) {
   return async function (this: Document & { code: string }, next: (err?: any) => void) {
     if (!this.isNew || this.code) {
-      console.log("Bỏ qua autoGenerateCode: tài liệu không phải mới hoặc đã có code");
+      console.log(`Bỏ qua autoGenerateCode: tài liệu không phải mới hoặc đã có code (isNew: ${this.isNew})`);
 
       return next()
     };

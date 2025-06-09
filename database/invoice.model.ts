@@ -91,7 +91,7 @@ const InvoiceSchema = new Schema<IInvoice>({
     },
     details: [IInvoicePrescriptionDetailSchema]
   },
-  code: { type: String, unique: true },
+  code: { type: String, unique: true, },
   consultationFee: { type: Number, require: true },
   medicationFee: { type: Number },
   totalAmount: { type: Number, required: true },
