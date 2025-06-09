@@ -89,3 +89,24 @@ export async function updateUser(accountId: string, data: IUser) {
     throw new Error("Không thể cập nhật thông tin người dùng.")
   }
 }
+
+
+export const checkOldPassword = async (accountId: string, oldPassword: string) => {
+  try {
+    await dbConnect();
+
+    const account = await Account.findById(new mongoose.Types.ObjectId(accountId));
+    if (!account) {
+      return { success: false, message: "Account not found" };
+    }
+
+    if (account.password !== oldPassword) {
+      return { success: false, message: "Incorrect password" };
+    }
+
+    return { success: true, email: account.email };
+  } catch (err) {
+    console.error("Error in checkOldPassword:", err);
+    return { success: false, message: "Error checking password" };
+  }
+};

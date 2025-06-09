@@ -1,7 +1,7 @@
 "use client"
  // Trang đăng kí user mới
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
@@ -17,6 +17,7 @@ import { SelectItem } from "../ui/select"
 import Image from "next/image"
 import { getAppointmentWithPatient, updateAppointmentAndPatient } from "@/lib/actions/appointment.action"
 import toast from "react-hot-toast"
+import { getAvailableDoctors } from "@/lib/actions/workschedules.action"
 const DetailsAppointmentForm = ({ 
   appointmentId,
   onSuccess,
@@ -59,7 +60,33 @@ const DetailsAppointmentForm = ({
 
   fetchData()
 }, [appointmentId])
-
+  const [availableDoctors, setAvailableDoctors] = useState<{ _id: string, name: string, image: string }[]>([]);
+  
+   const watchedDate = useWatch({
+    control: form.control,
+    name: "date",
+  });
+  
+  useEffect(() => {
+    if (!watchedDate) return;
+  
+    let dateObj = new Date(watchedDate);
+    if (isNaN(dateObj.getTime())) return;
+  
+    const isoDate = dateObj; 
+    const hour = dateObj.getHours();
+    const shift = hour < 13 ? "Morning" : "Afternoon";
+  
+    getAvailableDoctors(isoDate, shift)
+      .then((doctors) => {
+        setAvailableDoctors(doctors);
+      })
+      .catch((err) => {
+        console.error("Error fetching doctors", err);
+        toast.error("Failed to load doctors.");
+      });
+  }, [watchedDate?.toISOString()]); 
+  
   async function onSubmit(values: z.infer<typeof DetailsAppointmentFormValidation>) {
     setisLoading(true);
 
@@ -159,7 +186,7 @@ const DetailsAppointmentForm = ({
       />
     </div>
 
-    <div className="flex flex-col gap-6 xl:flex-row">
+    <div className="flex flex-col xl:flex-row">
       <CustomFormField
           fieldType = {FormFieldType.INPUT}
           control = {form.control}
@@ -167,34 +194,30 @@ const DetailsAppointmentForm = ({
           label = 'Address'
           placeholder = 'Linh Trung ward, Thu Đuc, Ho Chi Minh city'
       />
-    </div>
-     <CustomFormField
-    fieldType={FormFieldType.SELECT}
-    control={form.control}
-    name='doctor'
-    label='Doctor'
-    placeholder='Select a Doctor'
-  >
-    {Doctors.map((doctor) => (
-      <SelectItem
-        key={doctor.name}
-        value={doctor.name}
-        >
-        <div className="flex items-center gap-2 cursor-pointer">
-          <Image
-            src={doctor.image}
-            alt={doctor.name}
-            width={32}
-            height={32}
-            className="rounded-full border border-dark-200"
-          />
-          <p>
-            {doctor.name}
-          </p>
-        </div>
-      </SelectItem>))}
+      </div>
+    <CustomFormField
+        fieldType={FormFieldType.SELECT}
+        control={form.control}
+        name="doctor"
+        label="Doctor"
+        placeholder="Select a Doctor"
+      >
+        {availableDoctors.map((doctor) => (
+          <SelectItem key={doctor._id} value={doctor._id}>
+            <div className="flex items-center gap-2 cursor-pointer">
+              <Image
+                src={doctor.image || '/assets/images/employee.png'}
+                alt={doctor.name}
+                width={32}
+                height={32}
+                className="rounded-full border border-dark-200"
+              />
+              <p>{doctor.name}</p>
+            </div>
+          </SelectItem>
+        ))}
       </CustomFormField>
-
+    
       <CustomFormField
         fieldType={FormFieldType.DATE_PICKER}
         control={form.control}
@@ -203,7 +226,7 @@ const DetailsAppointmentForm = ({
         showTimeSelect
         dateFormat="dd/MM/yyyy - h:mm aa"
       />
-      <div className="flex flex-col gap-6 xl:flex-row xl:gap-6">
+      <div className="flex flex-col xl:flex-row xl:gap-6">
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}

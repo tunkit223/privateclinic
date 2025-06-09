@@ -3,6 +3,7 @@
 import User from "@/database/user.model"; // model User đã có role: "doctor"
 import WorkSchedules from "@/database/workschedules";
 import mongoose from "mongoose";
+import dbConnect from "../mongoose";
 
 export async function getAvailableDoctors(date: Date, shift: "Morning" | "Afternoon") {
   const targetDate = new Date(date.toDateString()); // bỏ giờ, chỉ so sánh ngày
@@ -49,4 +50,73 @@ export async function getDoctorInfo(doctorId: string) {
     console.error("Lỗi khi lấy thông tin bác sĩ:", error);
     return null;
   }
+}
+
+
+export async function addSchedule({
+  doctorId,
+  date,
+  shift,
+}: {
+  doctorId: string;
+  date: string;
+  shift: "Morning" | "Afternoon";
+}) {
+  await dbConnect();
+
+  // Kiểm tra đã có lịch chưa
+  const existing = await WorkSchedules.findOne({
+    doctor: doctorId,
+    date: new Date(date),
+    shift,
+  });
+
+  if (existing) {
+    console.log("Đã tồn tại lịch ca này.");
+    return;
+  }
+
+  const newSchedule = new WorkSchedules({
+    doctor: doctorId,
+    date: new Date(date),
+    shift,
+  });
+
+  await newSchedule.save();
+}
+
+
+export async function deleteSchedule({
+  doctorId,
+  date,
+  shift,
+}: {
+  doctorId: string;
+  date: string;
+  shift: "Morning" | "Afternoon";
+}) {
+  await dbConnect();
+
+  await WorkSchedules.findOneAndDelete({
+    doctor: doctorId,
+    date: new Date(date),
+    shift,
+  });
+}
+
+
+export async function getSchedules() {
+  await dbConnect();
+
+  const schedules = await WorkSchedules.find({}).populate("doctor");
+
+  return schedules.map((schedule) => ({
+    title: `${schedule.doctor.name} (${schedule.shift})`,
+    start: schedule.date.toISOString().split("T")[0], // YYYY-MM-DD
+    allDay: true,
+    extendedProps: {
+      doctorId: schedule.doctor._id.toString(),
+      shift: schedule.shift,
+    },
+  }));
 }
