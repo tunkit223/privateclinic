@@ -270,6 +270,39 @@ export async function updateAppointmentAndPatient(appointmentId: string, values:
   }
 }
 
+export async function CreateAppointmentAndPatient(values: any) {
+  try {
+    await dbConnect();
+
+    const newPatient = new Patient({
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      gender: values.gender,
+      address: values.address,
+      birthdate: values.birthdate,
+    });
+
+    await newPatient.save();
+
+    const newAppointment = new Appointment({
+      patientId: newPatient._id,
+      doctor: values.doctor,
+      date: values.date,
+      reason: values.reason,
+      note: values.note,
+      status: "pending",
+    });
+
+    await newAppointment.save();
+
+    return { success: true, appointmentId: newAppointment._id };
+  } catch (error) {
+    console.error("Failed to create appointment and patient:", error);
+    return { error: "Failed to create appointment and patient" };
+  }
+}
+
 export const ConfirmAppointment = async ({
   appointmentId,
 }: {

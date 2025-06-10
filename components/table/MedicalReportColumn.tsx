@@ -172,7 +172,7 @@ export const columns: ColumnDef<IMedicalReport>[] = [
               </Button>}
 
 
-             {row.original.status === "examining" &&
+             {row.original.status !== "unexamined" &&
              <MedicalReportModal
               appointmentId={row.original.appointmentId._id.toString()}
               meidcalReportId={row.original._id.toString()}

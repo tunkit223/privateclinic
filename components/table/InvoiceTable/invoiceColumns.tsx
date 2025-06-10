@@ -6,6 +6,7 @@ import { IInvoice } from "@/database/invoice.model"
 import { Button } from "antd"
 import { ViewIcon } from "lucide-react"
 import dayjs from "dayjs"
+import PayModal from "@/components/PayModal"
 // import ViewBillDetails from "./ViewBillDetails"
 // import DownloadBillPDF from "@/components/Button/DownloadBillPDF"
 
@@ -68,10 +69,13 @@ export const invoiceColumns = ({ onUpdated, onDeleted }: ColumnProps): ColumnDef
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ row }) => (
+    cell: ({ row }) => {
+      return(
       <div className="flex items-center gap-4">
         <Button>He</Button>
+        <PayModal/>
       </div>
-    )
+      )
+    }
   }
 ]

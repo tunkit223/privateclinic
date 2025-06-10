@@ -20,7 +20,8 @@ import {
 import { Button } from "../ui/button"
 import Image from "next/image"
 import { Input } from "../ui/input"
-
+import { useEffect, useState } from "react"
+import { format } from "date-fns"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -39,96 +40,141 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
   })
 
+  const [filterType, setFilterType] = useState<"today" | "all" | "custom">("today")
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date()
+    return format(today, "yyyy-MM-dd")
+  })
+
+  useEffect(() => {
+    const column = table.getColumn("schedule")
+    if (!column) return
+
+    if (filterType === "all") {
+      column.setFilterValue(undefined)
+    } else if (filterType === "today") {
+      const today = format(new Date(), "yyyy-MM-dd")
+      column.setFilterValue(today)
+    } else if (filterType === "custom") {
+      column.setFilterValue(selectedDate)
+    }
+  }, [filterType, selectedDate])
+
   return (
     <>
-    <Input
-        placeholder="Search by patient's name..."
-        value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table.getColumn("patient")?.setFilterValue(event.target.value)
-        }
-        className="w-full max-w-[1200px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
-       />
+     <Input
+          placeholder="Search by patient's name..."
+          value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("patient")?.setFilterValue(event.target.value)
+          }
+          className="w-full text-dark-200 py-2 border border-dark-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all"
+        />
+    
        
-    <div className="data-table">
-  
-      
-      <Table className="shad-table">
-        <TableHeader className="bg-blue-400">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="shad-table-row-header">
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="shad-table-row"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
+
+        {/* Bộ lọc nằm bên phải */}
+        <div className="w-full flex justify-end">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value as any)}
+            className="border px-3 py-2 rounded-md text-sm bg-blue-300"
+          >
+            <option value="today">Today</option>
+            <option value="all">All</option>
+            <option value="custom">Choose date</option>
+          </select>
+
+          {filterType === "custom" && (
+            <Input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="border p-3 rounded-md text-sm max-w-[150px] ml-2 bg-blue-300"
+            />
           )}
-        </TableBody>
-      </Table>
-      <div className="table-actions">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="shad-gray-btn"
-        >
-         <Image
-            src="/assets/icons/arrow.svg"
-            width={24}
-            height={24}
-            alt="arrow"
-         />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="shad-gray-btn"
-        >
-         <Image
-            src="/assets/icons/arrow.svg"
-            width={24}
-            height={24}
-            alt="arrow"
-            className="rotate-180"
-         />
-        </Button>
+        </div>
+
+
+      <div className="data-table">
+        <Table className="shad-table">
+          <TableHeader className="bg-blue-400">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="shad-table-row-header">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="shad-table-row"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        <div className="table-actions mt-4 flex justify-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="shad-gray-btn"
+          >
+            <Image
+              src="/assets/icons/arrow.svg"
+              width={24}
+              height={24}
+              alt="arrow"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="shad-gray-btn"
+          >
+            <Image
+              src="/assets/icons/arrow.svg"
+              width={24}
+              height={24}
+              alt="arrow"
+              className="rotate-180"
+            />
+          </Button>
+        </div>
       </div>
-    </div>
     </>
   )
 }
+
 export default DataTable

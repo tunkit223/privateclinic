@@ -5,6 +5,7 @@ import StatCard from '@/components/StatCard'
 import { getRecentAppointmentList } from '@/lib/actions/appointment.action'
 import DataTable from '@/components/table/DataTable'
 import { columns } from '@/components/table/columns'
+import CreateAppointmentModal from '@/components/CreateAppointmentModal'
 
 
 const appointments = async () => {
@@ -33,9 +34,11 @@ const appointments = async () => {
             icon="/assets/icons/cancelled.svg"
           />
         </section>
-
+        <div className='w-full flex justify-end'>
+        <CreateAppointmentModal/>
+        </div>
         <DataTable columns={columns} data={appointments.documents} />
-
+        
       </main>
     </div>
   )

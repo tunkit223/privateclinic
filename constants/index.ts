@@ -1,6 +1,7 @@
 import { finished } from "stream";
 
 export const GenderOptions = ["Male", "Female", "Other"];
+export const PaymentOptions = ["Cash", "Credit Card"];
 export const Role = [
   {
     name: "admin",

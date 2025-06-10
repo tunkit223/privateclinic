@@ -48,8 +48,6 @@ const PrescriptionSchema = new Schema<IPrescription>({
   }
 );
 
-// Middleware auto generate code, example: Rx000001 for schema has field code
-console.log("Đăng ký middleware autoGenerateCode cho PrescriptionSchema");
 
 PrescriptionSchema.pre("save", autoGenerateCode("Rx", "prescription"));
 const Prescription = models?.Prescription || model<IPrescription>('Prescription', PrescriptionSchema);
