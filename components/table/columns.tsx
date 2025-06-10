@@ -47,14 +47,18 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
     }
   },
   {
-    accessorKey: "schedule",
-    header: "Appointment",
-    cell:({row}) =>(
-      <p className="text-14-regular min-w-[100px]">
-        {formatDateTime(row.original.date).dateTime}
-      </p>
-    )
+  accessorKey: "schedule",
+  header: "Appointment",
+  accessorFn: (row) => {
+    const date = new Date(row.date)
+    return date.toISOString().split("T")[0]
   },
+  cell:({row}) => (
+    <p className="text-14-regular min-w-[100px]">
+      {formatDateTime(row.original.date).dateTime}
+    </p>
+  )
+},
   {
     accessorKey: "doctor",
     header: () => "Doctor",

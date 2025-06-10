@@ -75,7 +75,19 @@ export const getMedicineById = async (medicineId: string) => {
   if (!medicine) throw new Error(`Medicine "${medicine}" not found`);
   return medicine._id.toString();
 };
+export const getMedicineNameById = async (medicineId: string) => {
+  await dbConnect();
+  const medicine = await Medicine.findById(medicineId);
+  if (!medicine) throw new Error(`Medicine "${medicineId}" not found`);
+  return medicine.name.toString();
+};
 
+export const getMedicineUnitById = async (medicineId: string) => {
+  await dbConnect();
+  const medicine = await Medicine.findById(medicineId);
+  if (!medicine) throw new Error(`Medicine "${medicineId}" not found`);
+  return medicine.unit.toString();
+};
 export const getMedicinePriceByAmount = async (name: string, amount: number): Promise<string> => {
   await dbConnect();
   const medicine = await Medicine.findOne({ name });

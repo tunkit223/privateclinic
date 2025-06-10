@@ -21,7 +21,7 @@ const workschedule = async () => {
   return (
     <div className="flex gap-8 p-8">
       <div className="w-1/4">
-        <h2 className="text-lg font-bold mb-4">Danh sách bác sĩ</h2>
+        <h2 className="text-lg font-bold mb-4">Doctor List</h2>
         <DoctorList doctors={doctors} />
       </div>
       <div className="w-3/4">

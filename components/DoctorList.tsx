@@ -39,7 +39,7 @@ export function DoctorList({ doctors }: { doctors: any[] }) {
               data-doctor-name={doctor.name}
               data-shift="Morning"
             >
-              Ca sáng
+              Morning
             </div>
             <div
               className="fc-draggable-doctor bg-white p-1 border rounded cursor-move"
@@ -47,7 +47,7 @@ export function DoctorList({ doctors }: { doctors: any[] }) {
               data-doctor-name={doctor.name}
               data-shift="Afternoon"
             >
-              Ca chiều
+              Afternoon
             </div>
           </div>
         </div>

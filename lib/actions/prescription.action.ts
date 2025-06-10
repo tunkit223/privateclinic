@@ -10,7 +10,10 @@ import { Create_EditPrescriptionPayload } from '@/lib/interfaces/create_editPres
 import { ObjectId } from "mongodb";
 import Invoice from "@/database/invoice.model";
 import { removePrescriptionFromInvoice, updateInvoiceWithPrescription } from "./invoice.action";
-
+import UsageMethod from "@/database/usageMethod.model";
+import Medicine from "@/database/medicine";
+import { getMedicineNameById, getMedicineUnitById } from "./medicine.action";
+import { getUsageMethodNameById } from "./usageMethod.action";
 
 
 
@@ -370,5 +373,71 @@ export const deletePrescription = async (prescriptionId: string) => {
     session.endSession();
     console.log("Error delete prescription action", error);
     throw error;
+  }
+}
+
+export const getPrescriptionByMedicalReportId = async (medicalReportId: string) => {
+  try {
+    await dbConnect();
+
+    const prescription = await Prescription.findOne({
+      medicalReportId:medicalReportId
+    });
+
+    if (!prescription) {
+      console.log("No prescription found for this medicalReportId");
+      return false;
+    }
+    return prescription._id.toString();
+  } catch (error) {
+    console.error("Error get prescription by medicalReportId", error);
+    return false;
+  }
+};
+
+export const getPrescriptionDetailsByPrescriptionId = async (prescriptionId: string) => {
+  try {
+    await dbConnect();
+
+    const details = await PrescriptionDetail.find({
+      prescriptionId: prescriptionId,
+      deleted: false,
+    });
+
+    const result = await Promise.all(
+      details.map(async (detail) => {
+        const medicinename = await getMedicineNameById(detail.medicineId.toString());
+        const medicineunit = await getMedicineUnitById(detail.medicineId.toString());
+        const usageMethodname = await getUsageMethodNameById(detail.usageMethodId.toString());
+
+        return {
+          Name: medicinename || "",
+          Unit: medicineunit || "",
+          Amount: detail.quantity.toString(),
+          Usage: usageMethodname || "",
+        };
+      })
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Error in getPrescriptionDetailsByPrescriptionId", error);
+    return false;
+  }
+};
+
+
+
+export const getUsageMethods = async () => {
+  try {
+    await dbConnect();
+    const usageMethods = await UsageMethod.find({}).select("name").lean();
+    return usageMethods.map(method => ({
+      _id: method._id.toString(),
+      name: method.name
+    }));
+  } catch (error) {
+    console.log("Error get usage methods", error);
+    return [];
   }
 }

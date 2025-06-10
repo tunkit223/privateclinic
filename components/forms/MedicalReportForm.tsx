@@ -27,6 +27,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { getMedicalReportDetailsList } from '@/lib/actions/medicalRPdetails'
+import { getPrescriptionByMedicalReportId, getPrescriptionDetailsByPrescriptionId } from '@/lib/actions/prescription.action'
 type MedicineRow = {
   Name: string;
   Unit: string;
@@ -46,6 +47,23 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
        diseaseType:"",
       },
     })
+
+    const [readonlyPrescription, setReadonlyPrescription] = useState<MedicineRow[]>([]);
+
+    useEffect(() => {
+
+  const fetchPrescription = async () => {
+   
+    const precriptionid = await getPrescriptionByMedicalReportId(medicalReportIds);
+    const list = await getPrescriptionDetailsByPrescriptionId(precriptionid);
+ 
+        if (list && list.length > 0) {
+           setReadonlyPrescription(list);
+        }
+  };
+  fetchPrescription();
+}, [medicalReportIds]);
+
     useEffect(() => {
       const fetchAppointmentDetails = async () => {
         const data = await getAppointmentDetails(appointmentId);
@@ -68,27 +86,6 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
         }
       };
       fetchMedicalReport();
-    }, [medicalReportIds]);
-
-    const { control } = form;
-    
-    useEffect(() => {
-    const fetchMedicalReportDetailsList = async () => {
-      const list = await getMedicalReportDetailsList(medicalReportIds);
-
-        if (list && list.length > 0) {
-          setData(
-            list.map((item) => ({
-              Name: item.medicineName,
-              Unit: item.unit,
-              Amount: item.amount.toString(),
-              Usage: item.usage || "",
-            })).concat([{ Name: "", Unit: "", Amount: "", Usage: "" }]) 
-          );
-        }
-      };
-
-      fetchMedicalReportDetailsList();
     }, [medicalReportIds]);
 
 
@@ -121,30 +118,7 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
    async function onSubmit(values: z.infer<typeof createMedicalReportFormValidation>){
     setisLoading(true);
     try {
-      for (const [index, item] of data.entries()) {
-      if (item.Name && item.Amount) {
-        const medicine = await validateMedicine(item.Name);
-        if (!medicine) {
-          toast.error(`Thuốc ở dòng ${index + 1} không tồn tại: ${item.Name}`, { position: "top-left" });
-          setisLoading(false);
-          return;
-        }
-     
-        if (medicine !== item.Unit) {
-          toast.error(`Unit của thuốc "${item.Name}" ở dòng ${index + 1} không đúng. Phải là "${medicine}"`, { position: "top-left" });
-          setisLoading(false);
-          return;
-        }
-        const amount = parseInt(item.Amount, 10);
-        if (isNaN(amount) || amount <= 0) {
-          toast.error(`Amount ở dòng ${index + 1} không hợp lệ. Vui lòng nhập một số nguyên dương.`, { position: "top-left" });
-          setisLoading(false);
-          return;
-        }
-      }
-    }
-
-     
+      
       const success = await updateMedicalReport(medicalReportIds, 
            values.symptom,
           values.diseaseType
@@ -158,32 +132,6 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
           duration: 3000,
         });
 
-        const medicalReportId = medicalReportIds;
-
-      // Duyệt thuốc và chuẩn bị data
-      const detailList = await Promise.all(
-        data
-          .filter((item) => item.Name && item.Amount) 
-          .map(async (item) => {
-            const medicineId = await getMedicineByName(item.Name);
-           
-            return {
-              medicalReportId,
-              medicineId,
-              amount: parseInt(item.Amount, 10),
-              unit: item.Unit,
-              usage: item.Usage,
-              price: parseInt(await getMedicinePriceByAmount(item.Name, parseInt(item.Amount, 10))),
-            }
-          })
-      );  
-          await addMedicalReportDetail(detailList);
-      }
-      else{
-        toast.error("Cannot add medical report (appointment had been finished or cancelled).", {
-          position: "top-left",
-          duration: 3000,
-        });
       }
     } catch (error) {
       console.log(error)
@@ -246,23 +194,31 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
                         </SelectItem>))}
                     </CustomFormField>
           </div>
-
+        {readonlyPrescription.length > 0 && (
         <Table className='shad-table'>
             <TableHeader className="bg-blue-400">
               <TableRow className="shad-table-row-header">
                 <TableHead className="w-8 text-center">STT</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Usage</TableHead>
+                <TableHead className='w-40'>Name</TableHead>
+                <TableHead className='w-20'>Unit</TableHead>
+                <TableHead className='w-20'>Amount</TableHead>
+                <TableHead >Usage</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, index) => (
-                <TableRow key={index}   className="shad-table-row">
-
+             {readonlyPrescription.length > 0
+              ? readonlyPrescription.map((row, index) => (
+                  <TableRow key={index} className="shad-table-row">
+                    <TableCell className="text-center">{index + 1}</TableCell>
+                    <TableCell><Input value={row.Name} disabled /></TableCell>
+                    <TableCell><Input value={row.Unit} disabled /></TableCell>
+                    <TableCell><Input value={row.Amount} disabled /></TableCell>
+                    <TableCell><Input value={row.Usage} disabled /></TableCell>
+                  </TableRow>
+                ))
+            : data.map((row, index) => (
+                <TableRow key={index} className="shad-table-row">
                   <TableCell className="text-center">{index + 1}</TableCell>
-
                   <TableCell>
                     <Input
                       value={row.Name}
@@ -270,27 +226,13 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
                       className='border-black'
                     />
                   </TableCell>
-
                   <TableCell>
-                   <Select
+                    <Input
                       value={row.Unit}
-                      onValueChange={(value) => handleChange(index, "Unit", value)}
-                    >
-                      <SelectTrigger className="border-black h-9">
-                        <SelectValue placeholder="Select unit" />
-                      </SelectTrigger>
-                      <SelectContent className="border-black bg-blue-200">
-                        {Unit.map((tag) => (
-                          <SelectItem key={tag.name} value={tag.name}>
-                            <div className="flex items-center gap-2 cursor-pointer">
-                              <p>{tag.name}</p>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(e) => handleChange(index, "Unit", e.target.value)}
+                      className='border-black'
+                    />
                   </TableCell>
-
                   <TableCell>
                     <Input
                       value={row.Amount}
@@ -298,33 +240,18 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
                       className='border-black'
                     />
                   </TableCell>
-
                   <TableCell>
-                    <Select
+                  <Input
                       value={row.Usage}
-                      onValueChange={(value) => handleChange(index, "Usage", value)}
-                    >
-                      <SelectTrigger className="border-black h-9">
-                        <SelectValue placeholder="Select usage" />
-                      </SelectTrigger>
-                      <SelectContent className="border-black bg-blue-200">
-                        {Usage.map((usage) => (
-                          <SelectItem key={usage.name} value={usage.name}>
-                            <div className="flex items-center gap-2 cursor-pointer">
-                              <p>{usage.name}</p>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                  </TableCell>
-
+                      onChange={(e) => handleChange(index, "Usage", e.target.value)}
+                      className='border-black'
+                    />
+                    </TableCell>
                 </TableRow>
               ))}
+
             </TableBody>
-          </Table>
-        
+          </Table>)}
 
          <SubmitButton isLoading={isLoading}>Update Medical Report</SubmitButton>
         </form>  

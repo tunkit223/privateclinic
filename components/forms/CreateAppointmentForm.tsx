@@ -15,14 +15,12 @@ import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
-import { getAppointmentWithPatient, updateAppointmentAndPatient } from "@/lib/actions/appointment.action"
+import { CreateAppointmentAndPatient, getAppointmentWithPatient, updateAppointmentAndPatient } from "@/lib/actions/appointment.action"
 import toast from "react-hot-toast"
 import { getAvailableDoctors } from "@/lib/actions/workschedules.action"
-const DetailsAppointmentForm = ({ 
-  appointmentId,
+const CreateAppointmentForm = ({ 
   onSuccess,
 }: {
-  appointmentId: string
   onSuccess?: () => void}) => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
@@ -42,24 +40,7 @@ const DetailsAppointmentForm = ({
     },
   })
   
-  useEffect(() => {
-  async function fetchData() {
-    const data = await getAppointmentWithPatient(appointmentId)
-    if (data) {
-      form.reset({
-        ...data,
-        phone: data.phone.toString().startsWith("+")
-        ? data.phone.toString()
-        : `+${data.phone.toString()}`, 
-        birthdate: new Date(data.birthdate),
-        date: new Date(data.date),
-        doctor: data.doctor || "",
-      })
-    }
-  }
-
-  fetchData()
-}, [appointmentId])
+ 
   const [availableDoctors, setAvailableDoctors] = useState<{ _id: string, name: string, image: string }[]>([]);
   
    const watchedDate = useWatch({
@@ -91,7 +72,7 @@ const DetailsAppointmentForm = ({
     setisLoading(true);
 
    try {
-    const res = await updateAppointmentAndPatient(appointmentId, values)
+    const res = await CreateAppointmentAndPatient(values)
 
     if (res.error) {
       console.error(res.error)
@@ -195,7 +176,7 @@ const DetailsAppointmentForm = ({
           placeholder = 'Linh Trung ward, Thu Đuc, Ho Chi Minh city'
       />
       </div>
-      <CustomFormField
+       <CustomFormField
         fieldType={FormFieldType.DATE_PICKER}
         control={form.control}
         name="date"
@@ -226,7 +207,7 @@ const DetailsAppointmentForm = ({
         ))}
       </CustomFormField>
     
-      
+     
       <div className="flex flex-col xl:flex-row xl:gap-6">
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
@@ -243,10 +224,10 @@ const DetailsAppointmentForm = ({
           placeholder="Enter notes"
         />
       </div>
-      <SubmitButton isLoading={isLoading}>Adjust</SubmitButton>
+      <SubmitButton isLoading={isLoading}>Create</SubmitButton>
     </form>
   </Form>
   )
 }
 
-export default DetailsAppointmentForm
+export default CreateAppointmentForm

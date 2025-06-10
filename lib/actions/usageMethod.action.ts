@@ -30,3 +30,11 @@ export async function getUsageMethodList() {
     return null;
   }
 }
+
+
+export const getUsageMethodNameById = async (UsageMethodid: string) => {
+  await dbConnect();
+  const usageMethod = await UsageMethod.findById(UsageMethodid);
+  if (!usageMethod) throw new Error(`Medicine "${usageMethod}" not found`);
+  return usageMethod.name.toString();
+}
