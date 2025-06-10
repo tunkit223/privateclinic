@@ -55,7 +55,7 @@ function InvoicePage() {
           onChange={(e) => setFilterValue(e.target.value)}
           className="w-full max-w-[500px] font-medium text-xl py-5 border border-dark-200 rounded-lg mb-3"
         />
-        <Button
+        {/* <Button
           style={{
             backgroundColor: "#4EC092",
             color: "#fff",
@@ -66,7 +66,7 @@ function InvoicePage() {
           icon={<FaPlus />}
         >
           Create Invoice
-        </Button>
+        </Button> */}
       </div>
       <InvoiceDataTable
         globalFilter={filterValue}
