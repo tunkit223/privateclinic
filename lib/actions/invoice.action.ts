@@ -19,6 +19,25 @@ export async function getInvoiceList() {
   }
 }
 
+export async function getInvoiceById(invoiceId: string) {
+  try {
+    if (!invoiceId) {
+      console.log("Null invoice Id");
+      return null;
+    }
+    const invoice = await Invoice.findById(invoiceId)
+      .lean();
+    if (!invoice) {
+      console.log("Invoice find id error");
+      return null;
+    }
+    return JSON.parse(JSON.stringify(invoice));
+
+  } catch (error) {
+    console.log("Error get invoice by id", error);
+  }
+}
+
 
 export const updateInvoiceWithPrescription = async ({
   medicalReportId,

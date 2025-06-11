@@ -1,11 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Printer, Download } from "lucide-react"
 import { format } from "date-fns"
+import { getInvoiceById } from "@/lib/actions/invoice.action"
+import { useParams } from "next/navigation"
+
+
+
+
 function ViewInvoicePage() {
+
+  const [invoiceFetch, setInvoiceFetch] = useState<any>(null);
+  const params = useParams();
+  // console.log(params)
+  const invoiceId = params?.id as string;
+  const fetchInvoice = async () => {
+
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}`);
+      if (!response) {
+        throw new Error("Failed to fetch invoice");
+      }
+      const data = await response.json();
+      setInvoiceFetch(data);
+
+    } catch (error) {
+      console.log("Failed to fetch invoice", error)
+    }
+  }
+  useEffect(() => {
+    fetchInvoice();
+  }, [])
+  console.log(invoiceFetch);
   const [invoiceData] = useState({
     invoiceNumber: "INV-2023-0042",
     status: "Unpaid", // có thể là "Paid", "Unpaid", "Overdue", "Partial Payment"
