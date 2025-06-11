@@ -6,6 +6,9 @@ import { IInvoice } from "@/database/invoice.model"
 import { Button } from "antd"
 import { ViewIcon } from "lucide-react"
 import dayjs from "dayjs"
+import ViewButton from "@/components/Button/ViewButton"
+import EditButton from "@/components/Button/EditButton"
+import DeleteInvoice from "./DeleteInvoice"
 // import ViewBillDetails from "./ViewBillDetails"
 // import DownloadBillPDF from "@/components/Button/DownloadBillPDF"
 
@@ -70,7 +73,11 @@ export const invoiceColumns = ({ onUpdated, onDeleted }: ColumnProps): ColumnDef
     header: "Action",
     cell: ({ row }) => (
       <div className="flex items-center gap-4">
-        <Button>He</Button>
+        <ViewButton id={row.original._id.toString()} resource="invoice" />
+        {row.original.status !== "paid" && (
+          <EditButton id={row.original._id.toString()} resource="invoice" />
+        )}
+        <DeleteInvoice invoiceId={row.original._id.toString()} />
       </div>
     )
   }
