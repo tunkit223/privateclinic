@@ -176,3 +176,24 @@ export const updateMedicalReport = async (id: string, symptom: string, diseaseTy
   }
 };
 
+export const getExamHistoryByPatientId = async (patientId: string) => {
+  try {
+    await dbConnect()
+
+    const medicalReports = await MedicalReport.find({ status: 'examined' })
+    .populate({
+      path: 'appointmentId',
+      match: { patientId: patientId }, 
+      populate: {
+        path: 'patientId',
+      },
+    })
+    .lean()
+
+  const filteredReports = medicalReports.filter((r) => r.appointmentId)
+    return JSON.parse(JSON.stringify(filteredReports)) 
+  } catch (error) {
+    console.error("Lỗi khi lấy lịch sử khám (đã khám):", error)
+    return []
+  }
+}

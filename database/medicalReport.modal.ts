@@ -21,7 +21,7 @@ export interface IMedicalReport {
     }
   },
   examinationDate?: Date,
-  diseaseType?: Diseasetype,
+  diseaseType?: string,
   symptom?: string,
   status: MedicalStatus,
 }

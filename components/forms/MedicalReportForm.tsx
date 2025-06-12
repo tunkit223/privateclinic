@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { getMedicalReportDetailsList } from '@/lib/actions/medicalRPdetails'
 import { getPrescriptionByMedicalReportId, getPrescriptionDetailsByPrescriptionId } from '@/lib/actions/prescription.action'
+import { getLatestSetting } from '@/lib/actions/setting.action'
 type MedicineRow = {
   Name: string;
   Unit: string;
@@ -37,6 +38,16 @@ type MedicineRow = {
 const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: string, medicalReportIds: string}) => {
       const router = useRouter();
       const [isLoading, setisLoading] = useState(false);
+      const [diseaseTypeList, setDiseaseTypeList] = useState<string[]>([])
+      useEffect(() => {
+      const fetchSetting = async () => {
+        const setting = await getLatestSetting();
+        if (setting?.DiseaseType) {
+          setDiseaseTypeList(setting.DiseaseType);
+        }
+      };
+      fetchSetting();
+    }, []);
       const form = useForm<z.infer<typeof createMedicalReportFormValidation>>({
       resolver: zodResolver(createMedicalReportFormValidation),
       defaultValues: {
@@ -105,6 +116,7 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
         ]);
       }
     }, [data]);
+    
    const handleChange = (
       index: number,
       field: keyof MedicineRow,
@@ -181,17 +193,17 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
                       label='Disease Type'
                       placeholder='Select a disease type'
                     >
-                      {Diseasetype.map((type) => (
+                      {diseaseTypeList.map((type) => (
                         <SelectItem
-                          key={type.name}
-                          value={type.name}
-                          onClick={() => form.setValue("diseaseType", type.name)}>
+                          key={type}
+                          value={type}
+                          onClick={() => form.setValue("diseaseType", type)}
+                        >
                           <div className="flex items-center gap-2 cursor-pointer">
-                            <p>
-                              {type.name}
-                            </p>
+                            <p>{type}</p>
                           </div>
-                        </SelectItem>))}
+                        </SelectItem>
+                      ))}
                     </CustomFormField>
           </div>
         {readonlyPrescription.length > 0 && (

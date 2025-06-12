@@ -73,7 +73,7 @@ const ChangePassWord = () => {
   
   return (
     <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1 w-full max-w-[500px] pt-5" >
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1 w-full  pt-5" >
       <p className="text-24-bold">Change password</p>
       <CustomFormField
         fieldType = {FormFieldType.INPUT}
