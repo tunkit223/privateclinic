@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Printer, Download } from "lucide-react"
 import { format } from "date-fns"
 import { getInvoiceById } from "@/lib/actions/invoice.action"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { IInvoice } from "@/database/invoice.model"
 
@@ -18,6 +18,7 @@ function ViewInvoicePage() {
 
   const [invoiceFetch, setInvoiceFetch] = useState<IInvoice | null>(null);
   const params = useParams();
+  const router = useRouter();
   // console.log(params)
   const invoiceId = params?.id as string;
   const fetchInvoice = async () => {
@@ -38,14 +39,11 @@ function ViewInvoicePage() {
     fetchInvoice();
   }, [])
   console.log(invoiceFetch);
-  // if (!invoiceFetch) {
-  //   return <div>Loading...</div>;
-  // }
+
+  const handleBack = () => {
+    router.back();
+  }
   const [invoiceData] = useState({
-    invoiceNumber: "INV-2023-0042",
-    status: "Unpaid", // có thể là "Paid", "Unpaid", "Overdue", "Partial Payment"
-    date: new Date(),
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     clinic: {
       name: "HealthCare Medical Clinic",
       address: "123 Healing Way, Medical District",
@@ -310,10 +308,14 @@ function ViewInvoicePage() {
         </div>
 
         <div className="print:hidden flex justify-end gap-4">
-          <Button onClick={handlePrint}>
+          <Button onClick={handleBack} className="font-medium">
+            Go back
+          </Button>
+          <Button className="bg-[#BFDBFE] font-medium" onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" />
             Print Invoice
           </Button>
+
         </div>
       </div>
     </div>
