@@ -3,12 +3,20 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { IInvoice } from "@/database/invoice.model"
-import { Button } from "antd"
+import { Button, Tag } from "antd"
 import { ViewIcon } from "lucide-react"
 import dayjs from "dayjs"
 import ViewButton from "@/components/Button/ViewButton"
 import EditButton from "@/components/Button/EditButton"
 import DeleteInvoice from "./DeleteInvoice"
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
+  MinusCircleOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
 // import ViewBillDetails from "./ViewBillDetails"
 // import DownloadBillPDF from "@/components/Button/DownloadBillPDF"
 
@@ -67,6 +75,35 @@ export const invoiceColumns = ({ onUpdated, onDeleted }: ColumnProps): ColumnDef
   {
     accessorKey: "status",
     header: "Status",
+    cell: ({ row }) => {
+      type StatusInfo = {
+        color: string;
+        icon: React.ReactNode;
+      };
+      const status = row.original.status;
+      const statusDataMap: Record<string, StatusInfo> = {
+        paid: {
+          color: 'success',
+          icon: <CheckCircleOutlined />
+        },
+        pending: {
+          color: 'processing',
+          icon: <SyncOutlined spin />
+        },
+        cancelled: {
+          color: 'error',
+          icon: <CloseCircleOutlined />
+        }
+      }
+
+      const statusData = statusDataMap[status] || { color: 'default', icon: null }
+      const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
+      return (
+        <>
+          <Tag className="text-lg font-medium w-[120px] flex items-center justify-center" color={statusData.color} icon={statusData.icon}>{statusFormatted}</Tag>
+        </>
+      )
+    },
   },
   {
     accessorKey: "action",

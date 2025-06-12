@@ -162,11 +162,12 @@ function ViewInvoicePage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
                   <span
-                    className={`font-medium px-2 py-1 rounded-full text-lg ${invoiceFetch?.status === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : invoiceFetch?.status === "cancelled"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
+                    className={`font-medium px-2 py-1 rounded-lg text-lg w-[100px] flex items-center justify-center
+                       ${invoiceFetch?.status === "paid"
+                        ? "bg-green-100 text-green-800 "
+                        : invoiceFetch?.status === "cancelled"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-[#E6F4FF] text-[#1677FF]"
                       }`}
                   >
                     {invoiceFetch?.status

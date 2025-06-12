@@ -98,7 +98,28 @@ export const updateInvoiceWithPrescription = async ({
   await invoice.save(session ? { session } : {});
   console.log(`Invoice ${invoice.code} updated with Prescription ${prescription._id}`);
 }
+interface UpdateStatusInvoiceParams {
+  invoiceId: string,
+  status: string
+}
 
+export const updateStatusInvoice = async ({ invoiceId, status }: UpdateStatusInvoiceParams) => {
+  try {
+    await dbConnect();
+    const invoice = Invoice.findOneAndUpdate(
+      { _id: invoiceId },
+      { $set: { status } },
+      { new: true, runValidators: true }
+    )
+    if (!invoice) {
+      throw new Error("Invoice not found to update status")
+    }
+    return invoice;
+  } catch (error) {
+    console.error('Error updating invoice status:', error);
+    throw new Error('Failed to update invoice status');
+  }
+}
 
 // delete Prescription from Invoice
 export const removePrescriptionFromInvoice = async ({
