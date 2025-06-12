@@ -128,6 +128,8 @@ export const StatusIcon = {
   confirmed: "/assets/icons/check.svg",
   pending: "/assets/icons/pending.svg",
   cancelled: "/assets/icons/cancelled.svg",
+  imported: "/assets/icons/circle-check-big.svg",
+  importing: "/assets/icons/loader-circle.svg",
 };
 
 export const MedicalStatusIcon = {

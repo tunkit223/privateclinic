@@ -8,6 +8,8 @@ const StatusBadge = ({status}:{status: Status}) => {
       'bg-green-600': status === 'confirmed',
       'bg-blue-600': status === 'pending',
       'bg-red-600': status === 'cancelled',
+      'bg-emerald-600': status === 'imported',
+      'bg-yellow-500': status === 'importing',
     })}>
       <Image
         src={StatusIcon[status]}

@@ -6,7 +6,7 @@ declare type SearchParamProps = {
 };
 
 declare type Gender = "Male" | "Female" | "Other";
-declare type Status = "pending" | "confirmed" | "cancelled"
+declare type Status = "pending" | "confirmed" | "cancelled" | "imported" | "importing";
 declare type MedicalStatus = "unexamined" | "examined" | "examining"
 declare type Usertype = "Admin" | "User"
 declare type Diseasetype = "Hypertension" | "Diabetes mellitus" | "Common cold" | "Gastritis" | "Asthma"
