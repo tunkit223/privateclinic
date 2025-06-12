@@ -111,10 +111,10 @@ export const invoiceColumns = ({ onUpdated, onDeleted }: ColumnProps): ColumnDef
     cell: ({ row }) => (
       <div className="flex items-center gap-4">
         <ViewButton id={row.original._id.toString()} resource="invoice" />
-        {row.original.status !== "paid" && (
+        {row.original.status === "pending" && (
           <EditButton id={row.original._id.toString()} resource="invoice" />
         )}
-        <DeleteInvoice invoiceId={row.original._id.toString()} />
+        <DeleteInvoice invoiceId={row.original._id.toString()} onDeleted={onDeleted} />
       </div>
     )
   }

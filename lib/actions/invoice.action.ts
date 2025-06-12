@@ -121,7 +121,7 @@ export const updateStatusInvoice = async ({ invoiceId, status }: UpdateStatusInv
   }
 }
 
-// delete Prescription from Invoice
+// remove Prescription from Invoice
 export const removePrescriptionFromInvoice = async ({
   medicalReportId,
   session = null,
@@ -151,5 +151,27 @@ export const removePrescriptionFromInvoice = async ({
   } catch (error) {
     console.log("Error removing prescription from invoice", error);
     throw error
+  }
+}
+
+// delete invoice
+export const deleteInvoice = async (invoiceId: string) => {
+  try {
+    await dbConnect();
+
+    if (!invoiceId) {
+      console.log("Not found invoiceId");
+      throw new Error("Not found invoiceId")
+    }
+    const invoice = await Invoice.updateOne(
+      { _id: invoiceId },
+      { $set: { deleted: true, deletedAt: new Date() }, },
+      { new: true, runValidators: true }
+    )
+    if (!invoice) {
+      console.log("Not found invoice to delete")
+    }
+  } catch (error) {
+    console.log("Error delete invoice action", error)
   }
 }

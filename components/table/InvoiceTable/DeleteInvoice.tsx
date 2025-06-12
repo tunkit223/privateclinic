@@ -21,14 +21,30 @@ const DeleteInvoice = ({ invoiceId, onDeleted }: DeleteInvoiceProps) => {
 
   const handleOk = async () => {
     setConfirmLoading(true);
-    // await deletePrescription(invoiceId);
+    try {
+      const response = await fetch("/api/invoices/delete", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ invoiceId })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete invoice');
+      }
+      const result = await response.json();
+      console.log(result.message);
 
 
-    setTimeout(() => {
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    } finally {
       setOpen(false);
       setConfirmLoading(false);
       onDeleted?.();
-    }, 1000);
+    }
   };
 
   const handleCancel = () => {

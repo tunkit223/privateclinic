@@ -17,8 +17,7 @@ interface InvoiceData {
 function InvoicePage() {
   const [invoiceList, setInvoiceList] = useState<InvoiceData>({ documents: [] })
   const [filterValue, setFilterValue] = useState("")
-  const router = useRouter();
-  const params = useParams();
+
 
   const fetchInvoice = async () => {
     try {
@@ -40,12 +39,6 @@ function InvoicePage() {
   console.log("Invoice list: ", invoiceList)
 
 
-
-  const handleAddInvoice = () => {
-    const accountId = params?.accountId
-    router.push(`/${accountId}/Invoice/create`)
-  }
-
   return (
     <>
       <div className="header flex justify-between items-center">
@@ -55,18 +48,6 @@ function InvoicePage() {
           onChange={(e) => setFilterValue(e.target.value)}
           className="w-full max-w-[500px] font-medium text-xl py-5 border border-dark-200 rounded-lg mb-3"
         />
-        {/* <Button
-          style={{
-            backgroundColor: "#4EC092",
-            color: "#fff",
-            fontSize: "15px",
-            fontWeight: "600",
-          }}
-          onClick={handleAddInvoice}
-          icon={<FaPlus />}
-        >
-          Create Invoice
-        </Button> */}
       </div>
       <InvoiceDataTable
         globalFilter={filterValue}

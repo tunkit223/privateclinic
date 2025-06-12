@@ -159,7 +159,7 @@ function EditInvoicePage() {
                     No Prescriptions
                   </span>
                   <Switch
-
+                    disabled={!invoiceFetch?.prescriptionId}
                     checked={showPrescriptions}
                     onChange={setShowPrescriptions}
                     className="data-[state=checked]:bg-blue-600"

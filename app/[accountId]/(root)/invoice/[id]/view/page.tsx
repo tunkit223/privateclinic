@@ -166,7 +166,7 @@ function ViewInvoicePage() {
                        ${invoiceFetch?.status === "paid"
                         ? "bg-green-100 text-green-800 "
                         : invoiceFetch?.status === "cancelled"
-                          ? "bg-red-100 text-red-800"
+                          ? "bg-[#FFF2F0] text-[#FF4D4F]"
                           : "bg-[#E6F4FF] text-[#1677FF]"
                       }`}
                   >
