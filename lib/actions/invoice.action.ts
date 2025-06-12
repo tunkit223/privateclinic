@@ -64,7 +64,8 @@ export const updateInvoiceWithPrescription = async ({
     duration: invoiceDetail.duration,
     dosage: `Morning: ${invoiceDetail.morningDosage}, Noon: ${invoiceDetail.noonDosage}, Afternoon: ${invoiceDetail.afternoonDosage}, Evening: ${invoiceDetail.eveningDosage}`,
     quantity: invoiceDetail.quantity,
-    price: invoiceDetail.price
+    price: invoiceDetail.price,
+    unit: invoiceDetail.medicineId.unit
   }))
 
   console.log("invoice details", invoicePrescriptionDetails);

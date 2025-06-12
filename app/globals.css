@@ -389,3 +389,44 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* PRINT  */
+@media print {
+  /* Ẩn mọi thứ ban đầu */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Chỉ hiển thị phần chứa hóa đơn */
+  .print-container, .print-container * {
+    visibility: visible;
+  }
+
+  /* Chỉ in đúng vị trí của nội dung */
+  .print-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /* Ẩn các thành phần giao diện khác */
+  header, footer, nav, .sidebar, .navbar {
+    display: none !important;
+  }
+  body {
+    font-size: 12px;
+  }
+
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+
+  .text-xl {
+    font-size: 1rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+}

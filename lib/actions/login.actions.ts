@@ -1,5 +1,5 @@
 'use server'
-import Account from "@/database/account.modal";
+import Account from "@/database/account.model";
 import { cookies } from 'next/headers'
 import dbConnect from "../mongoose";
 import nodemailer from "nodemailer"
@@ -23,7 +23,7 @@ export async function loginAccount(data: { email: string; password: string }) {
     return {
       _id: account._id.toString(), // Chuyển ObjectId thành string
       email: account.email,
-      tag: account.tag, 
+      tag: account.tag,
     };
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Lỗi đăng nhập");
