@@ -18,11 +18,18 @@ export const addMedicineBatch = async (data: {
   expiryDate?: string | Date | null,
   note?: string,
   status?: string,
+  totalValue?: number, 
   deleted?: boolean,
   deletedAt?: Date, 
 }) => {
   try {
     await dbConnect()
+
+    const medicine = await Medicine.findById(data.medicineId);
+    if (!medicine) throw new Error("Thuốc không tồn tại");
+
+    const price = medicine.price;
+    const totalValue = price * data.importQuantity;
 
     // Kiểm tra và chuyển đổi kiểu dữ liệu ngày
     const importDate = new Date(data.importDate)
@@ -38,11 +45,11 @@ export const addMedicineBatch = async (data: {
       expiryDate,
       note: data.note || '',
       status: data.status || 'importing',
-
+      totalValue,
       deleted: false,
       deletedAt: null,
     })
-    console.log('New batch:', newBatch)
+  
 
     return {
       success: true,
@@ -59,27 +66,40 @@ export const addMedicineBatch = async (data: {
     }
   }
 }
-
+export type MedicineBatchWithExtras = IMedicineBatch & {
+  _id: string;
+  medicineName: string;
+  unit: string;
+  medicineTypeName: string;
+};
 // Lấy danh sách các lô thuốc, populate thông tin thuốc
-export const getMedicineBatches = async (): Promise<(IMedicineBatch & {
-  medicineName: string,
-  unit: string,
-  _id: string
-})[]> => {
-  await dbConnect()
-  const batches = await MedicineBatch.find({deleted: false})
-    .populate("medicineId", "name unit")
+export const getMedicineBatches = async (): Promise<MedicineBatchWithExtras[]> => {
+  await dbConnect();
+
+  const batches = await MedicineBatch.find({ deleted: false })
+    .populate({
+      path: "medicineId",
+      select: "name unit medicineTypeId",
+      populate: {
+        path: "medicineTypeId",
+        select: "name",
+      },
+    })
     .sort({ importDate: -1 })
-    .lean<IMedicineBatch[]>()
+    .lean<IMedicineBatch[]>();
 
-  return batches.map(batch => ({
-    ...batch,
-    medicineName: batch.medicineId ? (batch.medicineId as any).name : "Unknown",
-    unit: batch.medicineId ? (batch.medicineId as any).unit : "",
-    _id: batch._id.toString(),
-  }))
-}
+  return batches.map(batch => {
+    const medicine: any = batch.medicineId;
 
+    return {
+      ...batch,
+      _id: batch._id.toString(),
+      medicineName: medicine?.name || "Không xác định",
+      unit: medicine?.unit || "",
+      medicineTypeName: medicine?.medicineTypeId?.name || "Không xác định",
+    };
+  });
+};
 // Cập nhật trạng thái lô thuốc (vd: từ "dang-nhap" sang "da-nhap")
 export const updateMedicineBatchStatus = async (
   id: string | Types.ObjectId,
@@ -110,32 +130,34 @@ export const updateMedicineBatchStatus = async (
 }
 
 // Tăng số lượng thuốc trong kho khi lô thuốc được xác nhận "da-nhap"
-export const increaseMedicineAmountFromBatch = async (
-  medicineId: string | Types.ObjectId,
-  amount: number
+
+export const increaseMedicineAmountFromBatchItems = async (
+  batchId: string | Types.ObjectId
 ) => {
   try {
-    await dbConnect()
-    const medicine = await Medicine.findById(medicineId)
-    if (!medicine) throw new Error("Medicine not found")
+    await dbConnect();
 
-    medicine.amount += amount
-    await medicine.save()
+    const batch = await MedicineBatch.findById(batchId);
+    if (!batch) throw new Error("Không tìm thấy đơn nhập thuốc");
+
+    const medicine = await Medicine.findById(batch.medicineId);
+    if (!medicine) throw new Error("Không tìm thấy thuốc");
+
+    medicine.amount += batch.importQuantity;
+    await medicine.save();
 
     return {
       success: true,
-      message: "Medicine amount increased",
-      medicine,
-    }
+      message: "Tăng số lượng thành công",
+    };
   } catch (error) {
-    console.error("Error increasing medicine amount:", error)
+    console.error("❌ Tăng số lượng thuốc thất bại:", error);
     return {
       success: false,
-      message: "Error updating medicine amount",
-    }
+      message: "Tăng số lượng thất bại",
+    };
   }
-}
-
+};
 export const importMedicineBatchesFromExcel = async (
   rows: ExcelRow[]
 ) => { 
@@ -145,19 +167,21 @@ export const importMedicineBatchesFromExcel = async (
       if (!row.medicineName || !row.importQuantity) continue
 
       // Tìm thuốc theo tên (cần import model Medicine)
-      const medicine = await Medicine.findOne({ name: row.medicineName })
-      if (!medicine) continue
+      const foundMedicine = await Medicine.findOne({ name: row.medicineName });
+      if (!foundMedicine) continue;
 
+      const price = foundMedicine.price || 0;
+      const totalValue = price * row.importQuantity;
   
     
       await MedicineBatch.create({
-        medicineId: medicine._id,
+        medicineId: foundMedicine._id,
         importQuantity: row.importQuantity,
         importDate: row.importDate ? new Date(row.importDate) : new Date(),
         expiryDate: row.expiryDate ? new Date(row.expiryDate) : null,
         note: row.note || '',
         status: 'importing',
-        
+        totalValue,
       })
     }
     

@@ -138,15 +138,6 @@ const AddMedicineForm = () => {
         <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="amount"
-          label="Amount"
-          placeholder="Enter amount"
-          iconAlt="amount"
-        />
-        
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
           name="price"
           label="Price"
           placeholder="Enter price"

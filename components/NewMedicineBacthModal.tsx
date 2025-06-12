@@ -100,19 +100,6 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
             />
           </div>
 
-          {/* Unit */}
-          <div>
-            <Label htmlFor="unit">Unit</Label>
-            <select
-              {...form.register("unit")}
-              id="unit"
-              className="mt-1 w-full rounded-md border px-3 py-2 bg-white text-sm"
-            >
-              <option value="Jar">Jar</option>
-              <option value="Tablet">Tablet</option>
-            </select>
-          </div>
-
           {/* Import Date */}
           <div>
             <Label htmlFor="importDate">Import Date</Label>

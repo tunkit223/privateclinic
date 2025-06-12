@@ -14,7 +14,7 @@ export const addMedicine = async (data: any) => {
       medicineTypeId: data.medicineTypeId,
       name: data.name,
       unit: data.unit,
-      amount: data.amount,
+      amount: 0,
       price: data.price
     })
     return {

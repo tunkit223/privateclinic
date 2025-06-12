@@ -8,6 +8,7 @@ export interface IMedicineBatch {
   status: Status  
   expiryDate?: Date | null;         
   note?: string | null;  
+  totalValue?: number; // Tổng giá trị của lô thuốc, có thể tính từ importQuantity và price của medicine
   deleted?: boolean,
   deletedAt?: Date,            
 }
@@ -28,6 +29,7 @@ const MedicineBatchSchema = new Schema<IMedicineBatch>({
   },
   expiryDate: { type: Date, default: null },
   note: { type: String, default: null },
+  totalValue: { type: Number,required: true ,default: 0 }, 
   deleted:{
     type:Boolean,
     default: false,

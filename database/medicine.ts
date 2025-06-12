@@ -18,7 +18,7 @@ const MedicineSchema = new Schema<IMedicine>({
   name: { type: String, require: true },
   unit: { type: String, require: true },
   amount: { type: Number, require: true },
-  price: { type: Number, require: true },
+  price: { type: Number, require: true ,min: 0,},
   deleted:{
     type:Boolean,
     default: false,

@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import {
   updateMedicineBatchStatus,
   deleteMedicineBatch,
+  increaseMedicineAmountFromBatchItems,
 } from "@/lib/actions/medicineBatch.action";
 import { IMedicineBatch } from "@/database/medicineBatch";
 import { useRouter } from "next/navigation";
@@ -34,17 +35,24 @@ export const columns = (
     ),
   },
   {
+    accessorKey: "medicineTypeName",
+    header: "Loại thuốc",
+    cell: ({ row }) => (
+      <p className="text-14-medium">{(row.original as any).medicineTypeName}</p>
+    ),
+  },
+  {
     accessorKey: "unit",
     header: "Đơn vị",
     cell: ({ row }) => (
-      <p className="text-14-regular">{(row.original as any).unit}</p>
+      <p className="text-14-medium">{(row.original as any).unit}</p>
     ),
   },
   {
     accessorKey: "importDate",
     header: "Ngày nhập",
     cell: ({ row }) => (
-      <p className="text-14-regular">
+      <p className="text-14-medium">
         {format(new Date(row.original.importDate), "dd/MM/yyyy")}
       </p>
     ),
@@ -60,14 +68,14 @@ export const columns = (
     accessorKey: "importQuantity",
     header: "Số lượng",
     cell: ({ row }) => (
-      <p className="text-14-regular">{row.original.importQuantity}</p>
+      <p className="text-14-medium">{row.original.importQuantity}</p>
     ),
   },
   {
     accessorKey: "expiryDate",
     header: "Hạn dùng",
     cell: ({ row }) => (
-      <p className="text-14-regular">
+      <p className="text-14-medium">
         {row.original.expiryDate
           ? format(new Date(row.original.expiryDate), "dd/MM/yyyy")
           : "-"}
@@ -89,8 +97,22 @@ export const columns = (
     accessorKey: "note",
     header: "Ghi chú",
     cell: ({ row }) => (
-      <p className="text-14-regular max-w-[150px] truncate">
+      <p className="text-14-medium max-w-[150px] truncate">
         {row.original.note || "-"}
+      </p>
+    ),
+  },
+  {
+    accessorKey: "totalValue",
+    header: "Tổng giá trị",
+    cell: ({ row }) => (
+      <p className="text-14-medium">
+        {row.original.totalValue
+          ? new Intl.NumberFormat("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(row.original.totalValue)
+          : "-"}
       </p>
     ),
   },
@@ -104,7 +126,13 @@ export const columns = (
       const handleConfirm = async () => {
         const res = await updateMedicineBatchStatus(batch._id, "imported");
         if (res.success) {
-          alert("Đã cập nhật trạng thái!");
+          const increaseRes = await increaseMedicineAmountFromBatchItems(batch._id.toString());
+
+            if (increaseRes.success) {
+              alert("✅ Đã xác nhận và nhập thuốc");
+            } else {
+              alert("⚠️ Nhập thuốc thất bại: " + increaseRes.message);
+            }
           router.refresh();
         } else {
           alert("Cập nhật thất bại");
