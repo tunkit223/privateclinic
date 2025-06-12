@@ -34,9 +34,6 @@ const appointments = async () => {
             icon="/assets/icons/cancelled.svg"
           />
         </section>
-        <div className='w-full flex justify-end'>
-        <CreateAppointmentModal/>
-        </div>
         <DataTable columns={columns} data={appointments.documents} />
         
       </main>

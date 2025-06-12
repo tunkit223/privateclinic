@@ -3,7 +3,7 @@
 import Setting from "@/database/setting.model"
 import dbConnect from "../mongoose";
 
-export async function createSetting(data: { MaxPatientperDay: number; ExamineFee: number }) {
+export async function createSetting(data: { MaxPatientperDay: number; ExamineFee: number, DiseaseType: string[] }) {
   try {
     await dbConnect()
     const newSetting = await Setting.create(data)

@@ -10,24 +10,25 @@ import {
 } from "@/components/ui/dialog"
 import { useState } from "react"
 import Image from "next/image"
-import { Types } from "mongoose"
-import { IAppointment } from "@/database/appointment.model"
-import DetailsAppointmentForm from "./forms/DetailsAppointmentForm"
-import { Button } from "./ui/button"
-import CreateAppointmentForm from "./forms/CreateAppointmentForm"
-const CreateAppointmentModal = ({
-  
-}:{
+import ExamHistoryForm from "./forms/ExamHistoryForm"
 
+const ExamHistoryModal = ({
+  patientId
+}:{
+ patientId:string
 }) => {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-       <Button variant='ghost' className={`capitalize bg-blue-300 p-5`}>
-        Create Appointment
-      </Button>
+       <Image
+          src="/assets/icons/details.png"
+          alt="details"
+          height={24}
+          width={24}
+          className="object-contain cursor-pointer"
+        />
               
     </DialogTrigger>
     <DialogContent className="shad-dialog max-w-[900px]">
@@ -37,13 +38,11 @@ const CreateAppointmentModal = ({
          
         </DialogDescription>
       </DialogHeader>
-      <CreateAppointmentForm
-         onSuccess={() => setOpen(false)}
-      />
+      <ExamHistoryForm patientId={patientId}/>
     </DialogContent>
   </Dialog>
   
   )
 }
 
-export default CreateAppointmentModal
+export default ExamHistoryModal

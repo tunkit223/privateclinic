@@ -5,9 +5,8 @@ import React from 'react'
 
 const PatientList = async () => {
   const patient = await getPatientList();
-  console.log(patient)
   return (
-    <div className='relative mx-auto flex max-w-4xl flex-col space-y-14'>
+    <div className='relative mx-auto flex max-w-[1100px] flex-col space-y-14'>
 
       <DataTable columns={columns} data={patient.documents} />
     </div>

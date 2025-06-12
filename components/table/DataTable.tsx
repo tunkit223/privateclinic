@@ -22,6 +22,7 @@ import Image from "next/image"
 import { Input } from "../ui/input"
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
+import CreateAppointmentModal from "../CreateAppointmentModal"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -62,23 +63,22 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-     <Input
+     
+        {/* Bộ lọc nằm bên phải */}
+        <div className="w-full flex justify-end">
+          <Input
           placeholder="Search by patient's name..."
           value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("patient")?.setFilterValue(event.target.value)
           }
-          className="w-full text-dark-200 py-2 border border-dark-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all"
+          className="w-full text-dark-200 p-5 border border-dark-200 rounded-lg mr-5 focus:ring-blue-500 focus:border-blue-500 transition-all"
         />
-    
-       
-
-        {/* Bộ lọc nằm bên phải */}
-        <div className="w-full flex justify-end">
+        <CreateAppointmentModal/>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as any)}
-            className="border px-3 py-2 rounded-md text-sm bg-blue-300"
+            className="border px-3 ml-5 py-2 rounded-md text-sm bg-blue-300"
           >
             <option value="today">Today</option>
             <option value="all">All</option>
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="border p-3 rounded-md text-sm max-w-[150px] ml-2 bg-blue-300"
+              className="border p-5 rounded-md text-sm max-w-[150px] ml-2 bg-blue-300"
             />
           )}
         </div>

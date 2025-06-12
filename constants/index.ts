@@ -198,7 +198,17 @@ export const sidebarLinks = [
   {
     imgURL: '/assets/icons/setting-icon.png',
     label: 'Setting',
-    route: '/setting'
+    route: '/setting',
+    children: [
+      {
+        label: 'Profile',
+        route: '/setting/profile',
+      },
+      {
+        label: 'Change',
+        route: '/setting/change',
+      },
+    ],
   },
   {
     imgURL: '/assets/icons/trash.png',
