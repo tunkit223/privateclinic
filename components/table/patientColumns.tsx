@@ -8,6 +8,7 @@ import EditPatientModal from "../Modal/EditPatientModal";
 import { deletePatient } from "@/lib/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import ExamHistoryModal from "../ExamHistoryModal";
 
 const ActionCell = ({ item }: { item: IPatientDoc }) => {
   const router = useRouter();
@@ -62,6 +63,7 @@ const ActionCell = ({ item }: { item: IPatientDoc }) => {
           }}
         />
       )}
+      <ExamHistoryModal patientId={`${item._id.toString()}`}/>
     </div>
   );
 };
