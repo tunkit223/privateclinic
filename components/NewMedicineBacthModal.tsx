@@ -8,6 +8,9 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { addMedicineBatch } from "@/lib/actions/medicineBatch.action"
 import { useRouter } from "next/navigation"
+import { Label } from "./ui/label"
+import { Input } from "./ui/input"
+import { Textarea } from "./ui/textarea"
 
 const formSchema = z.object({
   medicineId: z.string(),
@@ -49,12 +52,10 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
   }
 
   const onSubmit = async (data: FormData) => {
-    console.log("Form data gửi lên:", data)
     const result = await addMedicineBatch(data)
-    console.log("Kết quả trả về từ API:", result)
     if (result.success) {
       alert("Thêm lô thuốc thành công!")
-      form.reset(defaultValues)       // ✅ reset dữ liệu
+      form.reset(defaultValues)
       setOpen(false)
       router.refresh()
     } else {
@@ -63,27 +64,90 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="bg-green-400 hover:bg-green-700 text-black">Nhập thủ công</Button>
       </DialogTrigger>
-      <DialogContent className="p-6 space-y-4 max-w-lg">
+
+      <DialogContent className="bg-blue-200 rounded-2xl shadow-xl p-6 max-w-md">
+        <h2 className="text-2xl font-bold mb-1">Add medicine batch</h2>
+        <p className="text-gray-500 mb-4">Fill in the details</p>
+
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <select {...form.register("medicineId")} className="w-full border p-2 rounded">
-            <option value="">Chọn thuốc</option>
-            {medicines.map(m => (
-              <option key={m._id} value={m._id}>{m.name}</option>
-            ))}
-          </select>
-          <input type="number" {...form.register("importQuantity")} placeholder="Số lượng" className="w-full border p-2 rounded" />
-          <select {...form.register("unit")} className="w-full border p-2 rounded">
-            <option value="Jar">Jar</option>
-            <option value="Tablet">Tablet</option>
-          </select>
-          <input type="date" {...form.register("importDate")} className="w-full border p-2 rounded" />
-          <input type="date" {...form.register("expiryDate")} className="w-full border p-2 rounded" />
-          <textarea {...form.register("note")} placeholder="Ghi chú (nếu có)" className="w-full border p-2 rounded" />
-          <Button type="submit" className="bg-green-600 text-white w-full">Lưu</Button>
+          {/* Medicine Select */}
+          <div>
+            <Label htmlFor="medicineId">Medicine</Label>
+            <select
+              {...form.register("medicineId")}
+              id="medicineId"
+              className="mt-1 w-full rounded-md border px-3 py-2 bg-white text-sm"
+            >
+              <option value="">Select medicine</option>
+              {medicines.map(m => (
+                <option key={m._id} value={m._id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Import Quantity */}
+          <div>
+            <Label htmlFor="importQuantity">Quantity</Label>
+            <Input
+              type="number"
+              id="importQuantity"
+              {...form.register("importQuantity")}
+              placeholder="Enter quantity"
+            />
+          </div>
+
+          {/* Unit */}
+          <div>
+            <Label htmlFor="unit">Unit</Label>
+            <select
+              {...form.register("unit")}
+              id="unit"
+              className="mt-1 w-full rounded-md border px-3 py-2 bg-white text-sm"
+            >
+              <option value="Jar">Jar</option>
+              <option value="Tablet">Tablet</option>
+            </select>
+          </div>
+
+          {/* Import Date */}
+          <div>
+            <Label htmlFor="importDate">Import Date</Label>
+            <Input
+              type="date"
+              id="importDate"
+              {...form.register("importDate")}
+            />
+          </div>
+
+          {/* Expiry Date */}
+          <div>
+            <Label htmlFor="expiryDate">Expiry Date</Label>
+            <Input
+              type="date"
+              id="expiryDate"
+              {...form.register("expiryDate")}
+            />
+          </div>
+
+          {/* Note */}
+          <div>
+            <Label htmlFor="note">Note</Label>
+            <Textarea
+              id="note"
+              {...form.register("note")}
+              placeholder="Ghi chú (nếu có)"
+              className="min-h-[80px]"
+            />
+          </div>
+
+          {/* Submit */}
+          <Button type="submit" className="bg-green-400 text-white w-full">
+            Add
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
