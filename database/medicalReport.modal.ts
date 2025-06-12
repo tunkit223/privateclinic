@@ -1,7 +1,17 @@
 import { model, Schema, models, Types } from "mongoose";
 import Invoice from "./invoice.model";
 import Prescription from "./prescription.model";
+import { IAccount } from "./account.model";
 import { getPrescriptionDetailsById } from "@/lib/actions/prescription.action";
+
+const AccountSchema = new Schema<IAccount>({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+},
+  { timestamps: true }
+);
+const Account = models?.Account || model<IAccount>('Account', AccountSchema);
+
 export interface IMedicalReport {
   _id: Types.ObjectId,
   appointmentId: {
@@ -14,10 +24,16 @@ export interface IMedicalReport {
       address: string,
       gender: string,
       birthdate: Date
+      email: string
     };
     doctor: {
       _id: Types.ObjectId,
       name: string,
+      phone: string,
+      accountId: {
+        _id: Types.ObjectId,
+        email: string
+      }
     }
   },
   examinationDate?: Date,
@@ -37,9 +53,9 @@ const MedicalReportSchema = new Schema<IMedicalReport>({
 },
   { timestamps: true }
 );
-
 // Middleware create invoice automatically
 MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
+
   if (doc && doc.status === 'examined') {
     console.log("doc", doc)
     try {
@@ -57,7 +73,13 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
           path: 'appointmentId',
           populate: [
             { path: 'patientId' },
-            { path: 'doctor' }
+            {
+              path: 'doctor',
+              populate: {
+                path: 'accountId',
+                model: 'Account'
+              }
+            }
           ]
         });
 
@@ -67,7 +89,7 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
 
       // Find prescription
       const prescription = await Prescription.findOne({ 'medicalReportId._id': doc._id });
-      console.log("pre", prescription)
+      // console.log("pre", prescription)
       // const prescriptionDetail = await getPrescriptionDetailsById(prescription._id);
 
       const consultationFee = 12000;
@@ -76,6 +98,8 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
       if (prescription) {
         // Get all PrescriptionDetail relevant with prescription
         const prescriptionDetails = await getPrescriptionDetailsById(prescription._id);
+        console.log("pres detail", prescriptionDetails)
+
         medicationFee = prescription.totalPrice || 0;
         prescriptionData = {
           _id: prescription._id,
@@ -84,7 +108,7 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
           isPaid: prescription.isPaid,
           prescribeByDoctor: prescription.prescribeByDoctor ? {
             _id: prescription.prescribeByDoctor._id,
-            name: prescription.prescribeByDoctor.name
+            name: prescription.prescribeByDoctor.name,
           } : undefined,
           details: prescriptionDetails.map((detail: any) => ({
             medicineName: detail.medicineId.name,
@@ -92,10 +116,15 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
             duration: detail.duration,
             dosage: `Morning: ${detail.morningDosage}, Noon: ${detail.noonDosage}, Afternoon: ${detail.afternoonDosage}, Evening: ${detail.eveningDosage}`,
             quantity: detail.quantity,
-            price: detail.price
+            price: detail.price,
+            unit: detail.medicineId.unit || "N/A"
           }))
         }
       }
+
+      const issueDate = new Date();
+      const dueDate = new Date(issueDate);
+      dueDate.setDate(issueDate.getDate() + 30);
 
       // Create invoice
       const invoice = new Invoice({
@@ -111,10 +140,13 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
               address: medicalReport.appointmentId.patientId.address,
               gender: medicalReport.appointmentId.patientId.gender,
               birthdate: medicalReport.appointmentId.patientId.birthdate,
+              email: medicalReport.appointmentId.patientId.email
             },
             doctor: {
               _id: medicalReport.appointmentId.doctor._id,
               name: medicalReport.appointmentId.doctor.name,
+              phone: medicalReport.appointmentId.doctor.phone,
+              email: medicalReport.appointmentId.doctor.accountId.email
             }
           },
           diseaseType: medicalReport.diseaseType,
@@ -126,7 +158,9 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
         medicationFee,
         totalAmount: consultationFee + medicationFee,
         // code: `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        status: 'pending'
+        status: 'pending',
+        issueDate,
+        dueDate
       });
       console.log("invoice before saving", invoice)
       await invoice.save();

@@ -16,11 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
+
   return (
     <html lang="en" >
-      <body className={cn('min-h-screen bg-blue-100 text-black font-sans antialiased', fontSans.variable) } suppressHydrationWarning> 
-          <Toaster />
-          {children}  
+      <body className={cn('min-h-screen bg-blue-100 text-black font-sans antialiased', fontSans.variable)} suppressHydrationWarning>
+        <Toaster />
+        {children}
       </body>
     </html>
   );

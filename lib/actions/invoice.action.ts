@@ -19,6 +19,25 @@ export async function getInvoiceList() {
   }
 }
 
+export async function getInvoiceById(invoiceId: string) {
+  try {
+    if (!invoiceId) {
+      console.log("Null invoice Id");
+      return null;
+    }
+    const invoice = await Invoice.findById(invoiceId)
+      .lean();
+    if (!invoice) {
+      console.log("Invoice find id error");
+      return null;
+    }
+    return JSON.parse(JSON.stringify(invoice));
+
+  } catch (error) {
+    console.log("Error get invoice by id", error);
+  }
+}
+
 
 export const updateInvoiceWithPrescription = async ({
   medicalReportId,
@@ -45,7 +64,8 @@ export const updateInvoiceWithPrescription = async ({
     duration: invoiceDetail.duration,
     dosage: `Morning: ${invoiceDetail.morningDosage}, Noon: ${invoiceDetail.noonDosage}, Afternoon: ${invoiceDetail.afternoonDosage}, Evening: ${invoiceDetail.eveningDosage}`,
     quantity: invoiceDetail.quantity,
-    price: invoiceDetail.price
+    price: invoiceDetail.price,
+    unit: invoiceDetail.medicineId.unit
   }))
 
   console.log("invoice details", invoicePrescriptionDetails);
@@ -78,9 +98,30 @@ export const updateInvoiceWithPrescription = async ({
   await invoice.save(session ? { session } : {});
   console.log(`Invoice ${invoice.code} updated with Prescription ${prescription._id}`);
 }
+interface UpdateStatusInvoiceParams {
+  invoiceId: string,
+  status: string
+}
 
+export const updateStatusInvoice = async ({ invoiceId, status }: UpdateStatusInvoiceParams) => {
+  try {
+    await dbConnect();
+    const invoice = Invoice.findOneAndUpdate(
+      { _id: invoiceId },
+      { $set: { status } },
+      { new: true, runValidators: true }
+    )
+    if (!invoice) {
+      throw new Error("Invoice not found to update status")
+    }
+    return invoice;
+  } catch (error) {
+    console.error('Error updating invoice status:', error);
+    throw new Error('Failed to update invoice status');
+  }
+}
 
-// delete Prescription from Invoice
+// remove Prescription from Invoice
 export const removePrescriptionFromInvoice = async ({
   medicalReportId,
   session = null,
@@ -110,5 +151,27 @@ export const removePrescriptionFromInvoice = async ({
   } catch (error) {
     console.log("Error removing prescription from invoice", error);
     throw error
+  }
+}
+
+// delete invoice
+export const deleteInvoice = async (invoiceId: string) => {
+  try {
+    await dbConnect();
+
+    if (!invoiceId) {
+      console.log("Not found invoiceId");
+      throw new Error("Not found invoiceId")
+    }
+    const invoice = await Invoice.updateOne(
+      { _id: invoiceId },
+      { $set: { deleted: true, deletedAt: new Date() }, },
+      { new: true, runValidators: true }
+    )
+    if (!invoice) {
+      console.log("Not found invoice to delete")
+    }
+  } catch (error) {
+    console.log("Error delete invoice action", error)
   }
 }
