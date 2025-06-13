@@ -41,7 +41,7 @@ const UpcomingAppointment = () => {
   useEffect(() => {
     const fetchAppointmentList = async () => {
       const response = await getRecentAppointmentList();
-      console.log("recent appoit", response)
+      // console.log("recent app", response)
       if (response) {
         const mappedAppointments = response.documents.map((item: Appointment) => ({
           ...item,

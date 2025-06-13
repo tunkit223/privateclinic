@@ -108,6 +108,7 @@ export function getDateRanges() {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
 
+
   return { yesterday, today, tomorrow };
 }
 
@@ -115,14 +116,18 @@ export const getFigureByModel = async <T>(Model: Model<T>, filter: Record<string
   const { yesterday, today, tomorrow } = getDateRanges();
 
   try {
+
     const totalToday = await Model.countDocuments({
       ...filter,
-      createdAt: { $gte: today, $lt: tomorrow }
+      date: { $gte: today, $lt: tomorrow }
     });
+
     const totalYesterday = await Model.countDocuments({
       ...filter,
-      createdAt: { $gte: yesterday, $lt: today }
+      date: { $gte: yesterday, $lt: today }
     });
+
+
     let percentageChange = 0;
     if (totalYesterday === 0) {
       percentageChange = totalToday > 0 ? 100 : 0
@@ -131,8 +136,9 @@ export const getFigureByModel = async <T>(Model: Model<T>, filter: Record<string
     }
 
     return {
-      total: totalToday,
-      percent: parseFloat(percentageChange.toFixed(2)),
+      totalToday: totalToday,
+      totalYesterday: totalYesterday,
+      percentChange: parseFloat(percentageChange.toFixed(2)),
     };
   } catch (error) {
     console.log(`Error fetch figure by ${Model.modelName}:`, error);
