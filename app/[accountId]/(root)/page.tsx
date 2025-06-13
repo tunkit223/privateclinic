@@ -16,10 +16,10 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa";
 import { LuChartNoAxesCombined } from "react-icons/lu";
 import AvailableDoctor from '@/components/table/TableAvailableDoctor/TableAvailableDoctor';
-import { getDoctorAvailable } from '@/lib/actions/employees.action';
 import { error } from 'console';
 import { getPatientList } from '@/lib/actions/patient.actions';
 import { getAvailableDoctors } from '@/lib/actions/workschedules.action';
+import { any } from 'zod';
 
 
 const { RangePicker } = DatePicker;
@@ -63,10 +63,18 @@ const Dashboard = () => {
   // Fetch data available doctor
   useEffect(() => {
     const fetchAvailableDoctor = async () => {
-      // const response = await getDoctorAvailable();
       const today = new Date();
-      const response = await getAvailableDoctors(today, "Afternoon")
-      setAvailableDoctor(response);
+      const [afternoonShift, morningShift] = await Promise.all([
+        getAvailableDoctors(today, "Afternoon"),
+        getAvailableDoctors(today, "Morning"),
+      ]);
+
+
+      const result = [
+        ...afternoonShift,
+        ...morningShift
+      ]
+      setAvailableDoctor(result);
     };
     fetchAvailableDoctor();
   }, [])
