@@ -19,6 +19,7 @@ import AvailableDoctor from '@/components/table/TableAvailableDoctor/TableAvaila
 import { getDoctorAvailable } from '@/lib/actions/employees.action';
 import { error } from 'console';
 import { getPatientList } from '@/lib/actions/patient.actions';
+import { getAvailableDoctors } from '@/lib/actions/workschedules.action';
 
 
 const { RangePicker } = DatePicker;
@@ -27,8 +28,7 @@ type AvailableDoctor = {
   name: string;
   image: string;
   workShift: string;
-  totalPatient: number;
-  specialty: string;
+  _id: string
 }
 
 const Dashboard = () => {
@@ -63,12 +63,15 @@ const Dashboard = () => {
   // Fetch data available doctor
   useEffect(() => {
     const fetchAvailableDoctor = async () => {
-      const response = await getDoctorAvailable();
+      // const response = await getDoctorAvailable();
+      const today = new Date();
+      const response = await getAvailableDoctors(today, "Afternoon")
       setAvailableDoctor(response);
     };
     fetchAvailableDoctor();
   }, [])
-  // console.log(availableDoctor);
+  console.log("available doctor", availableDoctor);
+
 
 
   const handleChangeRangePicker: RangePickerProps['onChange'] = (dates) => {
@@ -198,9 +201,8 @@ const Dashboard = () => {
                             </div>
                             <div className='info ml-4 text-xl' >
                               <div className='font-semibold'>{dt.name}</div>
-                              <div>Specialty: <span className='font-semibold'>{dt.specialty}</span> </div>
-                              <div>Patient: {dt.totalPatient}</div>
-                              <div>{dt.workShift}</div>
+                              <div>Specialty: <span className='font-semibold'>General Medicine</span> </div>
+                              <div>{dt.workShift.charAt(0).toUpperCase() + dt.workShift.slice(1)}</div>
                             </div>
                           </div>
                         </h3>
