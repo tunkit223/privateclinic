@@ -3,6 +3,7 @@ import Invoice from "./invoice.model";
 import Prescription from "./prescription.model";
 import { IAccount } from "./account.model";
 import { getPrescriptionDetailsById } from "@/lib/actions/prescription.action";
+import { getLatestSetting } from "@/lib/actions/setting.action";
 
 const AccountSchema = new Schema<IAccount>({
   email: { type: String, required: true, unique: true },
@@ -92,7 +93,8 @@ MedicalReportSchema.post('save', async function (doc: IMedicalReport) {
       // console.log("pre", prescription)
       // const prescriptionDetail = await getPrescriptionDetailsById(prescription._id);
 
-      const consultationFee = 12000;
+      const settingFee = await getLatestSetting();
+      const consultationFee = settingFee.ExamineFee;
       let medicationFee = 0;
       let prescriptionData = null;
       if (prescription) {
