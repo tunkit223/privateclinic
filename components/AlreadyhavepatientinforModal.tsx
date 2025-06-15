@@ -27,7 +27,7 @@ const AlreadyhavepatientinforModal = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-     <p className="text-green-500 cursor-pointer font-bold hover:text-green-200">Already have patient information</p>
+     <p className="text-green-500 cursor-pointer font-bold hover:text-green-200 text-xl">Already have patient information</p>
     </DialogTrigger>
     <DialogContent className="shad-dialog sm:max-w-[900px]">
       <DialogHeader className="">

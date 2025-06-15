@@ -18,16 +18,19 @@ import Image from "next/image"
 const MedicalReportModal = ({
   appointmentId,
   meidcalReportId,
-  disabled = false
+  disabled = false,
+  open,
+  onOpenChange,
 }:{
   appointmentId: string,
   meidcalReportId: string,
-  disabled?: boolean
+  disabled?: boolean,
+  open?: boolean,
+  onOpenChange?: (open: boolean) => void
 }) => {
-  const [open, setOpen] = useState(false)
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogTrigger asChild>
      <Image
       src="/assets/icons/details.png"

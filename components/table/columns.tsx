@@ -81,7 +81,8 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
           });
 
           if (!res?.error) {
-            window.location.reload()
+            router.refresh();
+            router.replace("?action=success");
              toast.success("Confirm appointment successfully.", {
             position: "top-left",
             duration: 3000,
