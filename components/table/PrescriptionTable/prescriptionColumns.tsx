@@ -62,7 +62,7 @@ export const columns = ({ onDeleted, onUpdated }: ColumnProps): ColumnDef<IPresc
       return row.totalPrice || "N/A";
     },
     cell: ({ row }) => {
-      return <p className="text-14-medium">{row.original.totalPrice || "N/A"}</p>;
+      return <p className="text-14-medium">{row.original.totalPrice || "0"}</p>;
     },
   },
   {

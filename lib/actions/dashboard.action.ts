@@ -1,10 +1,9 @@
-import Patient from "@/database/patient.model";
 import { getPatientList } from "./patient.actions";
 import { subDays, startOfMonth, endOfMonth, format, isWithinInterval } from "date-fns";
 import { date } from "zod";
 import { getDateRanges, getFigureByModel } from "../utils";
+import Patient from "@/database/patient.model";
 import Appointment from "@/database/appointment.model";
-import User from "@/database/user.model";
 
 export async function getPatientByDateRange(start: Date, end: Date) {
   // const patientGender = await getPatientList();
@@ -86,6 +85,33 @@ export async function getIncome() {
 };
 
 
-export const getFigurePatientToday = () => getFigureByModel(Patient);
+// export const getFigurePatientToday = () => getFigureByModel(Patient);
+export const getFigurePatientToday = async () => {
+  const { yesterday, today, tomorrow } = getDateRanges();
+
+  try {
+    const patientToday = await getPatientByDateRange(today, tomorrow);
+    const patientYesterday = await getPatientByDateRange(yesterday, today);
+    const totalToday = patientToday.reduce((sum, item) => sum + item.male + item.female, 0);
+
+    const totalYesterday = patientYesterday.reduce((sum, item) => sum + item.male + item.female, 0);
+
+
+    let percentageChange = 0;
+    if (totalYesterday === 0) {
+      percentageChange = totalToday > 0 ? 100 : 0
+    } else {
+      percentageChange = ((totalToday - totalYesterday) / totalYesterday) * 100;
+    }
+
+    return {
+      totalToday: totalToday,
+      totalYesterday: totalYesterday,
+      percentChange: parseFloat(percentageChange.toFixed(2)),
+    };
+  } catch (error) {
+    console.log(`Error fetch patient figure`, error);
+    return null;
+  }
+}
 export const getFigureAppointmentToday = () => getFigureByModel(Appointment);
-export const getFigureDoctorToday = () => getFigureByModel(User);

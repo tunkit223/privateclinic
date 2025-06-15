@@ -14,6 +14,7 @@ import UsageMethod from "@/database/usageMethod.model";
 import Medicine from "@/database/medicine";
 import { getMedicineNameById, getMedicineUnitById } from "./medicine.action";
 import { getUsageMethodNameById } from "./usageMethod.action";
+import { Types } from "mongoose";
 
 
 
@@ -255,13 +256,20 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
   const session = await Prescription.startSession();
   session.startTransaction();
   try {
+
+    // Validate prescribeByDoctor
+    let doctorId = payload.prescribeByDoctor;
+    if (typeof payload.prescribeByDoctor === 'object' && payload.prescribeByDoctor !== null) {
+      // Handle case where prescribeByDoctor is { value, label }
+      doctorId = (payload.prescribeByDoctor as { value: string; label: string }).value;
+    }
     // Update general information of prescription
     await Prescription.updateOne(
       { _id: new ObjectId(prescriptionId) },
       {
         $set: {
           medicalReportId: new ObjectId(payload.medicalReportId),
-          prescribeByDoctor: new ObjectId(payload.prescribeByDoctor),
+          prescribeByDoctor: new ObjectId(doctorId),
           updatedAt: new Date(),
         }
       },
@@ -381,7 +389,7 @@ export const getPrescriptionByMedicalReportId = async (medicalReportId: string) 
     await dbConnect();
 
     const prescription = await Prescription.findOne({
-      medicalReportId:medicalReportId
+      medicalReportId: medicalReportId
     });
 
     if (!prescription) {
@@ -427,17 +435,94 @@ export const getPrescriptionDetailsByPrescriptionId = async (prescriptionId: str
 };
 
 
-
-export const getUsageMethods = async () => {
+// func delete one prescription detail when removing medicine
+export const deleteOnePrescriptionDetail = async (medicineId: string | Types.ObjectId) => {
   try {
     await dbConnect();
-    const usageMethods = await UsageMethod.find({}).select("name").lean();
-    return usageMethods.map(method => ({
-      _id: method._id.toString(),
-      name: method.name
-    }));
-  } catch (error) {
-    console.log("Error get usage methods", error);
-    return [];
+    const medicineObjectId = Types.ObjectId.isValid(medicineId) ? new Types.ObjectId(medicineId) : medicineId;
+
+    // Find all prescription is outstanding
+    const unPaidPrescriptions = await Prescription.find({ isPaid: false }).select("_id medicalReportId");
+    console.log("Unpaid prescriptions found:",
+      unPaidPrescriptions.length, unPaidPrescriptions.map((p: any) => p._id.toString()));
+    if (!unPaidPrescriptions) {
+      return {
+        success: true,
+        message: "No unpaid prescription found",
+        updatedDetails: []
+      }
+    }
+
+    // Get list prescriptionId
+    const prescriptionIds = unPaidPrescriptions.map((prescription: any) => prescription._id);
+    const prescriptionMap = new Map(
+      unPaidPrescriptions.map((p) => [p._id.toString(), p.medicalReportId])
+    );
+    console.log("Prescription IDs:", prescriptionIds.map((id: any) => id.toString()));
+
+
+    const updatedDetails = await PrescriptionDetail.updateMany(
+      {
+        medicineId: medicineObjectId,
+        prescriptionId: { $in: prescriptionIds },
+        deleted: false
+      },
+      {
+        $set: {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      },
+    )
+    console.log("Update result:", updatedDetails);
+
+    for (const prescription of unPaidPrescriptions) {
+      const prescriptionId = prescription._id;
+      const medicalReportId = prescription.medicalReportId;
+
+      const remainingDetails = await PrescriptionDetail.find({
+        prescriptionId: prescriptionId,
+        deleted: false,
+      }).select("price quantity")
+      console.log(remainingDetails);
+
+      const newTotalPrice = remainingDetails.reduce((total, detail) => {
+        const price = detail.price || 0;
+        const quantity = detail.quantity || 1;
+        return total + price * quantity;
+      }, 0)
+
+
+      const updateResult = await Prescription.updateOne(
+        { _id: prescriptionId },
+        { $set: { totalPrice: newTotalPrice } }
+      )
+
+      console.log(`Updated totalPrice for prescription ${prescriptionId}:`, updateResult.modifiedCount);
+
+
+      const fullPrescription = await Prescription.findById(prescriptionId)
+
+      await updateInvoiceWithPrescription({
+        medicalReportId: medicalReportId.toString(),
+        prescription: fullPrescription,
+        session: null
+      })
+    }
+
+
+    return {
+      success: true,
+      message: `Updated ${updatedDetails.modifiedCount} prescription detail(s) for medicine ${medicineId}`,
+      updatedDetails: updatedDetails.modifiedCount,
+    };
+  } catch (error: any) {
+    console.error("Error deleting prescription details for medicine:", error.message);
+
+    return {
+      success: false,
+      message: "Error deleting prescription details",
+      error: error.message,
+    };
   }
 }

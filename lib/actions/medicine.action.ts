@@ -6,7 +6,8 @@ import { Types } from "mongoose";
 import { IMedicine } from "@/database/medicine";
 import Success from "@/app/patient/[patientId]/appointment/success/page";
 import { startOfDay, endOfDay } from "date-fns"
-import Invoice from "@/database/invoice.model";
+import Invoice from "@/database/invoice.model"; import { deleteOnePrescriptionDetail } from "./prescription.action";
+
 
 export const addMedicine = async (data: any) => {
   try {
@@ -33,9 +34,9 @@ export const addMedicine = async (data: any) => {
 export const getMedicinesWithType = async () => {
   await dbConnect();
   const medicines = await Medicine.find({ deleted: false })
-  .populate("medicineTypeId", "name")
-  .select("name unit amount price medicineTypeId")
-  .lean();
+    .populate("medicineTypeId", "name")
+    .select("name unit amount price medicineTypeId")
+    .lean();
 
   return medicines.map(med => ({
     ...med,
@@ -52,9 +53,11 @@ export const getMedicineTypes = async () => {
 export const getMedicineList = async () => {
   try {
     await dbConnect();
+
     const medicines = await Medicine.find({ deleted: false })
-    .sort({ createdAt: -1 })
-    .lean();
+      .sort({ createdAt: -1 })
+      .lean();
+    console.log(medicines);
     const data = {
       documents: medicines,
     };
@@ -75,7 +78,7 @@ export const getMedicineByName = async (name: string): Promise<string> => {
 
 export const getMedicineById = async (medicineId: string) => {
   await dbConnect();
-  const medicine = await Medicine.findById(medicineId );
+  const medicine = await Medicine.findById(medicineId);
   if (!medicine) throw new Error(`Medicine "${medicine}" not found`);
   return medicine._id.toString();
 };
@@ -110,8 +113,8 @@ export const validateMedicine = async (name: string) => {
   }
 };
 
-export const updateMedicine = async (id: Types.ObjectId | string , data:any) => {
-  try{
+export const updateMedicine = async (id: Types.ObjectId | string, data: any) => {
+  try {
     await dbConnect();
 
     if (data.deleted === true) {
@@ -120,9 +123,9 @@ export const updateMedicine = async (id: Types.ObjectId | string , data:any) => 
       data.deletedAt = null;
     }
 
-    const updateMedicine = await Medicine.findByIdAndUpdate(id , data , {new :true});
+    const updateMedicine = await Medicine.findByIdAndUpdate(id, data, { new: true });
 
-    if(!updateMedicine) {
+    if (!updateMedicine) {
       throw new Error("Medicine not found");
     }
 
@@ -156,17 +159,23 @@ export const deleteMedicine = async (id: string | Types.ObjectId) => {
     if (!deletedMedicine) {
       throw new Error("Medicine not found");
     }
+    // Removing prescription details relevant
+    const prescriptionDetailRelevant = await deleteOnePrescriptionDetail(id);
+    console.log("Prescription detail update result:", prescriptionDetailRelevant);
 
     return {
       success: true,
       message: "Medicine soft deleted successfully",
       deletedMedicine,
+      updatedPrescriptionDetails: prescriptionDetailRelevant
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting medicine:", error);
     return {
       success: false,
       message: "Error deleting medicine",
+      error: error.message,
+
     };
   }
 };
@@ -188,7 +197,7 @@ export const restoreMedicine = async (id: string | Types.ObjectId) => {
     return {
       success: true,
       message: "Medicine restored successfully",
-    
+
     };
   } catch (error) {
     console.error("Error restoring medicine:", error);
@@ -206,7 +215,7 @@ export const getMedicineUsageReport = async (from: string, to: string) => {
   const invoices = await Invoice.find({
     status: "paid",
     issueDate: { $gte: fromDate, $lte: toDate },
-    "prescriptionId.details.0": { $exists: true } 
+    "prescriptionId.details.0": { $exists: true }
   }).lean()
 
   const medicineMap: Record<string, {

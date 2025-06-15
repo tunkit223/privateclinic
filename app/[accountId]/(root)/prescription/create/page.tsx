@@ -196,9 +196,11 @@ function CreatePrescription() {
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => {
                     const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                    // console.log("pt", pt)
+                    // key nen la pt.medicalRp de tranh TH benh nhan do co 2 PKB
                     return (
                       <Select.Option style={{ fontSize: "17px" }}
-                        key={pt.patientId}
+                        key={pt.medicalReportId}
                         value={pt.patientId}
                         label={pt.name}>
                         {label}
@@ -228,11 +230,13 @@ function CreatePrescription() {
                     return false;
                   }
                   }>
-                  {doctorList && doctorList.map(dt => (
-                    <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
-                      {dt.name}
-                    </Select.Option>
-                  ))}
+                  {doctorList && doctorList
+                    .filter((dt: IDoctor) => !dt.deleted)
+                    .map(dt => (
+                      <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
+                        {dt.name}
+                      </Select.Option>
+                    ))}
                   {/* {renderSelectOptions(doctorList, 'name', '_id')} */}
                 </Select>
               </Form.Item>
@@ -309,20 +313,24 @@ function CreatePrescription() {
                         required
                       >
                         <Space.Compact block size='large'>
-                          <Form.Item name={[name, 'morningDosage']} noStyle>
+                          <Form.Item name={[name, 'morningDosage']} noStyle
+                            rules={[{ required: true, message: "Please input morning dosage" }]}>
                             <InputNumber addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
 
                             } min={0} size='large' placeholder="Morning" />
                           </Form.Item>
-                          <Form.Item name={[name, 'noonDosage']} noStyle>
+                          <Form.Item name={[name, 'noonDosage']} noStyle
+                            rules={[{ required: true, message: "Please input noon dosage" }]}>
                             <InputNumber addonBefore={<IoSunnySharp style={{ color: '#EB6440', fontSize: 20 }} />
                             } min={0} placeholder="Noon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'afternoonDosage']} noStyle>
+                          <Form.Item name={[name, 'afternoonDosage']} noStyle
+                            rules={[{ required: true, message: "Please input afternoon dosage" }]}>
                             <InputNumber addonBefore={<BsFillSunsetFill style={{ color: '#A62C2C', fontSize: 20 }} />
                             } min={0} placeholder="Afternoon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'eveningDosage']} noStyle>
+                          <Form.Item name={[name, 'eveningDosage']} noStyle
+                            rules={[{ required: true, message: "Please input evening dosage" }]}>
                             <InputNumber addonBefore={<IoMoon style={{ color: '#27548A', fontSize: 20 }} />
                             } min={0} placeholder="Evening" />
                           </Form.Item>

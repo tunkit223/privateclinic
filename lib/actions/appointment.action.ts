@@ -135,6 +135,7 @@ export const getRecentAppointmentList = async () => {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
       .populate("patientId", "name")
+      .populate("doctor", "name")
       .lean();
     const initialCounts = {
       confirmedCount: 0,

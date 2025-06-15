@@ -5,7 +5,7 @@ import { Col, Select, Row, DatePicker, Button, Carousel, Segmented } from 'antd'
 import CartItem from '@/components/CartItem/CartItem';
 import "./Page.scss"
 import PatientByGender from '@/components/Chart/PatientGenderChart';
-import { getPatientByDateRange } from '@/lib/actions/dashboard.action';
+import { getFigureAppointmentToday, getPatientByDateRange } from '@/lib/actions/dashboard.action';
 import UpcomingAppointment from '@/components/Calendar/UpcomingAppointment';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -16,9 +16,11 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa";
 import { LuChartNoAxesCombined } from "react-icons/lu";
 import AvailableDoctor from '@/components/table/TableAvailableDoctor/TableAvailableDoctor';
-import { getDoctorAvailable } from '@/lib/actions/employees.action';
 import { error } from 'console';
 import { getPatientList } from '@/lib/actions/patient.actions';
+import { getAvailableDoctors } from '@/lib/actions/workschedules.action';
+import { any } from 'zod';
+import { getFigureByModel } from '@/lib/utils';
 
 
 const { RangePicker } = DatePicker;
@@ -27,8 +29,7 @@ type AvailableDoctor = {
   name: string;
   image: string;
   workShift: string;
-  totalPatient: number;
-  specialty: string;
+  _id: string
 }
 
 const Dashboard = () => {
@@ -60,22 +61,35 @@ const Dashboard = () => {
   }, [dateRange]);
 
 
+
+
   // Fetch data available doctor
   useEffect(() => {
     const fetchAvailableDoctor = async () => {
-      const response = await getDoctorAvailable();
-      setAvailableDoctor(response);
+      const today = new Date();
+      const [afternoonShift, morningShift] = await Promise.all([
+        getAvailableDoctors(today, "Afternoon"),
+        getAvailableDoctors(today, "Morning"),
+      ]);
+
+      const result = [
+        ...afternoonShift,
+        ...morningShift
+      ]
+      setAvailableDoctor(result);
     };
     fetchAvailableDoctor();
   }, [])
-  // console.log(availableDoctor);
+  console.log("available doctor", availableDoctor);
 
 
+  // handle change range picker of patient gender
   const handleChangeRangePicker: RangePickerProps['onChange'] = (dates) => {
     setDateRange(dates as [Dayjs, Dayjs]);
   };
 
 
+  // css for Upcoming appointment
   const contentStyle: React.CSSProperties = {
     margin: 0,
     height: '160px',
@@ -90,6 +104,7 @@ const Dashboard = () => {
   };
 
 
+  // handle change work shift
   const handleChangeWorkShift = (value: string) => {
     setSelectShift(value)
   }
@@ -97,6 +112,33 @@ const Dashboard = () => {
 
   const filteredDoctors = availableDoctor.filter(dt => dt.workShift.toLowerCase() === selectShift.toLowerCase());
 
+
+  const [figureData, setFigureData] = useState<{
+    appointment: any;
+    patient: any;
+  }>({
+    appointment: null,
+    patient: null,
+  }); useEffect(() => {
+    const fetchFigure = async () => {
+      try {
+        const [appointmentRes, patientRes] = await Promise.all([
+          fetch("/api/dashboard/figure/appointment"),
+          fetch("/api/dashboard/figure/patient"),
+        ]);
+
+        const [appointment, patient] = await Promise.all([
+          appointmentRes.json(),
+          patientRes.json(),
+        ]);
+
+        setFigureData({ appointment, patient });
+      } catch (err) {
+        console.error("Error fetch patient by gender", err);
+      }
+    };
+    fetchFigure();
+  }, []);
 
   return (
     <>
@@ -107,7 +149,7 @@ const Dashboard = () => {
           <Row className='overview__figure__row' gutter={[20, 20]} align="stretch">
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#D9E2FF' colorIcon='#6580F0' icon={<FaUserDoctor />
-              } count={10} title='Total doctor' desc={
+              } count={availableDoctor.length} title='Total doctor' desc={
                 <>
                   Doctor is working
                 </>
@@ -116,17 +158,33 @@ const Dashboard = () => {
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#E4F5FF' colorIcon='#48AEF2' icon={<FaCalendarAlt />
 
-              } count={24} title='Appointment' desc={
+              } count={figureData.appointment?.totalToday} title='Appointment' desc={
                 <>
-                  Up <span className="text-green-500 font-bold">3.2%</span> from <br /> yesterday
+                  {figureData.appointment?.percentChange >= 0 ? (
+                    <>
+                      Up <span className="text-green-500 font-bold">{figureData.appointment?.percentChange}%</span> from <br /> yesterday
+                    </>
+                  ) : (
+                    <>
+                      Down <span className="text-red-500 font-bold">{Math.abs(figureData.appointment?.percentChange)}%</span> from <br /> yesterday
+                    </>
+                  )}
                 </>
               } href='#' />
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#F5E0FE' colorIcon='#F492E2' icon={<FaUsers />
-              } count={12} title='Total patient' desc={
+              } count={figureData.patient?.totalToday} title='Total patient' desc={
                 <>
-                  <div>Down <span className="text-red-500 font-bold">1.2%</span> from yesterday</div>
+                  {figureData.patient?.percentChange >= 0 ? (
+                    <>
+                      Up <span className="text-green-500 font-bold">{figureData.patient?.percentChange}%</span> from <br /> yesterday
+                    </>
+                  ) : (
+                    <>
+                      Down <span className="text-red-500 font-bold">{Math.abs(figureData.patient?.percentChange)}%</span> from <br /> yesterday
+                    </>
+                  )}
                 </>
               } href='#' />
             </Col>
@@ -198,9 +256,8 @@ const Dashboard = () => {
                             </div>
                             <div className='info ml-4 text-xl' >
                               <div className='font-semibold'>{dt.name}</div>
-                              <div>Specialty: <span className='font-semibold'>{dt.specialty}</span> </div>
-                              <div>Patient: {dt.totalPatient}</div>
-                              <div>{dt.workShift}</div>
+                              <div>Specialty: <span className='font-semibold'>General Medicine</span> </div>
+                              <div>{dt.workShift.charAt(0).toUpperCase() + dt.workShift.slice(1)}</div>
                             </div>
                           </div>
                         </h3>
