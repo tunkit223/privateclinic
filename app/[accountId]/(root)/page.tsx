@@ -143,12 +143,19 @@ const Dashboard = () => {
     fetchFigure();
   }, []);
 
-  const handleChangeDateRevenue: DatePickerProps['onChange'] = (date, dateString) => {
+  const [fromDate, setFromDate] = useState<Date>(dayjs().startOf('month').toDate())
+  const [toDate, setToDate] = useState<Date>(dayjs().endOf('month').toDate())
+
+  // To set default currently month
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+
+  const handleChangeDateRevenue: DatePickerProps['onChange'] = (date) => {
     if (!date) return;
-    const startOfMonth = date.startOf('month').toDate();
-    const endOfMonth = date.endOf('month').toDate();
-    console.log(startOfMonth)
-    console.log(endOfMonth)
+    setSelectedDate(date);
+
+    setFromDate(date.startOf('month').toDate());
+    setToDate(date.endOf('month').toDate());
+
   };
   return (
     <>
@@ -232,10 +239,13 @@ const Dashboard = () => {
         <Col span={12} className='revenue'>
           <div className='revenue__header'>
             <div className='revenue__header--title'>Revenue</div>
-            <DatePicker className='mr-5' picker='month' format={"MM-YYYY"} onChange={handleChangeDateRevenue} />
+            <DatePicker inputReadOnly className='mr-5'
+              picker='month' format={"MM-YYYY"}
+              onChange={handleChangeDateRevenue}
+              value={selectedDate} />
           </div>
           <div className='revenue__chart'>
-            <RevenueChart />
+            <RevenueChart fromDate={fromDate} toDate={toDate} />
             {/* <DemoDualAxes /> */}
           </div>
         </Col>
