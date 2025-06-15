@@ -1,9 +1,11 @@
 import { getPatientList } from "./patient.actions";
 import { subDays, startOfMonth, endOfMonth, format, isWithinInterval } from "date-fns";
 import { date } from "zod";
-import { getDateRanges, getFigureByModel } from "../utils";
+import { formatDate, getDateRange, getDateRanges, getFigureByModel } from "../utils";
 import Patient from "@/database/patient.model";
 import Appointment from "@/database/appointment.model";
+import dbConnect from "../mongoose";
+import Invoice from "@/database/invoice.model";
 
 export async function getPatientByDateRange(start: Date, end: Date) {
   // const patientGender = await getPatientList();
@@ -83,6 +85,7 @@ export async function getIncome() {
   })
   return incomeData;
 };
+
 
 
 // export const getFigurePatientToday = () => getFigureByModel(Patient);

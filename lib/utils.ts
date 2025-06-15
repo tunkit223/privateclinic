@@ -193,3 +193,17 @@ export async function addData() {
   }
   console.log("Data added successfully");
 }
+
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString("vi-VN"); // "5/5/2025"
+}
+
+export function getDateRange(from: Date, to: Date): string[] {
+  const dates: string[] = [];
+  const current = new Date(from);
+  while (current <= to) {
+    dates.push(formatDate(new Date(current)));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}

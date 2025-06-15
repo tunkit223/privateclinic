@@ -1,8 +1,8 @@
 "use client";
 import { getExpense, getIncome, getRevenue } from '@/lib/actions/dashboard.action';
+import { getExpenseFromDatetoDate } from '@/lib/actions/medicineBatch.action';
 // import { getExpense, getRevenue } from '@/lib/actions/dashboard.action';
 import { DualAxes } from '@ant-design/plots';
-import { NumberExpression } from 'mongoose';
 import React, { useEffect, useState } from 'react';
 type IncomeItem = {
   date: string;
@@ -19,27 +19,71 @@ const RevenueChart = () => {
   const [revenueData, setRevenueData] = useState<RevenueAndExpense[]>([]);
   const [expenseData, setExpenseData] = useState<RevenueAndExpense[]>([]);
 
-  // Fetch Revenue Data
-  useEffect(() => {
-    const fetchRevenue = async () => {
-      const response = await getRevenue();
-      if (response) {
-        setRevenueData(response);
-      }
-    };
-    fetchRevenue();
-  }, [])
 
-  // Fetch Expense Data
+  // Fetch expense data
   useEffect(() => {
     const fetchExpense = async () => {
-      const response = await getExpense();
-      if (response) {
-        setExpenseData(response);
+
+      try {
+        const today = new Date();
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        const expense = await getExpenseFromDatetoDate(sevenDaysAgo, today)
+
+        setExpenseData(expense);
+      } catch (err) {
+        console.error("Error fetch expense ", err);
       }
     };
     fetchExpense();
-  }, [])
+  }, []);
+  console.log("exp", expenseData)
+
+
+  useEffect(() => {
+    const fetchRevenue = async () => {
+      try {
+        const today = new Date();
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        const res = await fetch('/api/dashboard/revenue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fromDate: sevenDaysAgo,
+            toDate: today,
+          }),
+        });
+
+
+        const json = await res.json();
+        if (!res.ok) {
+          console.error("Failed to get revenue:", res.status, json.error);
+          return;
+        }
+        if (json.success) {
+          setRevenueData(json.data);
+        } else {
+          console.error("Failed to get revenue:", json.error);
+        }
+        if (json.success) {
+          setRevenueData(json.data);
+        } else {
+          console.error("Failed to get revenue:", json.error);
+        }
+      } catch (error) {
+        console.log("Error fetch revenue:", error);
+      }
+    };
+    fetchRevenue();
+  }, []);
+
+  console.log("rev", revenueData)
+
 
   // Fetch Income Data
   useEffect(() => {
@@ -56,11 +100,6 @@ const RevenueChart = () => {
     ...revenueData,
     ...expenseData
   ]
-
-  // console.log(revenueExpensesData);
-
-
-  // console.log(uvBillData);
 
 
   const config = {

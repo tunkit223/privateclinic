@@ -21,6 +21,8 @@ import { getPatientList } from '@/lib/actions/patient.actions';
 import { getAvailableDoctors } from '@/lib/actions/workschedules.action';
 import { any } from 'zod';
 import { getFigureByModel } from '@/lib/utils';
+import { getExpenseFromDatetoDate } from '@/lib/actions/medicineBatch.action';
+import type { DatePickerProps } from 'antd';
 
 
 const { RangePicker } = DatePicker;
@@ -59,6 +61,7 @@ const Dashboard = () => {
 
     fetchGenderData();
   }, [dateRange]);
+
 
 
 
@@ -140,6 +143,13 @@ const Dashboard = () => {
     fetchFigure();
   }, []);
 
+  const handleChangeDateRevenue: DatePickerProps['onChange'] = (date, dateString) => {
+    if (!date) return;
+    const startOfMonth = date.startOf('month').toDate();
+    const endOfMonth = date.endOf('month').toDate();
+    console.log(startOfMonth)
+    console.log(endOfMonth)
+  };
   return (
     <>
       {/* Section one  */}
@@ -222,6 +232,7 @@ const Dashboard = () => {
         <Col span={12} className='revenue'>
           <div className='revenue__header'>
             <div className='revenue__header--title'>Revenue</div>
+            <DatePicker className='mr-5' picker='month' format={"MM-YYYY"} onChange={handleChangeDateRevenue} />
           </div>
           <div className='revenue__chart'>
             <RevenueChart />
