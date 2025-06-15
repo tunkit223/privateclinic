@@ -1,5 +1,5 @@
 import NewMedicineTypeModal from '@/components/NewMedicineTypeModal'
-import DataTable from '@/components/table/MedicineTable'
+import DataTable from '@/components/table/MedicineTypeTable'
 import { columns } from '@/components/table/MedicineTypeColumn';
 import {getMedicineTypeList } from '@/lib/actions/medicineType.action';
 import React from 'react'

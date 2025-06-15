@@ -30,6 +30,10 @@ export function getCookieParsed<T = any>(name: string): T | null {
 }
 
 
+export function toPlainObject<T>(doc: T): T {
+  return JSON.parse(JSON.stringify(doc));
+}
+
 // FORMAT DATE TIME
 export const formatDateTime = (dateString: Date | string) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {

@@ -19,9 +19,12 @@ export const addMedicine = async (data: any) => {
       price: data.price
     })
     return {
-      ...newMedicine.toObject(),
-      _id: newMedicine._id.toString(),
-    }
+      success: true,
+      data: JSON.parse(JSON.stringify({
+        ...newMedicine.toObject(),
+        _id: newMedicine._id.toString(),
+      })),
+    };
   } catch (error) {
     console.log(error)
   }
@@ -185,7 +188,7 @@ export const restoreMedicine = async (id: string | Types.ObjectId) => {
     return {
       success: true,
       message: "Medicine restored successfully",
-      restoredMedicine,
+    
     };
   } catch (error) {
     console.error("Error restoring medicine:", error);

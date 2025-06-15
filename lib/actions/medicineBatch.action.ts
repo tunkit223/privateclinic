@@ -9,6 +9,7 @@ import { ExcelRow } from '@/components/Types/excel'
 import Success from "@/app/patient/[patientId]/appointment/success/page"
 import { message } from "antd"
 
+import { toPlainObject } from "@/lib/utils"
 
 // Thêm 1 lô thuốc mới
 export const addMedicineBatch = async (data: {
@@ -25,7 +26,7 @@ export const addMedicineBatch = async (data: {
   try {
     await dbConnect()
 
-    const medicine = await Medicine.findById(data.medicineId);
+    const medicine = await Medicine.findById(data.medicineId); 
     if (!medicine) throw new Error("Thuốc không tồn tại");
 
     const price = medicine.price;
@@ -53,13 +54,13 @@ export const addMedicineBatch = async (data: {
 
     return {
       success: true,
-      data: {
+      data: toPlainObject({
         ...newBatch.toObject(),
         _id: newBatch._id.toString(),
-      }
+      }),
     }
   } catch (error: any) {
-    console.error('Lỗi khi thêm lô thuốc:', error)
+  
     return {
       success: false,
       message: error.message || 'Đã xảy ra lỗi không xác định'
@@ -92,11 +93,13 @@ export const getMedicineBatches = async (): Promise<MedicineBatchWithExtras[]> =
     const medicine: any = batch.medicineId;
 
     return {
+     
       ...batch,
       _id: batch._id.toString(),
       medicineName: medicine?.name || "Không xác định",
       unit: medicine?.unit || "",
       medicineTypeName: medicine?.medicineTypeId?.name || "Không xác định",
+  
     };
   });
 };
@@ -137,10 +140,13 @@ export const updateMedicineBatchStatus = async (
     return {
       success: true,
       message: "Status updated successfully",
-      batch: updatedBatch,
+      batch: toPlainObject({
+        ...updatedBatch!.toObject(),
+        _id: updatedBatch!._id.toString(),
+      }),
     };
   } catch (error) {
-    console.error("Error updating medicine batch status:", error);
+    
     return {
       success: false,
       message: "Error updating status",
@@ -170,7 +176,7 @@ export const increaseMedicineAmountFromBatchItems = async (
       message: "Tăng số lượng thành công",
     };
   } catch (error) {
-    console.error("❌ Tăng số lượng thuốc thất bại:", error);
+   
     return {
       success: false,
       message: "Tăng số lượng thất bại",
@@ -208,8 +214,6 @@ export const importMedicineBatchesFromExcel = async (
       success: true, message: 'Đã import thành công'
     }
   } catch (error) {
-    console.error('Error importing Excel:', error)
-    console.error('Error importing Excel:', JSON.stringify(error, null, 2));
     return { success: false, message: 'Đã xảy ra lỗi khi import' }
   }
 }
@@ -218,7 +222,7 @@ export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
   try{
     await dbConnect();
 
-    const delletedBatch = await MedicineBatch.findByIdAndUpdate(
+    const deletedBatch = await MedicineBatch.findByIdAndUpdate(
       id,
       {
         deleted: true,
@@ -227,17 +231,17 @@ export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
       { new: true }
     );
 
-    if(!delletedBatch) {
+    if(!deletedBatch) {
       throw new Error("Medicine batch not found");
     }
 
     return {
       success: true,
       message: "Medicine batch soft deleted successfully",
-      deleteMedicineBatch,
+      
     };
   } catch (error) {
-    console.error("Error deleting medicine batch:", error);
+    
     return {
       success: false,
       message: "Error deleting medicine batch",

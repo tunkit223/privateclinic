@@ -68,7 +68,7 @@ const ImportMedicineModal = ({ onSuccess }: Props) => {
 
        {/* Nút tải file mẫu Excel dùng style như Button */}
     <Button asChild variant="default" className="bg-red-300 hover:bg-red-700 text-black hover:text-black ">
-      <a href="/sample.xlsx" download>
+      <a href="/sample_medicine_batch.xlsx" download>
         Download Sample
       </a>
     </Button>

@@ -1,30 +1,81 @@
-"use client"
+'use client'
 
 import { ColumnDef } from "@tanstack/react-table"
-import { IMedicineType, IMedicineTypeDoc } from "@/database/medicineType"
-import { deleteMedicineType } from "@/lib/actions/medicineType.action";
-import { Router } from "lucide-react";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
-import { Trash2, FilePen } from "lucide-react";
-import { useState } from "react";
-import EditMedicineTypeServer from "../forms/EditForms/EditMedicineTypeForm";
+import { IMedicineTypeDoc } from "@/database/medicineType"
+import { deleteMedicineType } from "@/lib/actions/medicineType.action"
+import { useRouter } from "next/navigation"
+import { Trash2, FilePen } from "lucide-react"
+import { Button } from "../ui/button"
+import { useState } from "react"
+import EditMedicineTypeModal from "@/components/Modal/EditMedicineTypeModal" // đảm bảo tên 
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "../ui/dialog"
+import { toast } from "react-hot-toast"
+
+export interface ConfirmButtonProps {
+  medicineTypeId: string;
+}
+
+export function ConfirmDeleteButton({ medicineTypeId }: ConfirmButtonProps) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    const res = await deleteMedicineType(medicineTypeId);
+    if (res.success) {
+      toast.success("Deleted successfully!");
+      setOpen(false);
+      router.refresh();
+    } else {
+      toast.error("Failed to delete");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      {/* Nút xoá hiển thị trong bảng */}
+      <DialogTrigger asChild>
+        <Button
+          className="bg-red-500 hover:bg-red-700 text-white"
+          size="sm"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </DialogTrigger>
+
+      {/* Hộp thoại xác nhận */}
+      <DialogContent className="space-y-4 bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+        <DialogHeader>
+            <DialogTitle className="text-center text-base">
+            ❌ Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-center text-base">
+            Are you sure you want to delete this medicine type?
+            </DialogDescription>
+          </DialogHeader>
+
+        <DialogFooter className="sm:justify-center gap-4">
+          <Button className="bg-blue-300 hover:bg-blue-400"  variant="destructive" onClick={handleDelete}>
+            Yes, delete
+          </Button>
+          <Button className="hover:bg-gray-400" variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 
 export const columns: ColumnDef<IMedicineTypeDoc>[] = [
   {
     header: "ID",
-    cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>
+    cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
   },
   {
     accessorKey: "name",
     header: "Name",
-    accessorFn: (row) => {
-      return row.name;
-    },
-    cell: ({ row }) => {
-      return <p className="text-14-medium">{row.original.name}</p>;
-    },
+    cell: ({ row }) => <p className="text-14-medium">{row.original.name}</p>,
   },
   {
     accessorKey: "description",
@@ -33,66 +84,48 @@ export const columns: ColumnDef<IMedicineTypeDoc>[] = [
       <p className="text-14-regular min-w-[100px]">
         {row.original.description}
       </p>
-    )
+    ),
   },
   {
     id: "action",
     header: "Action",
     cell: ({ row }) => {
-      const item = row.original;
-      const myRouter = useRouter();
+      const item = row.original
+      const router = useRouter()
+      const [isEditing, setIsEditing] = useState(false)
 
-      const [isEditing, setIsEditing] = useState(false);
-      const [editingData, setEditingData] = useState<IMedicineType | null>(null);
-      const handleDelete = async () => {
-        setIsEditing(false)
-        setEditingData(null)
-        const res = await deleteMedicineType(item._id);
-        if (res.success) {
-          alert("Deleted Successfully")
-          myRouter.refresh();
-        }
-        else {
-          alert("Failed to delete")
-        }
-      }
       const handleEdit = () => {
-        setEditingData(item);
-        setIsEditing(true);
-      };
-      return (
-        <div className="flex gap-2">
-          <Button
-            variant={"destructive"}
-            size={"sm"}
-            onClick={handleDelete}
-            className="bg-red-500 hover:bg-red-700 text-white rounded-lg justify-center">
-            <Trash2 className="h-4 w-4  " />
+        setIsEditing(true)
+      }
 
-          </Button>
-          <Button
-            variant={"outline"}
-            size={"sm"}
-            onClick={handleEdit}
-            className="bg-blue-500 hover:bg-blue-700 text-white rounded-lg">
-            <FilePen className="h-4 w-4" />
-          </Button>
+      return (
+        <>
+          <div className="flex gap-2">
+
+            <Button
+              variant={"outline"}
+              size={"sm"}
+              onClick={handleEdit}
+              className="bg-blue-500 hover:bg-blue-700 text-white rounded-lg"
+            >
+              <FilePen className="h-4 w-4" />
+            </Button>
+            <ConfirmDeleteButton medicineTypeId={item._id.toString()} />
+          </div>
 
           {isEditing && (
-            <div className="modal">
-              <EditMedicineTypeServer
-                initialData={editingData} // Truyền dữ liệu của item vào form
-                onSave={(updatedData: IMedicineTypeDoc) => {
-                  setEditingData(updatedData) // Cập nhật lại dữ liệu trong bảng
-                  setIsEditing(false) // Đóng modal sau khi lưu
-                  myRouter.refresh(); // Refresh lại trang để cập nhật dữ liệu
-                }}
-              />
-            </div>
+            <EditMedicineTypeModal
+              initialData={item}
+              isOpen={isEditing}
+              onClose={() => setIsEditing(false)}
+              onSave={() => {
+                setIsEditing(false)
+                router.refresh()
+              }}
+            />
           )}
-        </div>
-
+        </>
       )
-    }
+    },
   },
 ]

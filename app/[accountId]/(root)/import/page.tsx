@@ -39,7 +39,7 @@ const MedicineImportPage = async () => {
 
       {/* Table hiển thị danh sách lô thuốc */}
       <MedicineBatchTableClient
-        data={batches}
+        data={parsedBatches}
         medicineTypes={parsedTypes}
       />
     </div>
