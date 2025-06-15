@@ -309,20 +309,24 @@ function CreatePrescription() {
                         required
                       >
                         <Space.Compact block size='large'>
-                          <Form.Item name={[name, 'morningDosage']} noStyle>
+                          <Form.Item name={[name, 'morningDosage']} noStyle
+                            rules={[{ required: true, message: "Please input morning dosage" }]}>
                             <InputNumber addonBefore={<BsFillSunriseFill style={{ color: '#FDB44B', fontSize: 20 }} />
 
                             } min={0} size='large' placeholder="Morning" />
                           </Form.Item>
-                          <Form.Item name={[name, 'noonDosage']} noStyle>
+                          <Form.Item name={[name, 'noonDosage']} noStyle
+                            rules={[{ required: true, message: "Please input noon dosage" }]}>
                             <InputNumber addonBefore={<IoSunnySharp style={{ color: '#EB6440', fontSize: 20 }} />
                             } min={0} placeholder="Noon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'afternoonDosage']} noStyle>
+                          <Form.Item name={[name, 'afternoonDosage']} noStyle
+                            rules={[{ required: true, message: "Please input afternoon dosage" }]}>
                             <InputNumber addonBefore={<BsFillSunsetFill style={{ color: '#A62C2C', fontSize: 20 }} />
                             } min={0} placeholder="Afternoon" />
                           </Form.Item>
-                          <Form.Item name={[name, 'eveningDosage']} noStyle>
+                          <Form.Item name={[name, 'eveningDosage']} noStyle
+                            rules={[{ required: true, message: "Please input evening dosage" }]}>
                             <InputNumber addonBefore={<IoMoon style={{ color: '#27548A', fontSize: 20 }} />
                             } min={0} placeholder="Evening" />
                           </Form.Item>

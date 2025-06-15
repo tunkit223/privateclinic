@@ -381,7 +381,7 @@ export const getPrescriptionByMedicalReportId = async (medicalReportId: string) 
     await dbConnect();
 
     const prescription = await Prescription.findOne({
-      medicalReportId:medicalReportId
+      medicalReportId: medicalReportId
     });
 
     if (!prescription) {
@@ -427,17 +427,3 @@ export const getPrescriptionDetailsByPrescriptionId = async (prescriptionId: str
 };
 
 
-
-export const getUsageMethods = async () => {
-  try {
-    await dbConnect();
-    const usageMethods = await UsageMethod.find({}).select("name").lean();
-    return usageMethods.map(method => ({
-      _id: method._id.toString(),
-      name: method.name
-    }));
-  } catch (error) {
-    console.log("Error get usage methods", error);
-    return [];
-  }
-}

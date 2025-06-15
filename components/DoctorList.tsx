@@ -30,7 +30,7 @@ export function DoctorList({ doctors }: { doctors: any[] }) {
   return (
     <div ref={containerRef} className="flex flex-col gap-4">
       {doctors.map((doctor) => (
-        <div key={doctor._id} className="flex flex-col gap-1 p-2 bg-gray-100 rounded">
+        <div key={doctor._id} className="flex flex-col gap-1 p-2 bg-[#DEEEF8] rounded">
           <div className="font-semibold">{doctor.name}</div>
           <div className="flex gap-2">
             <div

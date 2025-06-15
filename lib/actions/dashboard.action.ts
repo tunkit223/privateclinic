@@ -92,8 +92,6 @@ export async function getIncome() {
 export const getFigurePatientToday = async () => {
   const { yesterday, today, tomorrow } = getDateRanges();
 
-
-
   try {
     const patientToday = await getPatientByDateRange(today, tomorrow);
     const patientYesterday = await getPatientByDateRange(yesterday, today);

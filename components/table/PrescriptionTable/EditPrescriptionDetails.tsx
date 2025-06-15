@@ -97,7 +97,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
         }
       })
-      // console.log("Formatted details set to form:", formattedDetails);
+      console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
         // console.log("pres", prescription)
