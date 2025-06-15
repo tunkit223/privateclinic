@@ -146,7 +146,8 @@ useEffect(() => {
                   position: "top-left",
                   duration: 3000,
                 });
-          window.location.reload()
+          router.refresh();
+          router.replace("?action=success");
         }
         else{
           toast.error("Cannot cancel(appointment had been finished or cancelled).", {

@@ -64,11 +64,11 @@ export default function DoctorCalendar() {
   };
 
   const renderEventContent = (eventInfo: any) => (
-    <div className="flex justify-between items-center text-xs">
+    <div className="flex justify-between items-center text-xs ">
       <span>{eventInfo.event.title}</span>
       <button
         onClick={() => handleDelete(eventInfo.event)}
-        className="text-red-500 ml-2 hover:underline text-xs"
+        className="text-red-500 ml-1 hover:underline text-xs"
       >
         ❌
       </button>

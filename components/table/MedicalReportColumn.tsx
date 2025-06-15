@@ -106,6 +106,7 @@ export const columns: ColumnDef<IMedicalReport>[] = [
       const patientId = typeof patient === "object" ? patient._id : "Unknown";
       const router = useRouter();
       const [isLoading, setIsLoading] = useState(false);
+      const [modalOpen, setModalOpen] = useState(false);
 
       const handleExamining = async () => {
         setIsLoading(true);
@@ -120,6 +121,7 @@ export const columns: ColumnDef<IMedicalReport>[] = [
               position: "top-left",
               duration: 3000,
             });
+             setModalOpen(true);
           } else {
             toast.error("Cannot examining.", {
               position: "top-left",
@@ -191,6 +193,8 @@ export const columns: ColumnDef<IMedicalReport>[] = [
               appointmentId={row.original.appointmentId._id.toString()}
               meidcalReportId={row.original._id.toString()}
               disabled={!isExamining}
+              open={modalOpen}
+              onOpenChange={setModalOpen}
             />
         </div>
       )

@@ -25,6 +25,7 @@ import { format } from "date-fns"
 import CreateAppointmentModal from "../CreateAppointmentModal"
 import StatCard from "../StatCard"
 import { getAppointmentStatsByDate } from "@/lib/actions/appointment.action"
+import { useSearchParams } from "next/navigation"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -68,14 +69,18 @@ export function DataTable<TData, TValue>({
   pendingCount: 0,
   cancelledCount: 0,
 })
-
+  const searchParams = useSearchParams();
+  const action = searchParams.get("action");
   useEffect(() => {
     const fetchStats = async () => {
       const stats = await getAppointmentStatsByDate(filterType, selectedDate)
       setAppointments(stats)
+        const url = new URL(window.location.href);
+        url.searchParams.delete("action");
+       window.history.replaceState(null, "", url.toString());
     }
     fetchStats()
-  }, [filterType, selectedDate])
+  }, [filterType, selectedDate, action])
   return (
     <>
       <section className='admin-stat'>
