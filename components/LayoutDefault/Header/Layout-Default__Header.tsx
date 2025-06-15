@@ -9,8 +9,14 @@ import React, { useState, useEffect, use } from 'react';
 import { Modal, Row } from 'antd';
 import { getCookieParsed } from "@/lib/utils";
 import { getUserByAccountId } from "@/lib/actions/user.action";
+import GlobalSeacrt from "@/components/GlobalSearch";
 
-function LayoutDefaultHeader() {
+interface LayoutDefaultHeaderProps {
+  accountId: string;
+}
+
+
+function LayoutDefaultHeader({ accountId }: LayoutDefaultHeaderProps) {
   const pathname = usePathname();
   const cleanedPathname = pathname.split("/").slice(2).join("/") || "";
   const mainRoute = '/' + cleanedPathname.split('/')[0];
@@ -76,11 +82,8 @@ function LayoutDefaultHeader() {
     <>
       <div className="flex justify-between items-center mt-5 border-b-2 border-gray-200 pb-5">
         <div className="text-[25px] font-[600] text-black ml-11">{currentPage}</div>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search"
-            className="w-[600px] text-black py-5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all"
-          />
+        <div className="flex gap-2 w-[800px] mr-11 ">
+         <GlobalSeacrt accountId={accountId} />
         </div>
         <div className="mr-11 cursor-pointer ">
           <Avatar style={{ backgroundColor: '#87d068' }} onClick={showModal} icon={<UserOutlined />} alt="Personal profile" />

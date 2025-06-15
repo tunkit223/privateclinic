@@ -37,9 +37,9 @@ const Root = ({ children }: { children: ReactNode }) => {
           <LeftSidebar accountId={accountId} />
         </Sider>
         <Layout className="bg-[#F9FBFC]">
-          <header><LayoutDefaultHeader /></header>
+          <header><LayoutDefaultHeader accountId={accountId} /></header>
           <Content className="m-6 bg-transparent">{children}</Content>
-          <footer >Footer</footer>
+          <footer ></footer>
         </Layout>
       </Layout>
     </>
