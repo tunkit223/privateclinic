@@ -5,7 +5,7 @@ import { Button, message, Skeleton } from "antd";
 import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
 import { Form, Input, Select, Space, InputNumber, Tag, Alert, } from "antd";
-import { getEmployeesList } from '@/lib/actions/employees.action';
+import { getEmployeesList, getName } from '@/lib/actions/employees.action';
 import { getMedicineById, getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
 import { IMedicine } from "@/lib/interfaces/medicine.interface";
@@ -77,7 +77,6 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       setDoctorList(doctors.documents);
       setDataTitlePrescription(prescription);
       setUsageMethodList(usageMethods)
-      // console.log("pt", patientExaminedList);
 
       const formattedDetails = (details || []).map((item: any) => {
         const priceMedicine = item.medicineId?.price || 0;
@@ -97,13 +96,20 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
         }
       })
-      console.log("Formatted details set to form:", formattedDetails);
+      // console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
-        // console.log("pres", prescription)
+        console.log("pres", prescription)
+        const selectedDoctor = doctorList.find(
+          (dt: IDoctor) => dt._id === prescription.prescribeByDoctor?._id
+        )
+        const selectedPatient = patientExaminedList.find(pt => pt.patientId === prescription.medicalReportId?.appointmentId?.patientId?._id)
         form.setFieldsValue({
           patientId: prescription?.medicalReportId?.appointmentId?.patientId?._id,
-          doctor: prescription?.prescribeByDoctor?._id,
+          doctor: {
+            value: prescription?.prescribeByDoctor?._id,
+            label: selectedDoctor ? selectedDoctor.name : prescription.prescribeByDoctor?.name || "Unknown doctor"
+          },
           prescriptionDetails: formattedDetails,
         });
       }
@@ -317,7 +323,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }>
                     {patientExaminedList && patientExaminedList.map((pt) => {
                       const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
-                      console.log("pt", pt)
+                      // console.log("pt", pt)
                       return (
                         <Select.Option
                           style={{ fontSize: "17px" }}
@@ -352,7 +358,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                       return false;
                     }
                     }>
-                    {doctorList && doctorList.map(dt => (
+                    {doctorList && doctorList.filter((dt: IDoctor) => !dt.deleted).map(dt => (
                       <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
                         {dt.name}
                       </Select.Option>

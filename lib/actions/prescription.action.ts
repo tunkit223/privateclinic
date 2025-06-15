@@ -256,13 +256,20 @@ export const UpdatePrescription = async (prescriptionId: string, payload: Create
   const session = await Prescription.startSession();
   session.startTransaction();
   try {
+
+    // Validate prescribeByDoctor
+    let doctorId = payload.prescribeByDoctor;
+    if (typeof payload.prescribeByDoctor === 'object' && payload.prescribeByDoctor !== null) {
+      // Handle case where prescribeByDoctor is { value, label }
+      doctorId = (payload.prescribeByDoctor as { value: string; label: string }).value;
+    }
     // Update general information of prescription
     await Prescription.updateOne(
       { _id: new ObjectId(prescriptionId) },
       {
         $set: {
           medicalReportId: new ObjectId(payload.medicalReportId),
-          prescribeByDoctor: new ObjectId(payload.prescribeByDoctor),
+          prescribeByDoctor: new ObjectId(doctorId),
           updatedAt: new Date(),
         }
       },
@@ -434,8 +441,10 @@ export const deleteOnePrescriptionDetail = async (medicineId: string | Types.Obj
     await dbConnect();
     const medicineObjectId = Types.ObjectId.isValid(medicineId) ? new Types.ObjectId(medicineId) : medicineId;
 
-    const unPaidPrescriptions = await Prescription.find({ isPaid: false }).select("_id");
-    console.log("Unpaid prescriptions found:", unPaidPrescriptions.length, unPaidPrescriptions.map((p: any) => p._id.toString()));
+    // Find all prescription is outstanding
+    const unPaidPrescriptions = await Prescription.find({ isPaid: false }).select("_id medicalReportId");
+    console.log("Unpaid prescriptions found:",
+      unPaidPrescriptions.length, unPaidPrescriptions.map((p: any) => p._id.toString()));
     if (!unPaidPrescriptions) {
       return {
         success: true,
@@ -446,6 +455,9 @@ export const deleteOnePrescriptionDetail = async (medicineId: string | Types.Obj
 
     // Get list prescriptionId
     const prescriptionIds = unPaidPrescriptions.map((prescription: any) => prescription._id);
+    const prescriptionMap = new Map(
+      unPaidPrescriptions.map((p) => [p._id.toString(), p.medicalReportId])
+    );
     console.log("Prescription IDs:", prescriptionIds.map((id: any) => id.toString()));
 
 
@@ -464,19 +476,38 @@ export const deleteOnePrescriptionDetail = async (medicineId: string | Types.Obj
     )
     console.log("Update result:", updatedDetails);
 
-    for (const prescriptionId of prescriptionIds) {
+    for (const prescription of unPaidPrescriptions) {
+      const prescriptionId = prescription._id;
+      const medicalReportId = prescription.medicalReportId;
+
       const remainingDetails = await PrescriptionDetail.find({
         prescriptionId: prescriptionId,
         deleted: false,
-      }).select("price")
+      }).select("price quantity")
+      console.log(remainingDetails);
+
       const newTotalPrice = remainingDetails.reduce((total, detail) => {
-        return total + (detail.price || 0);
+        const price = detail.price || 0;
+        const quantity = detail.quantity || 1;
+        return total + price * quantity;
       }, 0)
 
-      await Prescription.updateOne(
+
+      const updateResult = await Prescription.updateOne(
         { _id: prescriptionId },
         { $set: { totalPrice: newTotalPrice } }
       )
+
+      console.log(`Updated totalPrice for prescription ${prescriptionId}:`, updateResult.modifiedCount);
+
+
+      const fullPrescription = await Prescription.findById(prescriptionId)
+
+      await updateInvoiceWithPrescription({
+        medicalReportId: medicalReportId.toString(),
+        prescription: fullPrescription,
+        session: null
+      })
     }
 
 

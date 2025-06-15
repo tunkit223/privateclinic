@@ -49,7 +49,8 @@ export const updateInvoiceWithPrescription = async ({
   session: any,
 }) => {
 
-  console.log("prescription data", prescription.prescribeByDoctor)
+  console.log("prescription data", prescription)
+
   // Get prescription details for invoice
   const prescriptionDetails = await getPrescriptionDetailsById(prescription._id.toString(), session);
   if (!prescriptionDetails) {
@@ -58,17 +59,20 @@ export const updateInvoiceWithPrescription = async ({
   }
 
   // Create details[] for invoice
-  const invoicePrescriptionDetails = prescriptionDetails.map((invoiceDetail: any) => ({
-    medicineName: invoiceDetail.medicineId.name,
-    usageMethodName: invoiceDetail.usageMethodId.name,
-    duration: invoiceDetail.duration,
-    dosage: `Morning: ${invoiceDetail.morningDosage}, Noon: ${invoiceDetail.noonDosage}, Afternoon: ${invoiceDetail.afternoonDosage}, Evening: ${invoiceDetail.eveningDosage}`,
-    quantity: invoiceDetail.quantity,
-    price: invoiceDetail.price,
-    unit: invoiceDetail.medicineId.unit
-  }))
+  const invoicePrescriptionDetails = prescriptionDetails
+    .filter((invoiceDetail: any) => !invoiceDetail.deleted)
+    .map((invoiceDetail: any) => ({
+      medicineName: invoiceDetail.medicineId.name,
+      usageMethodName: invoiceDetail.usageMethodId.name,
+      duration: invoiceDetail.duration,
+      dosage: `Morning: ${invoiceDetail.morningDosage}, Noon: ${invoiceDetail.noonDosage}, Afternoon: ${invoiceDetail.afternoonDosage}, Evening: ${invoiceDetail.eveningDosage}`,
+      quantity: invoiceDetail.quantity,
+      price: invoiceDetail.price,
+      unit: invoiceDetail.medicineId.unit
+    }))
 
   console.log("invoice details", invoicePrescriptionDetails);
+
   // Update invoice
   const invoice = await Invoice.findOne(
     { "medicalReportId._id": medicalReportId },
@@ -83,7 +87,7 @@ export const updateInvoiceWithPrescription = async ({
   invoice.prescriptionId = {
     _id: prescription._id,
     code: prescription.code,
-    totalPrice: prescription.totalPrice,
+    totalPrice: prescription.totalPrice || 0,
     isPaid: prescription.isPaid,
     prescribeByDoctor: prescription.prescribeByDoctor ? {
       _id: prescription.prescribeByDoctor._id,

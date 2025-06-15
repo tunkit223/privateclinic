@@ -49,9 +49,11 @@ export const getMedicineTypes = async () => {
 export const getMedicineList = async () => {
   try {
     await dbConnect();
+
     const medicines = await Medicine.find({ deleted: false })
       .sort({ createdAt: -1 })
       .lean();
+    console.log(medicines);
     const data = {
       documents: medicines,
     };

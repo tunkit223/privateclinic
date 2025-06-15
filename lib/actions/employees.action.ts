@@ -20,3 +20,22 @@ export const getEmployeesList = async () => {
   }
 };
 
+export const getName = async (id: string) => {
+  try {
+    await dbConnect();
+    const employee = await User.find(
+      { _id: id },
+    )
+      .select("name")
+      .lean();
+
+    return JSON.parse(JSON.stringify(employee));
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+    return null;
+  }
+};
+
+
+
+
