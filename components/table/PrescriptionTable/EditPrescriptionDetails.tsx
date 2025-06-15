@@ -162,7 +162,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
   const handleChangeValues = (changeValues: any, allValues: any) => {
     if (!changeValues.prescriptionDetails) return;
     const updatedDetails = allValues.prescriptionDetails.map((dt: any, index: any) => {
-
+      if (!dt) return;
       const quantity = dt.quantity || 0;
       const medicine = medicineList.find(m => m._id === dt.medicineId);
       const price = medicine?.price || 0;
@@ -317,6 +317,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }>
                     {patientExaminedList && patientExaminedList.map((pt) => {
                       const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                      console.log("pt", pt)
                       return (
                         <Select.Option
                           style={{ fontSize: "17px" }}
