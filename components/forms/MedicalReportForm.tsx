@@ -35,7 +35,7 @@ type MedicineRow = {
   Amount: string;
   Usage: string;
 };
-const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: string, medicalReportIds: string}) => {
+const MedicalReportForm = ({appointmentId,medicalReportIds,disabled}:{appointmentId: string, medicalReportIds: string,disabled?: boolean}) => {
       const router = useRouter();
       const [isLoading, setisLoading] = useState(false);
       const [diseaseTypeList, setDiseaseTypeList] = useState<string[]>([])
@@ -265,7 +265,7 @@ const MedicalReportForm = ({appointmentId,medicalReportIds}:{appointmentId: stri
             </TableBody>
           </Table>)}
 
-         <SubmitButton isLoading={isLoading}>Update Medical Report</SubmitButton>
+         <SubmitButton isLoading={isLoading} disabled={disabled}>Update Medical Report</SubmitButton>
         </form>  
     </Form>
   )

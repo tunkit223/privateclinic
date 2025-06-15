@@ -23,6 +23,8 @@ import { Input } from "../ui/input"
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import CreateAppointmentModal from "../CreateAppointmentModal"
+import StatCard from "../StatCard"
+import { getAppointmentStatsByDate } from "@/lib/actions/appointment.action"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -32,6 +34,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -60,10 +63,41 @@ export function DataTable<TData, TValue>({
       column.setFilterValue(selectedDate)
     }
   }, [filterType, selectedDate])
+  const [appointments, setAppointments] = useState({
+  confirmedCount: 0,
+  pendingCount: 0,
+  cancelledCount: 0,
+})
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      const stats = await getAppointmentStatsByDate(filterType, selectedDate)
+      setAppointments(stats)
+    }
+    fetchStats()
+  }, [filterType, selectedDate])
   return (
     <>
-     
+      <section className='admin-stat'>
+          <StatCard
+            type="appointments"
+            count={appointments.confirmedCount}
+            label="Confirmed appointments"
+            icon="/assets/icons/appointments.svg"
+          />
+          <StatCard
+            type="pending"
+            count={appointments.pendingCount}
+            label="Pending appointments"
+            icon="/assets/icons/pending.svg"
+          />
+          <StatCard
+            type="cancelled"
+            count={appointments.cancelledCount}
+            label="Cancelled appointments"
+            icon="/assets/icons/cancelled.svg"
+          />
+        </section>
         {/* Bộ lọc nằm bên phải */}
         <div className="w-full flex justify-end">
           <Input

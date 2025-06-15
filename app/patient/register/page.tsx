@@ -1,5 +1,3 @@
-// Trang này được gọi ngay sau khi đã tạo user và
-// có userid
 
 import React from 'react'
 import Image from 'next/image'
@@ -8,7 +6,7 @@ import RegisterForm from '@/components/forms/RegisterForm'
 const Register =  () => {
   return (
     <div className="flex h-screen max-h-screen bg-blue-100">
-      {/* TODO: OTP Verification | PasskeyModal <>?*/}
+
 
       <section className="remove-scrollbar container">
         <div className="sub-container max-w-[780px] flex-1 flex-col py-10">

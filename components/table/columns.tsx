@@ -81,7 +81,7 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
           });
 
           if (!res?.error) {
-            router.refresh(); 
+            window.location.reload()
              toast.success("Confirm appointment successfully.", {
             position: "top-left",
             duration: 3000,
@@ -98,18 +98,16 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
           setIsLoading(false); 
         }
       };
+      const ispending = row.original.status === "pending";
       return(
         
         <div className="flex gap-1">
-            {/* <MedicalReportModal
-             type="finish"
-             appointmentId={row.original._id.toString()}
-             /> */}
+           
               <Button
                 variant="ghost"
                 className="capitalize text-green-500"
                 onClick={handleConfirm}
-                disabled={isLoading}
+                disabled={isLoading||!ispending}
               >
                 {isLoading ? "Loading..." : "Confirm"}
               </Button>
@@ -117,9 +115,11 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
              type="cancel"
              patientId={patientId.toString()}
              appointment={row.original}
+             disabled={isLoading || row.original.status !== "pending"}
              />
              <DetailsAppointmentModal
                appointmentId={row.original._id.toString()}
+               disabled={row.original.status !== "pending"}
              />
         </div>
       )

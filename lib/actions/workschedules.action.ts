@@ -110,13 +110,15 @@ export async function getSchedules() {
 
   const schedules = await WorkSchedules.find({}).populate("doctor");
 
-  return schedules.map((schedule) => ({
-    title: `${schedule.doctor.name} (${schedule.shift})`,
-    start: schedule.date.toISOString().split("T")[0], // YYYY-MM-DD
-    allDay: true,
-    extendedProps: {
-      doctorId: schedule.doctor._id.toString(),
-      shift: schedule.shift,
-    },
-  }));
+   return schedules
+    .filter(schedule => schedule.doctor) 
+    .map((schedule) => ({
+      title: `${schedule.doctor.name} (${schedule.shift})`,
+      start: schedule.date.toISOString().split("T")[0],
+      allDay: true,
+      extendedProps: {
+        doctorId: schedule.doctor._id.toString(),
+        shift: schedule.shift,
+      },
+    }));
 }

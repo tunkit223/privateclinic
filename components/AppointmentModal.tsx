@@ -18,17 +18,19 @@ const AppointmentModal = ({
   type,
   patientId,
   appointment,
+  disabled = false,
 }:{
   type:'confirm' | 'cancel'
   patientId: string,
   appointment?:IAppointment,
+  disabled?: boolean
 }) => {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant='ghost' className={`capitalize ${type==='confirm'&&'text-green-500'}`}>
+      <Button variant='ghost' className={`capitalize ${type==='confirm'&&'text-green-500'}` }  disabled={disabled} >
         {type}
       </Button>
     </DialogTrigger>

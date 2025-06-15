@@ -20,6 +20,8 @@ import {
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { Input } from "../ui/input";
+import NewMedicineModal from "../NewMedicineModal";
+import MedicineMonthlyReportModal from "../MedicineMonthlyReport";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,14 +39,20 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <>
+    <div className="flex mt-20">
       <Input
         placeholder="Search by medicine's name..."
         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
           table.getColumn("name")?.setFilterValue(event.target.value)
         }
-        className="w-full max-w-[1100px] text-dark-200 py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
+        className="w-full max-w-[1100px] text-dark-200 py-4 border border-dark-200 rounded-lg mr-3  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"
       />
+      <div className="mr-3">
+      <NewMedicineModal/>
+        </div>
+      <MedicineMonthlyReportModal/>
+      </div>
       <div className="data-table">
         <Table className="shad-table">
           <TableHeader className="bg-blue-400">

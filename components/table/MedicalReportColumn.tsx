@@ -19,7 +19,7 @@ import StatusBadgeMedical from "../StatusBadgeMedicalRP"
 import { examiningMedicalReport, ExaminedMedicalReport } from "@/lib/actions/medicalReport.action"
 import medicalreport from "@/app/[accountId]/(root)/medicalreport/page"
 import DoctorCell from "../Doctorcell"
-
+import { format } from "date-fns"
 
 
 export const columns: ColumnDef<IMedicalReport>[] = [
@@ -49,6 +49,10 @@ export const columns: ColumnDef<IMedicalReport>[] = [
   {
     accessorKey: "schedule",
     header: "Appointment",
+     accessorFn: row => {
+    const date = row.appointmentId?.date;
+    return date ? format(new Date(date), "yyyy-MM-dd") : "";
+  },
     cell: ({ row }) => {
       const date = row.original.appointmentId?.date;
       return (
@@ -62,6 +66,13 @@ export const columns: ColumnDef<IMedicalReport>[] = [
     accessorKey: "doctor",
     header: () => "Doctor",
     cell: ({ row }) => <DoctorCell doctorId={row.original.appointmentId?.doctor.toString()} />,
+  },
+  {
+    accessorKey: "examinationDate",
+    header: () => "Examination Date",
+    cell: ({ row }) => <p className="text-14-regular min-w-[100px]">
+          {row.original.examinationDate ? formatDateTime(row.original.examinationDate).dateTime : "Waiting for examination"}
+        </p>
   },
   {
     accessorKey: "symptom",
@@ -147,36 +158,40 @@ export const columns: ColumnDef<IMedicalReport>[] = [
           setIsLoading(false);
         }
       };
-
+     const disableExamining = isLoading || row.original.status === "examining" || row.original.status === "examined";
+      const disableExamined = isLoading || row.original.status === "unexamined" || row.original.status === "examined";
+      const isExamining = row.original.status === "examining";
       return (
 
         <div className="flex gap-1">
-            {row.original.status === "unexamined" &&
+           
               <Button
                 variant="ghost"
                 className="capitalize text-blue-500"
                 onClick={handleExamining}
-                disabled={isLoading}
+                disabled={isLoading||disableExamining}
+                
               >
                 {isLoading ? "Loading..." : "examining"}
-              </Button>}
+              </Button>
               
-               {row.original.status === "examining" &&
+              
               <Button
                 variant="ghost"
                 className="capitalize text-green-500"
                 onClick={handleExamined}
-                disabled={isLoading}
+                disabled={isLoading||disableExamined}
               >
                 {isLoading ? "Loading..." : "examined"}
-              </Button>}
+              </Button>
 
 
-             {row.original.status !== "unexamined" &&
+            
              <MedicalReportModal
               appointmentId={row.original.appointmentId._id.toString()}
               meidcalReportId={row.original._id.toString()}
-            />}
+              disabled={!isExamining}
+            />
         </div>
       )
     },

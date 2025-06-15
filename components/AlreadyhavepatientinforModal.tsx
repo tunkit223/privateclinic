@@ -14,28 +14,20 @@ import AppointmentForm from "./forms/AppointmentForm"
 import { IAppointment } from "@/database/appointment.model"
 import MedicalReportForm from "./forms/MedicalReportForm"
 import Image from "next/image"
+import Link from "next/link"
+import AlreadyhavepatientinforForm from "./forms/AlreadyhavepatientinforForm"
 
-const MedicalReportModal = ({
-  appointmentId,
-  meidcalReportId,
-  disabled = false
+const AlreadyhavepatientinforModal = ({
+ 
 }:{
-  appointmentId: string,
-  meidcalReportId: string,
-  disabled?: boolean
+ 
 }) => {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-     <Image
-      src="/assets/icons/details.png"
-      alt="details"
-      height={24}
-      width={24}
-      className="object-contain cursor-pointer"
-    />
+     <p className="text-green-500 cursor-pointer font-bold hover:text-green-200">Already have patient information</p>
     </DialogTrigger>
     <DialogContent className="shad-dialog sm:max-w-[900px]">
       <DialogHeader className="">
@@ -44,15 +36,11 @@ const MedicalReportModal = ({
          
         </DialogDescription>
       </DialogHeader>
-     <MedicalReportForm
-        appointmentId={appointmentId}
-        medicalReportIds={meidcalReportId}
-        disabled={disabled}
-     />
+     <AlreadyhavepatientinforForm/>
     </DialogContent>
   </Dialog>
   
   )
 }
 
-export default MedicalReportModal
+export default AlreadyhavepatientinforModal

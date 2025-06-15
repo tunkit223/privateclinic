@@ -21,9 +21,13 @@ import { getAvailableDoctors } from "@/lib/actions/workschedules.action"
 const DetailsAppointmentForm = ({ 
   appointmentId,
   onSuccess,
+  disabled = false,
 }: {
   appointmentId: string
-  onSuccess?: () => void}) => {
+  onSuccess?: () => void
+  disabled?: boolean
+}
+) => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
   const form = useForm<z.infer<typeof DetailsAppointmentFormValidation>>({
@@ -243,7 +247,7 @@ const DetailsAppointmentForm = ({
           placeholder="Enter notes"
         />
       </div>
-      <SubmitButton isLoading={isLoading}>Adjust</SubmitButton>
+      <SubmitButton isLoading={isLoading} disabled={disabled}>Adjust</SubmitButton>
     </form>
   </Form>
   )

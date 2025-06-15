@@ -17,7 +17,7 @@ const MedicineItemSchema = new Schema<IMedicineItem>(
     quantity: { type: Number, required: true },
     numberOfUse: { type: Number, required: true },
   },
-  { _id: false } // Không tạo _id cho từng item trong mảng
+  { _id: false }
 );
 
 export interface IMonthlyMedicineDoc extends IMonthlyMedicine, Document {}

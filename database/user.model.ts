@@ -7,6 +7,8 @@ export interface IUser {
   image?: string,
   role: string,
   address?: string,
+  deleted?: boolean,
+  deletedAt?: Date,
 }
 
 export interface IUserDoc extends IUser, Document { }
@@ -18,6 +20,8 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, required: true, enum: ['admin', 'doctor', 'receptionist'] },
   image: { type: String },
   address: { type: String },
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
 },
   { timestamps: true }
 );

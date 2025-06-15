@@ -5,7 +5,8 @@ import dbConnect from "../mongoose";
 import { Types } from "mongoose";
 import { IMedicine } from "@/database/medicine";
 import Success from "@/app/patient/[patientId]/appointment/success/page";
-
+import { startOfDay, endOfDay } from "date-fns"
+import Invoice from "@/database/invoice.model";
 
 export const addMedicine = async (data: any) => {
   try {
@@ -195,3 +196,41 @@ export const restoreMedicine = async (id: string | Types.ObjectId) => {
   }
 };
 
+export const getMedicineUsageReport = async (from: string, to: string) => {
+  const fromDate = startOfDay(new Date(from))
+  const toDate = endOfDay(new Date(to))
+
+  const invoices = await Invoice.find({
+    status: "paid",
+    issueDate: { $gte: fromDate, $lte: toDate },
+    "prescriptionId.details.0": { $exists: true } 
+  }).lean()
+
+  const medicineMap: Record<string, {
+    name: string,
+    unit?: string,
+    totalQuantity: number,
+    usedCount: number
+  }> = {}
+
+  for (const invoice of invoices) {
+    const details = invoice.prescriptionId?.details || []
+
+    for (const item of details) {
+      const key = item.medicineName + "|" + (item.unit || "")
+      if (!medicineMap[key]) {
+        medicineMap[key] = {
+          name: item.medicineName,
+          unit: item.unit || "",
+          totalQuantity: 0,
+          usedCount: 0
+        }
+      }
+      medicineMap[key].totalQuantity += item.quantity
+      medicineMap[key].usedCount += 1
+    }
+  }
+
+  // Convert về mảng
+  return Object.values(medicineMap)
+}

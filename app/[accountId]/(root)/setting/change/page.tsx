@@ -11,13 +11,19 @@ const change = () => {
     const [examFee, setExamFee] = useState<number>(30000)
     const [diseaseTypes, setDiseaseTypes] = useState<string[]>([]);
     const [newDisease, setNewDisease] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
      useEffect(() => {
         async function fetchChange() {
           const latestSetting = await getLatestSetting();
           if (latestSetting) {
             setMaxPatients(latestSetting.MaxPatientperDay || 40);
             setExamFee(latestSetting.ExamineFee || 30000);
-             setDiseaseTypes(latestSetting.DiseaseType || []);
+            setDiseaseTypes(latestSetting.DiseaseType || []);
+            setEmail(latestSetting.Email || '');
+            setPhone(latestSetting.Phone || '');
+            setAddress(latestSetting.Address || '');
           }
         }
         fetchChange()
@@ -34,11 +40,13 @@ const change = () => {
     };
 
       const handleSaveSetting = async () => {
-        console.log(diseaseTypes)
     const res = await createSetting({
       MaxPatientperDay: maxPatients,
       ExamineFee: examFee,
       DiseaseType: diseaseTypes,
+      Email: email,
+      Phone: phone,
+      Address: address
     });
 
     if (res.success) {
@@ -91,6 +99,30 @@ const change = () => {
               </div>
             ))}
           </div>
+          <p className='text-18-bold'>Email</p>
+          <Input
+            type="string"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className='p-5 '
+          />
+          <p className='text-18-bold'>Phone</p>
+          <Input
+            type="string"
+            placeholder="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className='p-5 '
+          />
+          <p className='text-18-bold'>Address</p>
+          <Input
+            type="string"
+            placeholder="Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className='p-5 '
+          />
           <Button onClick={handleSaveSetting} className='mt-5 p-5 w-full text-[24px] font-bold bg-blue-400 hover:bg-blue-300'>Save</Button>
           
         </div>
