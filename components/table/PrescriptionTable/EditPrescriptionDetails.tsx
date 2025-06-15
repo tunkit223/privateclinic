@@ -99,11 +99,12 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       // console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
-        console.log("pres", prescription)
+        // console.log("pres", prescription)
         const selectedDoctor = doctorList.find(
           (dt: IDoctor) => dt._id === prescription.prescribeByDoctor?._id
         )
-        const selectedPatient = patientExaminedList.find(pt => pt.patientId === prescription.medicalReportId?.appointmentId?.patientId?._id)
+
+
         form.setFieldsValue({
           patientId: prescription?.medicalReportId?.appointmentId?.patientId?._id,
           doctor: {

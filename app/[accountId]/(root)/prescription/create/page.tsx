@@ -230,11 +230,13 @@ function CreatePrescription() {
                     return false;
                   }
                   }>
-                  {doctorList && doctorList.map(dt => (
-                    <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
-                      {dt.name}
-                    </Select.Option>
-                  ))}
+                  {doctorList && doctorList
+                    .filter((dt: IDoctor) => !dt.deleted)
+                    .map(dt => (
+                      <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
+                        {dt.name}
+                      </Select.Option>
+                    ))}
                   {/* {renderSelectOptions(doctorList, 'name', '_id')} */}
                 </Select>
               </Form.Item>
