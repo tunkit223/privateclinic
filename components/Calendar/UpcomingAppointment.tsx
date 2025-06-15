@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import 'dayjs/locale/en';
 import "./UpcommingAppointment.scss"
 
+
 const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
   console.log(value.format('DD-MM-YYYY'), mode);
 };
@@ -37,6 +38,7 @@ type Appointment = {
 const UpcomingAppointment = () => {
 
   const [appointmentsByDate, setAppointmentsByDate] = useState<Record<string, Appointment[]>>({});
+
 
   useEffect(() => {
     const fetchAppointmentList = async () => {
@@ -165,7 +167,6 @@ const UpcomingAppointment = () => {
                       value={type}
                     >
                       <Radio.Button value="month">Month</Radio.Button>
-                      <Radio.Button value="year">Year</Radio.Button>
                     </Radio.Group>
                   </Col>
                   <Col>
