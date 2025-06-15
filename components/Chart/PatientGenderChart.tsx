@@ -43,7 +43,8 @@ const PatientByGender = ({ data }: { data: PatientByGender[] }) => {
             margin={{
               left: 12,
               right: 12,
-              bottom: 40
+              bottom: 10,
+              top: 10
             }}
           >
             <CartesianGrid vertical={false} strokeDasharray="4 4" />
