@@ -11,10 +11,11 @@ import { useRouter } from "next/navigation"
 import { Label } from "./ui/label"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
+import { toast } from "react-hot-toast"
 
 const formSchema = z.object({
   medicineId: z.string(),
-  importQuantity: z.coerce.number().min(1, { message: "Số lượng phải lớn hơn 0" }),
+  importQuantity: z.coerce.number().min(1, { message: "Quantity must be greater than 0" }),
   unit: z.string(),
   importDate: z.string(),
   expiryDate: z.string().optional(),
@@ -30,7 +31,7 @@ interface Props {
 const defaultValues = {
   medicineId: '',
   importQuantity: 1,
-  unit: 'Tablet',
+  unit: 'Select the unit',
   importDate: new Date().toISOString().slice(0, 10),
   expiryDate: '',
   note: ''
@@ -53,20 +54,22 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
 
   const onSubmit = async (data: FormData) => {
     const result = await addMedicineBatch(data)
+  
     if (result.success) {
-      alert("Thêm lô thuốc thành công!")
+      toast.success("Medicine batch added successfully!")
       form.reset(defaultValues)
       setOpen(false)
       router.refresh()
     } else {
-      alert("Thêm thất bại.")
+      toast.error("Failed to add medicine batch.")
     }
   }
+  
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-green-400 hover:bg-green-700 text-black">Nhập thủ công</Button>
+        <Button className="bg-green-400 hover:bg-green-700 text-black">Add manually</Button>
       </DialogTrigger>
 
       <DialogContent className="bg-blue-200 rounded-2xl shadow-xl p-6 max-w-md">
@@ -95,6 +98,7 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
             <Input
               type="number"
               id="importQuantity"
+              min={1}
               {...form.register("importQuantity")}
               placeholder="Enter quantity"
             />
@@ -126,7 +130,7 @@ const NewMedicineBatchModal = ({ medicines }: Props) => {
             <Textarea
               id="note"
               {...form.register("note")}
-              placeholder="Ghi chú (nếu có)"
+              placeholder="Note (if any)"
               className="min-h-[80px]"
             />
           </div>

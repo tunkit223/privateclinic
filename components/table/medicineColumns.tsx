@@ -8,6 +8,63 @@ import { Trash2, FilePen } from "lucide-react";
 import EditMedicineModal from "../Modal/EditMedicineModal";
 import { deleteMedicine } from "@/lib/actions/medicine.action";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from "react-hot-toast";
+
+interface ConfirmButtonProps {
+ medicineId: string;
+}
+
+export function ConfirmDeleteButton({ medicineId }: ConfirmButtonProps) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    const res = await deleteMedicine(medicineId);
+    if (res.success) {
+      toast.success("Deleted successfully!");
+      setOpen(false);
+      router.refresh();
+    } else {
+      toast.error("Failed to delete");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      {/* Nút xoá hiển thị trong bảng */}
+      <DialogTrigger asChild>
+        <Button
+          className="bg-red-500 hover:bg-red-700 text-white"
+          size="sm"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </DialogTrigger>
+
+      {/* Hộp thoại xác nhận */}
+      <DialogContent className="space-y-4 bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+        <DialogHeader>
+            <DialogTitle className="text-center text-base">
+            ❌ Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-center text-base">
+            Are you sure you want to delete this medicine ?
+            </DialogDescription>
+          </DialogHeader>
+
+        <DialogFooter className="sm:justify-center gap-4">
+          <Button className="bg-blue-300 hover:bg-blue-400"  variant="destructive" onClick={handleDelete}>
+            Yes, delete
+          </Button>
+          <Button className="hover:bg-gray-400" variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 const ActionCell = ({
   item,
@@ -20,17 +77,7 @@ const ActionCell = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState<IMedicineDoc | null>(null);
 
-  const handleDelete = async () => {
-    setIsEditing(false);
-    setEditingData(null);
-    const res = await deleteMedicine(item._id);
-    if (res.success) {
-      alert("Deleted Successfully");
-      router.refresh();
-    } else {
-      alert("Failed to delete");
-    }
-  };
+
 
   const handleEdit = () => {
     setEditingData(item);
@@ -39,14 +86,7 @@ const ActionCell = ({
 
   return (
     <div className="flex gap-2">
-       <Button
-        variant="destructive"
-        size="sm"
-        onClick={handleDelete}
-        className="bg-red-500 hover:bg-red-700 text-white rounded-lg justify-center"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+       
       <Button
         variant="outline"
         size="sm"
@@ -55,7 +95,6 @@ const ActionCell = ({
       >
         <FilePen className="h-4 w-4" />
       </Button>
-
       {isEditing && editingData && (
         <EditMedicineModal
           initialData={editingData}
@@ -116,8 +155,14 @@ export const getMedicineColumns = (
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <ActionCell item={row.original} medicineTypes={medicineTypes} />
-    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex gap-2">
+          <ActionCell item={row.original} medicineTypes={medicineTypes} />
+          <ConfirmDeleteButton medicineId={row.original._id.toString()} />
+        </div>
+      );
+    }
   },
+
 ];

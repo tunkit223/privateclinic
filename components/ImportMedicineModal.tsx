@@ -41,22 +41,22 @@ const ImportMedicineModal = ({ onSuccess }: Props) => {
       )
 
       if (!typedJson.length) {
-        toast.error('Không có dòng hợp lệ trong file Excel!')
+        toast.error('No valid rows in the Excel file!')
         return
       }
 
       const res = await importMedicineBatchesFromExcel(typedJson)
 
       if (res.success) {
-        toast.success(res.message || 'Import thành công!')
+        toast.success(res.message || 'Successfully imported!')
         router.refresh()
         
       } else {
-        toast.error(res.message || 'Import thất bại!')
+        toast.error(res.message || 'Import failed!')
       }
     } catch (err) {
       console.error(err)
-      toast.error('Lỗi khi xử lý file!')
+      toast.error('Error processing the file!')
     } finally {
       setLoading(false)
       e.target.value = '' // Cho chọn lại cùng 1 file
@@ -64,11 +64,19 @@ const ImportMedicineModal = ({ onSuccess }: Props) => {
   }
 
   return (
-    <div>
+    <div className="flex items-center gap-4">
+
+       {/* Nút tải file mẫu Excel dùng style như Button */}
+    <Button asChild variant="default" className="bg-red-300 hover:bg-red-700 text-black hover:text-black ">
+      <a href="/sample.xlsx" download>
+        Download Sample
+      </a>
+    </Button>
+
       {/* Nút bấm gọi chọn file Excel */}
-      <Button className="bg-blue-400 hover:bg-blue-700 text-balck"
+      <Button className="bg-blue-400 hover:bg-blue-700 text-black"
       variant="outline" disabled={loading} onClick={handleButtonClick}>
-        {loading ? 'Đang xử lý...' : 'Import từ Excel'}
+        {loading ? 'Processing...' : 'Import from Excel'}
       </Button>
 
       {/* Ô chọn file ẩn, chỉ hiện khi bấm nút trên */}

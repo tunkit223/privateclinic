@@ -106,7 +106,7 @@ export default function EditMedicineForm({
       >
         <option value="">Select a tag</option>
         <option value="Jar">Jar</option>
-        <option value="Tablet">Tablet</option>
+        <option value="Pill">Pill</option>
       </select>
     </div>
 

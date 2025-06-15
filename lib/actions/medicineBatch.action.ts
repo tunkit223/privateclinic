@@ -101,33 +101,52 @@ export const getMedicineBatches = async (): Promise<MedicineBatchWithExtras[]> =
   });
 };
 // Cập nhật trạng thái lô thuốc (vd: từ "dang-nhap" sang "da-nhap")
+// lib/actions/medicineBatch.action.ts
+
 export const updateMedicineBatchStatus = async (
   id: string | Types.ObjectId,
   status: string
 ) => {
   try {
-    await dbConnect()
-    const batch = await MedicineBatch.findByIdAndUpdate(
+    await dbConnect();
+
+    // 1. Lấy batch để biết medicineId
+    const batchDoc = await MedicineBatch.findById(id);
+    if (!batchDoc) throw new Error("Medicine batch not found");
+
+    // 2. Kiểm tra thuốc
+    const medicine = await Medicine.findById(batchDoc.medicineId);
+    if (!medicine) throw new Error("Medicine not found");
+
+    if (medicine.deleted) {
+      // Thuốc đã bị xoá ⇒ không cho import
+      return {
+        success: false,
+        deleted: true,                 // ⚠️ flag để client biết lý do
+        message: "Medicine has been deleted",
+      };
+    }
+
+    // 3. Thuốc hợp lệ ⇒ cập nhật status
+    const updatedBatch = await MedicineBatch.findByIdAndUpdate(
       id,
       { status },
       { new: true }
-    )
-
-    if (!batch) throw new Error("Medicine batch not found")
+    );
 
     return {
       success: true,
       message: "Status updated successfully",
-      batch,
-    }
+      batch: updatedBatch,
+    };
   } catch (error) {
-    console.error("Error updating medicine batch status:", error)
+    console.error("Error updating medicine batch status:", error);
     return {
       success: false,
       message: "Error updating status",
-    }
+    };
   }
-}
+};
 
 // Tăng số lượng thuốc trong kho khi lô thuốc được xác nhận "da-nhap"
 

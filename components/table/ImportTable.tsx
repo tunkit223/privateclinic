@@ -22,6 +22,7 @@ import Image from "next/image"
 import { Input } from "../ui/input"
 import { useState } from "react"
 
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -60,7 +61,7 @@ export function DataTable<TData, TValue>({
     <>
       <div className="flex flex-col md:flex-row md:items-center md:gap-4 mb-4 w-full max-w-[1200px]">
         <Input
-          placeholder="Tìm theo tên thuốc..."
+          placeholder="Search by medicine name..."
           value={nameFilter}
           onChange={(e) => handleNameFilter(e.target.value)}
           className="mb-2 md:mb-0 md:w-1/2 border border-gray-300"
@@ -118,7 +119,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Không có kết quả.
+                No results found.
                 </TableCell>
               </TableRow>
             )}

@@ -71,7 +71,7 @@ export const getMedicineByName = async (name: string): Promise<string> => {
 
 export const getMedicineById = async (medicineId: string) => {
   await dbConnect();
-  const medicine = await Medicine.findById({ medicineId });
+  const medicine = await Medicine.findById(medicineId );
   if (!medicine) throw new Error(`Medicine "${medicine}" not found`);
   return medicine._id.toString();
 };
