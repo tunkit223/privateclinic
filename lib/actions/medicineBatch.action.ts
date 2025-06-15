@@ -248,3 +248,47 @@ export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
     };
   }
 }
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("vi-VN"); // "5/5/2025"
+}
+
+function getDateRange(from: Date, to: Date): string[] {
+  const dates: string[] = [];
+  const current = new Date(from);
+  while (current <= to) {
+    dates.push(formatDate(new Date(current)));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
+
+export  async function getExpenseFromDatetoDate(fromDate: Date, toDate: Date) {
+  await dbConnect();
+
+  const batches = await MedicineBatch.find({
+    status: "imported",
+    importDate: {
+      $gte: fromDate,
+      $lte: toDate,
+    },
+  }).lean();
+
+  // Gom chi phí theo ngày
+  const expenseMap = new Map<string, number>();
+  for (const batch of batches) {
+    const date = formatDate(new Date(batch.importDate));
+    const value = batch.totalValue || 0;
+    expenseMap.set(date, (expenseMap.get(date) || 0) + value);
+  }
+
+  // Đảm bảo có đủ ngày trong khoảng, kể cả khi value = 0
+  const allDates = getDateRange(fromDate, toDate);
+  const result = allDates.map((date) => ({
+    date,
+    value: expenseMap.get(date) || 0,
+    type: "expense" as const,
+  }));
+
+  return result;
+}

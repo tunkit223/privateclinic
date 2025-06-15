@@ -5,52 +5,6 @@ import { date } from "zod";
 import { getDateRanges, getFigureByModel } from "../utils";
 import Appointment from "@/database/appointment.model";
 import User from "@/database/user.model";
-import MedicineBatch from "@/database/medicineBatch";
-import dbConnect from "../mongoose";
-
-// function formatDate(date: Date): string {
-//   return date.toLocaleDateString("vi-VN"); // "5/5/2025"
-// }
-
-// function getDateRange(from: Date, to: Date): string[] {
-//   const dates: string[] = [];
-//   const current = new Date(from);
-//   while (current <= to) {
-//     dates.push(formatDate(new Date(current)));
-//     current.setDate(current.getDate() + 1);
-//   }
-//   return dates;
-// }
-
-// export async function getExpenseFromDatetoDate(fromDate: Date, toDate: Date) {
-//   await dbConnect();
-
-//   const batches = await MedicineBatch.find({
-//     status: "đã nhập",
-//     importDate: {
-//       $gte: fromDate,
-//       $lte: toDate,
-//     },
-//   }).lean();
-
-//   // Gom chi phí theo ngày
-//   const expenseMap = new Map<string, number>();
-//   for (const batch of batches) {
-//     const date = formatDate(new Date(batch.importDate));
-//     const value = batch.totalValue || 0;
-//     expenseMap.set(date, (expenseMap.get(date) || 0) + value);
-//   }
-
-//   // Đảm bảo có đủ ngày trong khoảng, kể cả khi value = 0
-//   const allDates = getDateRange(fromDate, toDate);
-//   const result = allDates.map((date) => ({
-//     date,
-//     value: expenseMap.get(date) || 0,
-//     type: "expense" as const,
-//   }));
-
-//   return result;
-// }
 
 export async function getPatientByDateRange(start: Date, end: Date) {
   // const patientGender = await getPatientList();
