@@ -320,7 +320,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                       return (
                         <Select.Option
                           style={{ fontSize: "17px" }}
-                          key={pt.patientId}
+                          key={pt.medicalReportId}
                           value={pt.patientId}
                           label={pt.name}>
                           {label}

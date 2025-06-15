@@ -196,9 +196,11 @@ function CreatePrescription() {
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => {
                     const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                    // console.log("pt", pt)
+                    // key nen la pt.medicalRp de tranh TH benh nhan do co 2 PKB
                     return (
                       <Select.Option style={{ fontSize: "17px" }}
-                        key={pt.patientId}
+                        key={pt.medicalReportId}
                         value={pt.patientId}
                         label={pt.name}>
                         {label}
