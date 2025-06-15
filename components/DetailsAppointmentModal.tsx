@@ -14,9 +14,11 @@ import { Types } from "mongoose"
 import { IAppointment } from "@/database/appointment.model"
 import DetailsAppointmentForm from "./forms/DetailsAppointmentForm"
 const DetailsAppointmentModal = ({
-  appointmentId
+  appointmentId,
+  disabled = false,
 }:{
- appointmentId:string
+ appointmentId:string,
+  disabled?: boolean
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -42,6 +44,7 @@ const DetailsAppointmentModal = ({
       <DetailsAppointmentForm
          appointmentId={appointmentId}
          onSuccess={() => setOpen(false)}
+        disabled={disabled}
       />
     </DialogContent>
   </Dialog>

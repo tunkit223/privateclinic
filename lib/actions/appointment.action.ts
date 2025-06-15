@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import MedicalReport from "@/database/medicalReport.modal";
 import User from "@/database/user.model";
 import Setting from "@/database/setting.model";
+import { startOfDay, endOfDay } from "date-fns"
 export const createAppointment = async (data: any) => {
   try {
     await dbConnect();
@@ -66,7 +67,33 @@ export const createAppointment = async (data: any) => {
     if (count >= maxPatientPerDay) {
       throw new Error("Đã đủ lịch hẹn hợp lệ trong ngày này. Vui lòng chọn ngày khác.");
     }
+    const hour = appointmentDate.getHours();
+    const isMorning = hour < 13;
 
+    // Tạo khoảng thời gian của buổi
+    const sessionStart = new Date(appointmentDate);
+    const sessionEnd = new Date(appointmentDate);
+
+    if (isMorning) {
+      sessionStart.setHours(7, 0, 0, 0);
+      sessionEnd.setHours(12, 59, 59, 999);
+    } else {
+      sessionStart.setHours(13, 0, 0, 0);
+      sessionEnd.setHours(18, 0, 0, 0); // hoặc 23, 59 nếu bạn cho phép trễ hơn
+    }
+
+    // Kiểm tra xem bệnh nhân đã đặt trong buổi này chưa
+    const existingAppointment = await Appointment.findOne({
+      patientId: patientObjectId,
+      date: { $gte: sessionStart, $lte: sessionEnd },
+      status: { $ne: "cancelled" },
+    });
+
+    if (existingAppointment) {
+      const buoi = isMorning ? "sáng" : "chiều";
+      const formattedDate = appointmentDate.toLocaleDateString("vi-VN");
+      throw new Error(`Bạn đã đặt lịch buổi ${buoi} ngày ${formattedDate} rồi.`);
+    }
     // Tạo lịch hẹn mới
     const newAppointment = await Appointment.create({
       ...data,
@@ -336,3 +363,54 @@ export const ConfirmAppointment = async ({
     return { error: error.message || "Đã xảy ra lỗi không xác định" };
   }
 };
+
+export const getAppointmentStatsByDate = async (
+  filterType: "today" | "all" | "custom",
+  selectedDate?: string
+) => {
+  let matchCondition = {}
+
+  if (filterType === "today") {
+    const today = new Date()
+    matchCondition = {
+      date: {
+        $gte: startOfDay(today),
+        $lte: endOfDay(today),
+      },
+    }
+  } else if (filterType === "custom" && selectedDate) {
+    const date = new Date(selectedDate)
+    matchCondition = {
+      date: {
+        $gte: startOfDay(date),
+        $lte: endOfDay(date),
+      },
+    }
+  }
+
+  const result = await Appointment.aggregate([
+    { $match: matchCondition },
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 },
+      },
+    },
+  ])
+
+  // Chuyển kết quả từ dạng [{_id: "confirmed", count: 3}, ...] sang object dễ dùng
+  const stats = {
+    confirmedCount: 0,
+    pendingCount: 0,
+    cancelledCount: 0,
+  }
+
+  result.forEach(item => {
+    const status = item._id?.toLowerCase()
+    if (status === "confirmed") stats.confirmedCount = item.count
+    if (status === "pending") stats.pendingCount = item.count
+    if (status === "cancelled") stats.cancelledCount = item.count
+  })
+
+  return stats
+}

@@ -8,6 +8,7 @@ import { resolve } from 'path';
 import { Flag } from 'node-appwrite';
 import HealthCard from '@/components/HealthCard'
 import Chat from '@/components/Chat';
+import AlreadyhavepatientinforModal from '@/components/AlreadyhavepatientinforModal';
 
 export default function HomePage() {
   const router = useRouter();
@@ -117,10 +118,11 @@ export default function HomePage() {
               </div>
          </div>
         
-        <div className="flex justify-center mt-8">
+        <div className="flex flex-col items-center justify-center mt-8 gap-5">
           <Button onClick={HandleClick} className="bg-blue-400 text-white px-6 py-3 rounded-lg w-96 h-16 text-2xl hover:bg-blue-300 hover:scale-105 transition duration-300" disabled={isLoading}>
             Book an Appointment
           </Button>
+          <AlreadyhavepatientinforModal/>
         </div>
       </main>
       

@@ -137,7 +137,7 @@ export const updatePatient = async (id: Types.ObjectId | string, data: any) => {
     return {
       success: true,
       message: "Patient updated successfully",
-      updatedPatient,
+      updatedPatient:JSON.parse(JSON.stringify(data))
     };
   } catch (error) {
     console.error("Error updating Patient:", error);
@@ -180,5 +180,30 @@ export const getPatientRecord = async () => {
 }
 
 
+export const checkPatientByEmail = async (email: string) => {
+  try {
+    await dbConnect()
 
+    const patient = await Patient.findOne({ email, deleted: false }).lean()
+
+    if (!patient) return null
+
+    return JSON.parse(JSON.stringify(patient));
+    
+  } catch (error) {
+    console.error('Lỗi kiểm tra bệnh nhân theo email:', error)
+    throw error
+  }
+}
+
+export const getPatientById = async (id: string) => {
+  try {
+    await dbConnect();
+    const patient = await Patient.findById(id).lean();
+    return JSON.parse(JSON.stringify(patient));
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin bệnh nhân:", error);
+    return null;
+  }
+}
 

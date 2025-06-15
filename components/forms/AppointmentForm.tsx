@@ -115,7 +115,7 @@ useEffect(() => {
 
     } catch (error) {
       console.log(error);
-      toast.error("The date is full of appointments, please choose another date.", {
+      toast.error("The date is full or you already have an appointment.", {
           position: "top-left",
           duration: 3000,
         });
@@ -146,7 +146,7 @@ useEffect(() => {
                   position: "top-left",
                   duration: 3000,
                 });
-         router.refresh();
+          window.location.reload()
         }
         else{
           toast.error("Cannot cancel(appointment had been finished or cancelled).", {

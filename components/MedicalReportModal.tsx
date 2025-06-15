@@ -18,9 +18,11 @@ import Image from "next/image"
 const MedicalReportModal = ({
   appointmentId,
   meidcalReportId,
+  disabled = false
 }:{
   appointmentId: string,
-  meidcalReportId: string
+  meidcalReportId: string,
+  disabled?: boolean
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -45,6 +47,7 @@ const MedicalReportModal = ({
      <MedicalReportForm
         appointmentId={appointmentId}
         medicalReportIds={meidcalReportId}
+        disabled={disabled}
      />
     </DialogContent>
   </Dialog>

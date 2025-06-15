@@ -6,12 +6,13 @@ import Image from 'next/image'
 interface ButtonProps{
   isLoading: boolean,
   className?: string,
+  disabled?: boolean,
   children: React.ReactNode,
 }
 
-const SubmitButton = ({isLoading, className, children}:ButtonProps) => {
+const SubmitButton = ({isLoading, disabled = false, className, children}:ButtonProps) => {
   return (
-    <Button type='submit' disabled={isLoading} className={className ?? 
+    <Button type='submit' disabled={isLoading|| disabled} className={className ?? 
     'shad-primary-btn w-full text-1xl pt-2' } >
         {isLoading?(
           <div className='flex items-center gap-4'>

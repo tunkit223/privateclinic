@@ -17,6 +17,10 @@ export const LoginFormValidation = z.object({
   email: z.string().email("Invalid email address."),
 })
 export const UserFormValidation = z.object({
+  password: z.string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(50, "Password must be at most 50 characters."),
+  email: z.string().email("Invalid email address."),
   name: z.string()
     .min(1, "Name must be at least 1 characters.")
     .max(50, "Name must be at most 50 characters."),

@@ -7,7 +7,7 @@ import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
-import {  AccountFormValidation, UserFormValidation } from "@/lib/validation"
+import { UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { FormFieldType } from "./PatientForm"
 import { Role } from "@/constants"
@@ -17,16 +17,12 @@ import toast from "react-hot-toast";
 const CreateEmployeeForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
-  const form1 = useForm<z.infer<typeof AccountFormValidation>>({
-    resolver: zodResolver(AccountFormValidation),
-    defaultValues: {
-      email: "",
-      password:""
-    },
-  })
-  const form2 = useForm<z.infer<typeof UserFormValidation>>({
+ 
+  const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
+      email: "",
+      password: "",
       name: "",
       username:"",
       phone:"",
@@ -36,13 +32,16 @@ const CreateEmployeeForm = () => {
   })
  
 
-  const [accountId, setAccountId] = useState<string | null>(null); // State lưu _id
+  const [accountId, setAccountId] = useState<string | null>(null); 
 
-async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
-  setisLoading(true);
 
-  try {
-    const accountData = {
+  async function onSubmit(values: z.infer<typeof UserFormValidation>) {
+   
+
+    setisLoading(true);
+
+    try {
+      const accountData = {
       email: values.email,
       password: values.password,
     };
@@ -50,38 +49,11 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
     const newAccount = await createAccount(accountData);
 
     if (newAccount) {
-      toast.success("Create account successfully.", {
-        position: "top-left",
-        duration: 3000,
-      });
-      setAccountId(newAccount._id); // Lưu _id vào state
+      setAccountId(newAccount._id); 
     }
-  } catch (error) {
-    toast.error("Create account fail.", {
-      position: "top-left",
-      duration: 3000,
-    });
-    form1.reset()
-    setisLoading(false);
-  } finally {
-    setisLoading(false);
-  }
-}
-
-  async function onSubmit2(values: z.infer<typeof UserFormValidation>) {
-    if (!accountId) {
-      toast.error("Please create account first.", {
-        position: "top-left",
-        duration: 3000,
-      });
-      return;
-    }
-
-    setisLoading(true);
-
-    try {
+ 
     const UserData = {
-      accountId:accountId.toString(), // Lấy accountId từ state
+      accountId:accountId?.toString(), 
       name: values.name,
       username: values.username,
       role:values.role,
@@ -110,11 +82,11 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
 
 
   return (
-    <Form {...{ ...form1, ...form2 }}>
-    <form onSubmit={form1.handleSubmit(onSubmit1)} className="space-y-2 flex-1 w-full max-w-[500px]" >  
+    <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 flex-1 w-full max-w-[500px]" >  
     <CustomFormField
         fieldType = {FormFieldType.INPUT}
-        control = {form1.control}
+        control = {form.control}
         name = 'email'
         label = 'Email'
         placeholder = 'Enter email'
@@ -125,23 +97,17 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
 
       <CustomFormField
         fieldType = {FormFieldType.PASSWORD}
-        control = {form1.control}
+        control = {form.control}
         name = 'password'
         label= 'Password'
         placeholder = 'Enter password'
         iconSrc = '/assets/icons/key.png'
         iconAlt = 'password'
       />
-       
-
-      <SubmitButton isLoading={isLoading}>Create account</SubmitButton>
-    </form>
-
-    <form onSubmit={form2.handleSubmit(onSubmit2)} className="space-y-2 flex-1 w-full max-w-[500px]" >  
     <div className="flex flex-col gap-6 xl:flex-row">
       <CustomFormField
           fieldType = {FormFieldType.INPUT}
-          control = {form2.control}
+          control = {form.control}
           name = 'name'
           label = 'Name'
           placeholder = 'Enter name'
@@ -151,7 +117,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
 
         <CustomFormField
           fieldType = {FormFieldType.INPUT}
-          control = {form2.control}
+          control = {form.control}
           name = 'username'
           label = 'User name'
           placeholder = 'Enter username'
@@ -161,7 +127,7 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
       </div>
       <CustomFormField
             fieldType={FormFieldType.SELECT}
-            control={form2.control}
+            control={form.control}
             name='role'
             label='Role'
             placeholder='Select a role'
@@ -179,14 +145,14 @@ async function onSubmit1(values: z.infer<typeof AccountFormValidation>) {
           </CustomFormField>
             <CustomFormField
               fieldType = {FormFieldType.PHONE_INPUT}
-              control = {form2.control}
+              control = {form.control}
               name = 'phone'
               label = 'Phone number'
               placeholder = '(84+) 913 834 393'
             />
             <CustomFormField
                 fieldType = {FormFieldType.INPUT}
-                control = {form2.control}
+                control = {form.control}
                 name = 'address'
                 label = 'Address'
                 placeholder = 'Linh Trung ward, Thu Đuc, Ho Chi Minh city'

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 interface ImageUploaderProps {
   onUploadComplete: (url: string) => void
@@ -12,6 +13,16 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Kiểm tra loại file
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Chỉ hỗ trợ file PNG, JPG, JPEG, SVG'), {
+          position: "top-left",
+          duration: 3000,
+        }
+      return
+    }
 
     setLoading(true)
     const formData = new FormData()
@@ -37,7 +48,12 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
   return (
     <div>
-      <input type="file" onChange={handleUpload} />
+      {/* Giới hạn file có đuôi png, jpg, jpeg, svg */}
+      <input
+        type="file"
+        accept=".png,.jpg,.jpeg,.svg"
+        onChange={handleUpload}
+      />
       {loading && <p>Đang tải ảnh lên...</p>}
     </div>
   )

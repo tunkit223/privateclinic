@@ -6,10 +6,10 @@ import { z } from "zod"
 import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PatientRegisterFormValidation } from "@/lib/validation"
-import { useRouter } from "next/navigation"
-import { registerPatient } from "@/lib/actions/patient.actions"
+import { useRouter, useSearchParams } from "next/navigation"
+import { getPatientById, registerPatient, updatePatient } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Doctors, GenderOptions } from "@/constants"
@@ -18,6 +18,9 @@ import toast from "react-hot-toast"
 
 const RegisterForm = () => {
   const router = useRouter();
+   const searchParams = useSearchParams();
+  const patientId = searchParams.get("patientId");
+   const [isFetching, setIsFetching] = useState(true);
   const [isLoading, setisLoading] = useState(false);
   const form = useForm<z.infer<typeof PatientRegisterFormValidation>>({
     resolver: zodResolver(PatientRegisterFormValidation),
@@ -30,7 +33,33 @@ const RegisterForm = () => {
       address: "",
     },
   })
+   useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!patientId) return setIsFetching(false);
 
+      try {
+        const patient = await getPatientById(patientId);
+        if (patient) {
+          form.reset({
+            name: patient.name,
+            email: patient.email,
+            phone: patient.phone,
+            birthdate: new Date(patient.birthdate),
+            gender: patient.gender ?? "male",
+            address: patient.address ?? "",
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi khi fetch patient:", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [patientId, form]);
+
+  if (isFetching) return <p>Đang tải dữ liệu...</p>;
 
   async function onSubmit(values: z.infer<typeof PatientRegisterFormValidation>) {
     setisLoading(true);
@@ -44,12 +73,17 @@ const RegisterForm = () => {
         phone: cleanedPhone,
         birthdate: new Date(values.birthdate),
       };
-      // Gọi action Mongoose trực tiếp
+      if (patientId) {
+        await updatePatient(patientId, patientData)
+        toast.success("Đã cập nhật thông tin bệnh nhân.")
+        router.push(`/patient/${patientId}/appointment`)
+      } else {
       const newPatient = await registerPatient(patientData);
 
       if (newPatient) {
         router.push(`/patient/${newPatient._id}/appointment`);
       }
+    }
     } catch (error) {
       console.error('Lỗi đăng ký:', error);
       form.setError('root', {
