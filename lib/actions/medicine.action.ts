@@ -5,6 +5,7 @@ import dbConnect from "../mongoose";
 import { Types } from "mongoose";
 import { IMedicine } from "@/database/medicine";
 import Success from "@/app/patient/[patientId]/appointment/success/page";
+import { deleteOnePrescriptionDetail } from "./prescription.action";
 
 
 export const addMedicine = async (data: any) => {
@@ -29,9 +30,9 @@ export const addMedicine = async (data: any) => {
 export const getMedicinesWithType = async () => {
   await dbConnect();
   const medicines = await Medicine.find({ deleted: false })
-  .populate("medicineTypeId", "name")
-  .select("name unit amount price medicineTypeId")
-  .lean();
+    .populate("medicineTypeId", "name")
+    .select("name unit amount price medicineTypeId")
+    .lean();
 
   return medicines.map(med => ({
     ...med,
@@ -49,8 +50,8 @@ export const getMedicineList = async () => {
   try {
     await dbConnect();
     const medicines = await Medicine.find({ deleted: false })
-    .sort({ createdAt: -1 })
-    .lean();
+      .sort({ createdAt: -1 })
+      .lean();
     const data = {
       documents: medicines,
     };
@@ -106,8 +107,8 @@ export const validateMedicine = async (name: string) => {
   }
 };
 
-export const updateMedicine = async (id: Types.ObjectId | string , data:any) => {
-  try{
+export const updateMedicine = async (id: Types.ObjectId | string, data: any) => {
+  try {
     await dbConnect();
 
     if (data.deleted === true) {
@@ -116,9 +117,9 @@ export const updateMedicine = async (id: Types.ObjectId | string , data:any) => 
       data.deletedAt = null;
     }
 
-    const updateMedicine = await Medicine.findByIdAndUpdate(id , data , {new :true});
+    const updateMedicine = await Medicine.findByIdAndUpdate(id, data, { new: true });
 
-    if(!updateMedicine) {
+    if (!updateMedicine) {
       throw new Error("Medicine not found");
     }
 
@@ -152,17 +153,23 @@ export const deleteMedicine = async (id: string | Types.ObjectId) => {
     if (!deletedMedicine) {
       throw new Error("Medicine not found");
     }
+    // Removing prescription details relevant
+    const prescriptionDetailRelevant = await deleteOnePrescriptionDetail(id);
+    console.log("Prescription detail update result:", prescriptionDetailRelevant);
 
     return {
       success: true,
       message: "Medicine soft deleted successfully",
       deletedMedicine,
+      updatedPrescriptionDetails: prescriptionDetailRelevant
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting medicine:", error);
     return {
       success: false,
       message: "Error deleting medicine",
+      error: error.message,
+
     };
   }
 };

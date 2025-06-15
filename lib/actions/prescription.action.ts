@@ -14,6 +14,7 @@ import UsageMethod from "@/database/usageMethod.model";
 import Medicine from "@/database/medicine";
 import { getMedicineNameById, getMedicineUnitById } from "./medicine.action";
 import { getUsageMethodNameById } from "./usageMethod.action";
+import { Types } from "mongoose";
 
 
 
@@ -427,3 +428,70 @@ export const getPrescriptionDetailsByPrescriptionId = async (prescriptionId: str
 };
 
 
+// func delete one prescription detail when removing medicine
+export const deleteOnePrescriptionDetail = async (medicineId: string | Types.ObjectId) => {
+  try {
+    await dbConnect();
+    const medicineObjectId = Types.ObjectId.isValid(medicineId) ? new Types.ObjectId(medicineId) : medicineId;
+
+    const unPaidPrescriptions = await Prescription.find({ isPaid: false }).select("_id");
+    console.log("Unpaid prescriptions found:", unPaidPrescriptions.length, unPaidPrescriptions.map((p: any) => p._id.toString()));
+    if (!unPaidPrescriptions) {
+      return {
+        success: true,
+        message: "No unpaid prescription found",
+        updatedDetails: []
+      }
+    }
+
+    // Get list prescriptionId
+    const prescriptionIds = unPaidPrescriptions.map((prescription: any) => prescription._id);
+    console.log("Prescription IDs:", prescriptionIds.map((id: any) => id.toString()));
+
+
+    const updatedDetails = await PrescriptionDetail.updateMany(
+      {
+        medicineId: medicineObjectId,
+        prescriptionId: { $in: prescriptionIds },
+        deleted: false
+      },
+      {
+        $set: {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      },
+    )
+    console.log("Update result:", updatedDetails);
+
+    for (const prescriptionId of prescriptionIds) {
+      const remainingDetails = await PrescriptionDetail.find({
+        prescriptionId: prescriptionId,
+        deleted: false,
+      }).select("price")
+      const newTotalPrice = remainingDetails.reduce((total, detail) => {
+        return total + (detail.price || 0);
+      }, 0)
+
+      await Prescription.updateOne(
+        { _id: prescriptionId },
+        { $set: { totalPrice: newTotalPrice } }
+      )
+    }
+
+
+    return {
+      success: true,
+      message: `Updated ${updatedDetails.modifiedCount} prescription detail(s) for medicine ${medicineId}`,
+      updatedDetails: updatedDetails.modifiedCount,
+    };
+  } catch (error: any) {
+    console.error("Error deleting prescription details for medicine:", error.message);
+
+    return {
+      success: false,
+      message: "Error deleting prescription details",
+      error: error.message,
+    };
+  }
+}
