@@ -17,6 +17,7 @@ import {
   MinusCircleOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
+import { StatusInfo } from "@/components/Types/excel"
 // import ViewBillDetails from "./ViewBillDetails"
 // import DownloadBillPDF from "@/components/Button/DownloadBillPDF"
 
@@ -76,10 +77,7 @@ export const invoiceColumns = ({ onUpdated, onDeleted }: ColumnProps): ColumnDef
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      type StatusInfo = {
-        color: string;
-        icon: React.ReactNode;
-      };
+
       const status = row.original.status;
       const statusDataMap: Record<string, StatusInfo> = {
         paid: {
