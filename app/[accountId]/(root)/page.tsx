@@ -154,6 +154,11 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
+          setRevenueFigure({
+            totalToday,
+            totalYesterday,
+            percentChange,
+          });
         } else {
           console.error("Failed to get revenue:", json.error);
         }
@@ -228,7 +233,6 @@ const Dashboard = () => {
     fetchFigure();
   }, []);
 
-  // Figure revenue
 
 
 
@@ -296,7 +300,7 @@ const Dashboard = () => {
   }, [genderData, fromDate, toDate]);
 
 
-  console.log('Revenue Chart Image:', chartImages.revenue);
+  // console.log('Revenue Chart Image:', chartImages.revenue);
 
 
   const combineData = (revenueData: any[], patientData: any[]): any[] => {
@@ -499,7 +503,7 @@ const Dashboard = () => {
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#D0F2E7' colorIcon='#4EC092' icon={<LuChartNoAxesCombined />
-              } count={revenueFigure ? revenueFigure.totalToday : 0} title='Total revenue' desc={
+              } count={revenueFigure ? (revenueFigure?.totalToday) : 0} title='Total revenue' desc={
                 <>
                   {revenueFigure && revenueFigure.percentChange >= 0 ? (
                     <>
