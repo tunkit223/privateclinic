@@ -2,12 +2,12 @@
 import Medicine from "@/database/medicine";
 import MedicineType from "@/database/medicineType";
 import dbConnect from "../mongoose";
-import { Types } from "mongoose";
+import mongoose , { Types } from "mongoose";
 import { IMedicine } from "@/database/medicine";
 import Success from "@/app/patient/[patientId]/appointment/success/page";
 import { startOfDay, endOfDay } from "date-fns"
 import Invoice from "@/database/invoice.model"; import { deleteOnePrescriptionDetail } from "./prescription.action";
-
+import PrescriptionDetail from "@/database/prescriptionDetail.model";
 
 export const addMedicine = async (data: any) => {
   try {
@@ -246,3 +246,51 @@ export const getMedicineUsageReport = async (from: string, to: string) => {
   // Convert về mảng
   return Object.values(medicineMap)
 }
+
+export const decreaseMedicineAmount = async (
+  medicineId: string | Types.ObjectId,
+  quantity: number
+) => {
+  try {
+    await dbConnect();
+
+    const medicine = await Medicine.findById(medicineId);
+    if (!medicine) throw new Error("Medicine not found");
+
+    if (medicine.amount < quantity) {
+      throw new Error(`Insufficient stock for medicine "${medicine.name}": only ${medicine.amount} left, but ${quantity} required.`);
+    }
+
+    medicine.amount -= quantity;
+    await medicine.save();
+
+    return {
+      success: true,
+      message: "Số lượng thuốc đã được giảm",
+    };
+  } catch (error: any) {
+    console.error("Lỗi khi giảm thuốc:", error);
+    return {
+      success: false,
+      message: error.message || "Lỗi khi giảm số lượng thuốc",
+    };
+  }
+};
+
+export const decreaseMedicinesFromPrescription = async (
+  prescriptionId: string
+) => {
+  await dbConnect();
+
+  const details = await PrescriptionDetail.find({ prescriptionId }).lean();
+  if (!details.length)
+    throw new Error("Đơn thuốc không có chi tiết");
+
+  for (const item of details) {
+    const result = await decreaseMedicineAmount(item.medicineId, item.quantity);
+    if (!result.success) {
+      throw new Error(result.message); // NÉM lỗi từ bên trong ra
+    }
+  }
+};
+

@@ -17,7 +17,7 @@ const MedicineSchema = new Schema<IMedicine>({
   medicineTypeId: { type: Schema.Types.ObjectId, ref: "MedicineType", required: true },
   name: { type: String, require: true },
   unit: { type: String, require: true },
-  amount: { type: Number, require: true },
+  amount: { type: Number, require: true ,min:0,},
   price: { type: Number, require: true ,min: 0,},
   deleted:{
     type:Boolean,

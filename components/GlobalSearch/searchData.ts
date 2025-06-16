@@ -27,7 +27,7 @@ export const searchData = [
     },
     {
       title: "Medical Report",
-      path: "/medicinereport",
+      path: "/medicalreport",
       keywords: [
         "medical report",
         "symptom",

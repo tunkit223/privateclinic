@@ -81,6 +81,24 @@ function EditInvoicePage() {
       const invoiceId = invoiceFetch?._id.toString();
       const prescriptionId = invoiceFetch?.prescriptionId?._id?.toString();
 
+
+     // Nếu có đơn thuốc và checkbox được bật
+    if (prescriptionId && showPrescriptions) {
+      // ✅ Gọi API trừ thuốc
+      const res = await fetch("/api/invoices/decrease-medicine-stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prescriptionId }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        messageApi.error(data.error || "Không đủ thuốc trong kho");
+        return;
+      }
+    }
+
+
       console.log("invoiceId", invoiceId)
       if (!medicalReportId) {
         console.error("Medical report ID is undefined");
@@ -136,9 +154,10 @@ function EditInvoicePage() {
       });
       await fetchInvoice();
 
-    } catch (error) {
-      console.log("Failed to confirm payment invoice", error)
-    }
+     } catch (error: any) {
+        console.log("Failed to confirm payment invoice", error);
+        messageApi.error(error?.message || "Đã xảy ra lỗi khi xác nhận thanh toán");
+      }
   }
 
   return (
