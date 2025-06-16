@@ -92,7 +92,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           eveningDosage: item.eveningDosage ?? '',
           quantity: item.quantity || '',
           usage: item.usageMethodId?._id || '',
-          priceQuantity: quantity * priceMedicine
+          priceQuantity: quantity * priceMedicine || ''
 
         }
       })

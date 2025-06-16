@@ -185,7 +185,6 @@ const Dashboard = () => {
 
     fetchGenderData();
   }, [dateRangePatient]);
-  console.log("pt", genderData)
   // Fetch data available doctor
   useEffect(() => {
     const fetchAvailableDoctor = async () => {
@@ -253,7 +252,6 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
-  // console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {
@@ -298,6 +296,7 @@ const Dashboard = () => {
   }, [genderData, fromDate, toDate]);
 
 
+  console.log('Revenue Chart Image:', chartImages.revenue);
 
 
   const combineData = (revenueData: any[], patientData: any[]): any[] => {
@@ -484,7 +483,7 @@ const Dashboard = () => {
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#F5E0FE' colorIcon='#F492E2' icon={<FaUsers />
-              } count={figureData.patient?.totalToday} title='Total patient' desc={
+              } count={figureData.patient?.totalToday} title='Total new patient' desc={
                 <>
                   {figureData.patient?.percentChange >= 0 ? (
                     <>
