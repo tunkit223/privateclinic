@@ -8,7 +8,6 @@ import { sidebarLinks } from "@/constants";
 import React, { useState, useEffect, use } from 'react';
 import { Modal, Row } from 'antd';
 import { getCookieParsed } from "@/lib/utils";
-import { getUserByAccountId } from "@/lib/actions/user.action";
 
 function LayoutDefaultHeader() {
   const pathname = usePathname();
@@ -22,11 +21,8 @@ function LayoutDefaultHeader() {
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState<any>({});
   const [form] = Form.useForm();
-
-
-
 
 
   const showModal = () => {
@@ -51,17 +47,10 @@ function LayoutDefaultHeader() {
           const response = await fetch(`/api/user/${cookie._id}`);
           if (response.ok) {
             const data = await response.json();
+            if (!data) return;
             setUser(data);
-            form.setFieldsValue({
-              _id: data._id,
-              name: data.name,
-              username: data.username,
-              address: data.address,
-              phone: data.phone,
-            })
-          }
-          else {
-            console.error("Error fetching :", response.statusText);
+          } else {
+            console.error("Error fetching:", response.statusText);
           }
         } catch (error) {
           console.error("Error fetching user:", error);
@@ -69,7 +58,9 @@ function LayoutDefaultHeader() {
       }
     };
     fetchUser();
-  }, [])
+  }, []);
+  // console.log("úe", user)
+
 
 
   return (
@@ -83,38 +74,37 @@ function LayoutDefaultHeader() {
           />
         </div>
         <div className="mr-11 cursor-pointer ">
-          <Avatar style={{ backgroundColor: '#87d068' }} onClick={showModal} icon={<UserOutlined />} alt="Personal profile" />
+          <Avatar
+            style={{ backgroundColor: user.image ? "transparent" : "#87d068" }}
+            onClick={showModal} src={user.image} alt="Personal profile" />
         </div>
       </div>
       <Modal title="Personal profile" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <div className="profile">
           <div className="profile__picture flex items-center gap-10">
             <div className="profile__picture__avatar" >
-              <Image className="profile__picture__avatar--image rounded-full" width={100} height={100} src="https://img.freepik.com/vetores-premium/perfil-do-medico-com-icone-de-servico-medico_617655-48.jpg"></Image>
+              <Image className="profile__picture__avatar--image rounded-full" width={100} height={100} src={user.image || "fallback.jpg"}></Image>
             </div>
-            <div className="profile__picture__button">
-              <Button type="primary" className="profile__picture__avatar--btnChange mr-5">Change picture</Button>
-              <Button danger className="profile__picture__avatar--btnDelete">Delete picture</Button>
-            </div>
+
           </div>
           <Form layout="vertical" className="profile__form"
             form={form}
           >
 
             <Form.Item label="ID" name="_id">
-              <Input placeholder="input placeholder" disabled />
+              <div className="rounded-md border-[1px] p-2">{user.accountId || "N/A"}</div>
             </Form.Item>
             <Form.Item label="Name" name="name" >
-              <Input placeholder="input placeholder" />
+              <div className="rounded-md border-[1px] p-2">{user.name || "N/A"}</div>
             </Form.Item>
             <Form.Item label="Username" name="username" >
-              <Input placeholder="input placeholder" />
+              <div className="rounded-md border-[1px] p-2">{user.username || "N/A"}</div>
             </Form.Item>
             <Form.Item label="Address" name="address" >
-              <Input placeholder="input placeholder" />
+              <div className="rounded-md border-[1px] p-2">{user.address || "N/A"}</div>
             </Form.Item>
             <Form.Item label="Phone" name="phone" >
-              <Input placeholder="input placeholder" />
+              <div className="rounded-md border-[1px] p-2">{user.phone || "N/A"}</div>
             </Form.Item>
 
 
