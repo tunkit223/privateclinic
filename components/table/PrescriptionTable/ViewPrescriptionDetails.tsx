@@ -89,7 +89,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
           priceQuantity: quantity * priceMedicine
         }
       })
-      console.log("Formatted details set to form:", formattedDetails);
+      // console.log("Formatted details set to form:", formattedDetails);
 
       if (prescription) {
         form.setFieldsValue({

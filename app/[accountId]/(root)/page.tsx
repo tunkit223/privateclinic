@@ -154,12 +154,11 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
-              setRevenueFigure({
-                totalToday,
-                totalYesterday,
-                percentChange,
-              });
-    
+          setRevenueFigure({
+            totalToday,
+            totalYesterday,
+            percentChange,
+          });
         } else {
           console.error("Failed to get revenue:", json.error);
         }
@@ -191,7 +190,6 @@ const Dashboard = () => {
 
     fetchGenderData();
   }, [dateRangePatient]);
-  console.log("pt", genderData)
   // Fetch data available doctor
   useEffect(() => {
     const fetchAvailableDoctor = async () => {
@@ -235,7 +233,6 @@ const Dashboard = () => {
     fetchFigure();
   }, []);
 
-  // Figure revenue
 
 
 
@@ -259,7 +256,6 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
-  // console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {
@@ -304,6 +300,7 @@ const Dashboard = () => {
   }, [genderData, fromDate, toDate]);
 
 
+  // console.log('Revenue Chart Image:', chartImages.revenue);
 
 
   const combineData = (revenueData: any[], patientData: any[]): any[] => {
@@ -490,7 +487,7 @@ const Dashboard = () => {
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#F5E0FE' colorIcon='#F492E2' icon={<FaUsers />
-              } count={figureData.patient?.totalToday} title='Total patient' desc={
+              } count={figureData.patient?.totalToday} title='Total new patient' desc={
                 <>
                   {figureData.patient?.percentChange >= 0 ? (
                     <>
@@ -506,7 +503,7 @@ const Dashboard = () => {
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#D0F2E7' colorIcon='#4EC092' icon={<LuChartNoAxesCombined />
-              } count={revenueFigure ? revenueFigure.totalToday : 0} title='Total revenue' desc={
+              } count={revenueFigure ? (revenueFigure?.totalToday) : 0} title='Total revenue' desc={
                 <>
                   {revenueFigure && revenueFigure.percentChange >= 0 ? (
                     <>
