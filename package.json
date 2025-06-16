@@ -39,6 +39,7 @@
     "dayjs": "^1.11.13",
     "faiss-node": "^0.5.1",
     "formidable": "^3.5.4",
+    "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "langchain": "^0.3.27",
     "libphonenumber-js": "^1.11.17",

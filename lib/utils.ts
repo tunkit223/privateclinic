@@ -193,3 +193,20 @@ export async function addData() {
   }
   console.log("Data added successfully");
 }
+
+export function formatDate(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+export function getDateRange(from: Date, to: Date): string[] {
+  const dates: string[] = [];
+  const current = new Date(from);
+  while (current <= to) {
+    dates.push(formatDate(new Date(current)));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}

@@ -9,7 +9,7 @@ import { ExcelRow } from '@/components/Types/excel'
 import Success from "@/app/patient/[patientId]/appointment/success/page"
 import { message } from "antd"
 
-import { toPlainObject } from "@/lib/utils"
+import { formatDate, getDateRange, toPlainObject } from "@/lib/utils"
 
 // Thêm 1 lô thuốc mới
 export const addMedicineBatch = async (data: {
@@ -19,14 +19,14 @@ export const addMedicineBatch = async (data: {
   expiryDate?: string | Date | null,
   note?: string,
   status?: string,
-  totalValue?: number, 
+  totalValue?: number,
   deleted?: boolean,
-  deletedAt?: Date, 
+  deletedAt?: Date,
 }) => {
   try {
     await dbConnect()
 
-    const medicine = await Medicine.findById(data.medicineId); 
+    const medicine = await Medicine.findById(data.medicineId);
     if (!medicine) throw new Error("Thuốc không tồn tại");
 
     const price = medicine.price;
@@ -50,7 +50,7 @@ export const addMedicineBatch = async (data: {
       deleted: false,
       deletedAt: null,
     })
-  
+
 
     return {
       success: true,
@@ -60,7 +60,7 @@ export const addMedicineBatch = async (data: {
       }),
     }
   } catch (error: any) {
-  
+
     return {
       success: false,
       message: error.message || 'Đã xảy ra lỗi không xác định'
@@ -93,13 +93,13 @@ export const getMedicineBatches = async (): Promise<MedicineBatchWithExtras[]> =
     const medicine: any = batch.medicineId;
 
     return {
-     
+
       ...batch,
       _id: batch._id.toString(),
       medicineName: medicine?.name || "Không xác định",
       unit: medicine?.unit || "",
       medicineTypeName: medicine?.medicineTypeId?.name || "Không xác định",
-  
+
     };
   });
 };
@@ -146,7 +146,7 @@ export const updateMedicineBatchStatus = async (
       }),
     };
   } catch (error) {
-    
+
     return {
       success: false,
       message: "Error updating status",
@@ -176,7 +176,7 @@ export const increaseMedicineAmountFromBatchItems = async (
       message: "Tăng số lượng thành công",
     };
   } catch (error) {
-   
+
     return {
       success: false,
       message: "Tăng số lượng thất bại",
@@ -185,7 +185,7 @@ export const increaseMedicineAmountFromBatchItems = async (
 };
 export const importMedicineBatchesFromExcel = async (
   rows: ExcelRow[]
-) => { 
+) => {
   try {
     // Xử lý từng dòng
     for (const row of rows) {
@@ -197,8 +197,8 @@ export const importMedicineBatchesFromExcel = async (
 
       const price = foundMedicine.price || 0;
       const totalValue = price * row.importQuantity;
-  
-    
+
+
       await MedicineBatch.create({
         medicineId: foundMedicine._id,
         importQuantity: row.importQuantity,
@@ -209,8 +209,8 @@ export const importMedicineBatchesFromExcel = async (
         totalValue,
       })
     }
-    
-    return { 
+
+    return {
       success: true, message: 'Đã import thành công'
     }
   } catch (error) {
@@ -219,7 +219,7 @@ export const importMedicineBatchesFromExcel = async (
 }
 
 export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
-  try{
+  try {
     await dbConnect();
 
     const deletedBatch = await MedicineBatch.findByIdAndUpdate(
@@ -231,17 +231,17 @@ export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
       { new: true }
     );
 
-    if(!deletedBatch) {
+    if (!deletedBatch) {
       throw new Error("Medicine batch not found");
     }
 
     return {
       success: true,
       message: "Medicine batch soft deleted successfully",
-      
+
     };
   } catch (error) {
-    
+
     return {
       success: false,
       message: "Error deleting medicine batch",
@@ -249,21 +249,8 @@ export const deleteMedicineBatch = async (id: string | Types.ObjectId) => {
   }
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("vi-VN"); // "5/5/2025"
-}
 
-function getDateRange(from: Date, to: Date): string[] {
-  const dates: string[] = [];
-  const current = new Date(from);
-  while (current <= to) {
-    dates.push(formatDate(new Date(current)));
-    current.setDate(current.getDate() + 1);
-  }
-  return dates;
-}
-
-export  async function getExpenseFromDatetoDate(fromDate: Date, toDate: Date) {
+export async function getExpenseFromDatetoDate(fromDate: Date, toDate: Date) {
   await dbConnect();
 
   const batches = await MedicineBatch.find({

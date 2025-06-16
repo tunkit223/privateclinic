@@ -159,6 +159,7 @@ function ViewInvoicePage() {
                   <span className="text-gray-600">Due Date:</span>
                   <span className="font-medium">{dayjs(invoiceFetch?.dueDate).format("DD/MM/YYYY")}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
                   <span
@@ -175,6 +176,12 @@ function ViewInvoicePage() {
                       : ""}
                   </span>
                 </div>
+                {invoiceFetch?.status === "paid" ? (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Paid At:</span>
+                    <span className="font-medium">{dayjs(invoiceFetch?.paidAt).format("DD/MM/YYYY")}</span>
+                  </div>
+                ) : ""}
                 <div className="flex justify-between border-t pt-3 mt-2">
                   <span className="text-gray-600 font-medium">Amount Due:</span>
                   <span style={{

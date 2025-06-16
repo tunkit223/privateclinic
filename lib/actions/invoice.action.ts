@@ -2,6 +2,7 @@ import dbConnect from "../mongoose";
 import Invoice from "@/database/invoice.model";
 import { getPrescriptionDetailsById } from "./prescription.action";
 import { Session } from "inspector/promises";
+import { formatDate, getDateRange } from "../utils";
 
 export async function getInvoiceList() {
   try {
@@ -110,9 +111,15 @@ interface UpdateStatusInvoiceParams {
 export const updateStatusInvoice = async ({ invoiceId, status }: UpdateStatusInvoiceParams) => {
   try {
     await dbConnect();
+
+    const updateData = status === 'paid'
+      ? { status, paidAt: new Date() }
+      : { status };
+
+
     const invoice = Invoice.findOneAndUpdate(
       { _id: invoiceId },
-      { $set: { status } },
+      { $set: updateData },
       { new: true, runValidators: true }
     )
     if (!invoice) {
@@ -178,4 +185,39 @@ export const deleteInvoice = async (invoiceId: string) => {
   } catch (error) {
     console.log("Error delete invoice action", error)
   }
+}
+
+// Get revenue
+export async function getRevenueFromInvoice(fromDate: Date, toDate: Date) {
+  await dbConnect();
+
+  const invoices = await Invoice.find({
+    status: "paid",
+    paidAt: {
+      $gte: fromDate,
+      $lte: toDate,
+    },
+    deleted: false
+  }).lean();
+
+  // Gom chi phí theo ngày
+  const revenueMap = new Map<string, number>();
+  for (const invoice of invoices) {
+    console.log("invoice", invoice)
+    const date = formatDate(new Date(invoice.paidAt));
+    const value = invoice.totalAmount || 0;
+    revenueMap.set(date, (revenueMap.get(date) || 0) + value);
+  }
+
+
+  // Đảm bảo có đủ ngày trong khoảng, kể cả khi value = 0
+  const allDates = getDateRange(fromDate, toDate);
+  const result = allDates.map((date) => ({
+    date,
+    value: revenueMap.get(date) || 0,
+    type: "revenue" as const,
+  }));
+  console.log("Rs", result)
+
+  return result;
 }

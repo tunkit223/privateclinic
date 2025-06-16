@@ -1,70 +1,45 @@
 "use client";
-import { getExpense, getIncome, getRevenue } from '@/lib/actions/dashboard.action';
 // import { getExpense, getRevenue } from '@/lib/actions/dashboard.action';
 import { DualAxes } from '@ant-design/plots';
-import { NumberExpression } from 'mongoose';
 import React, { useEffect, useState } from 'react';
-type IncomeItem = {
-  date: string;
-  income: number;
-}
+
 type RevenueAndExpense = {
   date: string;
   value: number;
   type: string;
 }
 
-const RevenueChart = () => {
-  const [incomeData, setIncomeData] = useState<IncomeItem[]>([]);
-  const [revenueData, setRevenueData] = useState<RevenueAndExpense[]>([]);
-  const [expenseData, setExpenseData] = useState<RevenueAndExpense[]>([]);
+type RevenueChartProps = {
+  fromDate: Date;
+  toDate: Date;
+  revenueData: RevenueAndExpense[];
+  expenseData: RevenueAndExpense[];
+};
 
-  // Fetch Revenue Data
-  useEffect(() => {
-    const fetchRevenue = async () => {
-      const response = await getRevenue();
-      if (response) {
-        setRevenueData(response);
-      }
-    };
-    fetchRevenue();
-  }, [])
+const RevenueChart = ({ fromDate, toDate, revenueData, expenseData }: RevenueChartProps) => {
 
-  // Fetch Expense Data
-  useEffect(() => {
-    const fetchExpense = async () => {
-      const response = await getExpense();
-      if (response) {
-        setExpenseData(response);
-      }
-    };
-    fetchExpense();
-  }, [])
 
-  // Fetch Income Data
-  useEffect(() => {
-    const fetchIncome = async () => {
-      const response = await getIncome();
-      if (response) {
-        setIncomeData(response);
-      }
+
+
+  // console.log("rev", revenueData)
+
+
+  // Income Data
+  const incomeData = revenueData.map(rev => {
+    const exp = expenseData.find((e) => e.date === rev.date);
+    return {
+      date: rev.date,
+      income: rev.value - (exp?.value || 0),
     };
-    fetchIncome();
-  }, [])
+  })
 
   const revenueExpensesData = [
     ...revenueData,
     ...expenseData
   ]
 
-  // console.log(revenueExpensesData);
-
-
-  // console.log(uvBillData);
-
-
   const config = {
-    // height: 600,
+    height: 800,
     xField: 'date',
     legend: {
       color: {
@@ -75,7 +50,7 @@ const RevenueChart = () => {
     scale: { color: { range: ['#5B8FF9', '#5D7092', '#5AD8A6'] } },
     slider: {
       x: {
-        values: [0.1, 0.5],
+        values: [0.1, 3],
       },
     },
     children: [
@@ -86,7 +61,7 @@ const RevenueChart = () => {
         colorField: 'type',
         group: true,
         style: { maxWidth: 50 },
-        label: { position: 'inside' },
+        label: { position: 'top' },
         interaction: { elementHighlight: { background: true } },
       },
       {
