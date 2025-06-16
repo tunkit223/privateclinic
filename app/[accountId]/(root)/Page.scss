@@ -70,3 +70,20 @@
   border: 1px solid #1677FF !important;
 }
 
+@media screen {
+  [data-print] {
+    display: none;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  [data-print] {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+  }
+}
