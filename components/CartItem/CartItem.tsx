@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 interface Props {
   background: string,
-  count: number
+  count: any
   title: string
   desc: React.ReactNode
   href: string

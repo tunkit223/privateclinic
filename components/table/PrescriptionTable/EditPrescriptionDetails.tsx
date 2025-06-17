@@ -231,7 +231,6 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           usageMethodId: item.usage,
           price: item.price ?? medicineSelected?.price ?? 0,
         };
-
       })
     );
     const payload = {

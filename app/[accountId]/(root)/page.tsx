@@ -154,7 +154,7 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
-              setRevenueFigure({
+          setRevenueFigure({
             totalToday,
             totalYesterday,
             percentChange,
@@ -256,7 +256,7 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
-  console.log('Revenue Chart Image:', chartImages.revenue);
+  // console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {
@@ -443,6 +443,11 @@ const Dashboard = () => {
   }
   const combinedData = combineData(revenueData, genderData);
 
+  const formatNumber = (num: number): string => {
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + 'K';
+    return num.toString();
+  };
   return (
     <>
 
@@ -504,7 +509,7 @@ const Dashboard = () => {
             </Col>
             <Col span={12} className='overview__figure__cart'>
               <CartItem background='#D0F2E7' colorIcon='#4EC092' icon={<LuChartNoAxesCombined />
-              } count={revenueFigure ? (revenueFigure?.totalToday) : 0} title='Total revenue' desc={
+              } count={revenueFigure ? formatNumber(revenueFigure.totalToday) : 0} title='Total revenue' desc={
                 <>
                   {revenueFigure && revenueFigure.percentChange >= 0 ? (
                     <>
