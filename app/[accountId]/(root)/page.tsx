@@ -154,6 +154,11 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
+              setRevenueFigure({
+            totalToday,
+            totalYesterday,
+            percentChange,
+          });
         } else {
           console.error("Failed to get revenue:", json.error);
         }

@@ -110,3 +110,17 @@ export const checkOldPassword = async (accountId: string, oldPassword: string) =
     return { success: false, message: "Error checking password" };
   }
 };
+
+export const getAllUsers = async () => {
+  try {
+    await dbConnect();
+    const users = await User.find({}, "_id name role").lean();
+    return users.map(user => ({
+      _id: user._id.toString(),
+      name: user.name,
+      role: user.role,
+    }));
+  } catch (error) {
+    throw new Error("Lỗi khi lấy danh sách người dùng");
+  }
+};
