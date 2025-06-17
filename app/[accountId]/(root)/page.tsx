@@ -455,6 +455,9 @@ const Dashboard = () => {
         <DatePicker inputReadOnly className='mr-5'
           picker='month' format={"MM-YYYY"}
           onChange={handleChangePickerReport}
+          disabledDate={(current) => {
+            return current && current >= dayjs().startOf('month');
+          }}
         />
         <Button type='primary' disabled={!chartImages.revenue || !chartImages.gender || !selectedMonth}
           icon={<DownloadOutlined />} onClick={handlePrint} >

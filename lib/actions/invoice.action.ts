@@ -182,6 +182,7 @@ export const deleteInvoice = async (invoiceId: string) => {
     if (!invoice) {
       console.log("Not found invoice to delete")
     }
+    return { success: true };
   } catch (error) {
     console.log("Error delete invoice action", error)
   }
