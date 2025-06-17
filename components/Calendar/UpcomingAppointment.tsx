@@ -43,7 +43,7 @@ const UpcomingAppointment = () => {
   useEffect(() => {
     const fetchAppointmentList = async () => {
       const response = await getRecentAppointmentList();
-      // console.log("recent app", response)
+      console.log("recent app", response)
       if (response) {
         const mappedAppointments = response.documents.map((item: Appointment) => ({
           ...item,
@@ -51,7 +51,7 @@ const UpcomingAppointment = () => {
           time: dayjs(item.date).format('h:mm A'),
           description: (
             <>
-              <div>Doctor: <span className='font-bold'>{item.doctor.name}</span></div>
+              <div>Doctor: <span className='font-bold'>{item.doctor?.name}</span></div>
               <div>Patient: <span className='font-bold'>{item.patientId?.name}</span></div>
             </>
           )

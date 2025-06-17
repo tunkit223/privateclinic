@@ -366,7 +366,8 @@ export const deletePrescription = async (prescriptionId: string) => {
     )
 
     // Remove prescription from invoice
-    if (!prescription.status) {
+    // Check if prescription is Paid => Don't remove in invoice
+    if (!prescription.isPaid) {
       await removePrescriptionFromInvoice({
         medicalReportId: prescription.medicalReportId.toString(),
         session
