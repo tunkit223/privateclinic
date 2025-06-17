@@ -81,6 +81,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       const formattedDetails = (details || []).map((item: any) => {
         const priceMedicine = item.price || 0;
         const quantity = item.quantity || 0;
+        console.log("item", item)
 
         return {
           medicineId: item.medicineId?._id || '',
