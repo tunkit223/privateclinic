@@ -20,6 +20,7 @@ import { examiningMedicalReport, ExaminedMedicalReport } from "@/lib/actions/med
 import medicalreport from "@/app/[accountId]/(root)/medicalreport/page"
 import DoctorCell from "../Doctorcell"
 import { format } from "date-fns"
+import DeleteMedicalreportModal from "../deleteMedicalreportModal"
 
 
 export const columns: ColumnDef<IMedicalReport>[] = [
@@ -199,6 +200,10 @@ export const columns: ColumnDef<IMedicalReport>[] = [
               disabled={!isExamining}
               open={modalOpen}
               onOpenChange={setModalOpen}
+            />
+            <DeleteMedicalreportModal
+              medicalreportId={row.original._id.toString()}
+              disabled={row.original.status === "examined" || row.original.status === "examining"}
             />
         </div>
       )

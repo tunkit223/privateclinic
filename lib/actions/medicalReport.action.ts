@@ -84,17 +84,24 @@ export const getMedicalReportList = async () => {
 };
 
 export const getAllMedicalReports = async () => {
-  await dbConnect();
+  try {
+    await dbConnect();
 
-  const reports = await MedicalReport.find()
-    .populate({
-      path: "appointmentId",
-      populate: {
-        path: "patientId",
-        model: "Patient",
-      },
-    });
-  return JSON.parse(JSON.stringify(reports));
+    const reports = await MedicalReport.find({ deleted: { $ne: true } })
+      .populate({
+        path: "appointmentId",
+        populate: {
+          path: "patientId",
+          model: "Patient",
+        },
+      })
+      .lean();
+
+    return JSON.parse(JSON.stringify(reports));
+  } catch (error) {
+    console.error("Error fetching medical reports:", error);
+    return [];
+  }
 };
 
 
@@ -197,3 +204,24 @@ export const getExamHistoryByPatientId = async (patientId: string) => {
     return []
   }
 }
+
+
+export const deleteMedicalReport = async (medicalReportId: string) => {
+  try {
+    await MedicalReport.findByIdAndUpdate(medicalReportId, {
+      deleted: true,
+      deletedAt: new Date(),
+    });
+
+    return {
+      success: true,
+      message: "Medical report deleted successfully.",
+    };
+  } catch (error: any) {
+    console.error("Error deleting medical report:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to delete medical report.",
+    };
+  }
+};
