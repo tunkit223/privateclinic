@@ -47,7 +47,7 @@ function Prescription() {
 
       <div className="header flex justify-between items-center">
         <Input
-          placeholder="Search by patient..."
+          placeholder="Search..."
           value={filterValue}
           onChange={(e) => setFilterValue(e.target.value)}
           className="w-full max-w-[500px] font-medium text-xl py-5 border border-dark-200 rounded-lg  focus:ring-blue-500 focus:border-blue-500 transition-all mb-3"

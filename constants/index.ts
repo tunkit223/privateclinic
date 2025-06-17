@@ -155,7 +155,7 @@ export const sidebarLinks = [
     route: '/medicalreport'
   },
   {
-    imgURL: '/assets/images/medical-report.png',
+    imgURL: '/assets/icons/prescription.png',
     label: 'Prescription',
     route: '/prescription'
   },
