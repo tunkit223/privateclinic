@@ -69,8 +69,9 @@ function CreatePrescription() {
           });
           return null;
         }
-
-        if (stock.data?.availableQuantity || 0 < item.quantity) {
+        console.log("stock", stock.data)
+        console.log("item", item.quantity)
+        if ((stock.data?.availableQuantity || 0) < item.quantity) {
           messageApi.open({
             key,
             type: 'error',

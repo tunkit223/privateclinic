@@ -209,7 +209,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           return null;
         }
 
-        if (stock.data?.availableQuantity || 0 < item.quantity) {
+        if ((stock.data?.availableQuantity || 0) < item.quantity) {
           messageApi.open({
             key,
             type: 'error',
