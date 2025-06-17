@@ -21,7 +21,7 @@ import { Button } from "../../ui/button"
 import Image from "next/image"
 import { Input } from "../../ui/input"
 import { useEffect } from "react"
-
+import { globalFilterFn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -40,10 +40,11 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn,
+    state: {
+      globalFilter
+    }
   })
-  useEffect(() => {
-    table.getColumn("patient")?.setFilterValue(globalFilter)
-  }, [globalFilter])
 
   return (
     <>

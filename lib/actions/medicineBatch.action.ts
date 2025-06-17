@@ -27,7 +27,7 @@ export const addMedicineBatch = async (data: {
     await dbConnect()
 
     const medicine = await Medicine.findById(data.medicineId);
-    if (!medicine) throw new Error("Thuốc không tồn tại");
+    if (!medicine) throw new Error("Medicine does not exist.");
 
     const price = medicine.price;
     const totalValue = price * data.importQuantity;
@@ -36,8 +36,8 @@ export const addMedicineBatch = async (data: {
     const importDate = new Date(data.importDate)
     const expiryDate = data.expiryDate ? new Date(data.expiryDate) : null
 
-    if (isNaN(importDate.getTime())) throw new Error('Ngày nhập không hợp lệ')
-    if (expiryDate && isNaN(expiryDate.getTime())) throw new Error('Hạn sử dụng không hợp lệ')
+    if (isNaN(importDate.getTime())) throw new Error('Invalid import date.')
+    if (expiryDate && isNaN(expiryDate.getTime())) throw new Error('Invalid expiry date.')
 
     const newBatch = await MedicineBatch.create({
       medicineId: new Types.ObjectId(data.medicineId),
@@ -63,7 +63,7 @@ export const addMedicineBatch = async (data: {
 
     return {
       success: false,
-      message: error.message || 'Đã xảy ra lỗi không xác định'
+      message: error.message || 'An unknown error occurred.'
     }
   }
 }
@@ -96,9 +96,9 @@ export const getMedicineBatches = async (): Promise<MedicineBatchWithExtras[]> =
 
       ...batch,
       _id: batch._id.toString(),
-      medicineName: medicine?.name || "Không xác định",
+      medicineName: medicine?.name || "Unknown",
       unit: medicine?.unit || "",
-      medicineTypeName: medicine?.medicineTypeId?.name || "Không xác định",
+      medicineTypeName: medicine?.medicineTypeId?.name || "Unknown",
 
     };
   });
@@ -163,23 +163,23 @@ export const increaseMedicineAmountFromBatchItems = async (
     await dbConnect();
 
     const batch = await MedicineBatch.findById(batchId);
-    if (!batch) throw new Error("Không tìm thấy đơn nhập thuốc");
+    if (!batch) throw new Error("Medicine batch not found.");
 
     const medicine = await Medicine.findById(batch.medicineId);
-    if (!medicine) throw new Error("Không tìm thấy thuốc");
+    if (!medicine) throw new Error("Medicine not found.");
 
     medicine.amount += batch.importQuantity;
     await medicine.save();
 
     return {
       success: true,
-      message: "Tăng số lượng thành công",
+      message: "Stock quantity increased successfully.",
     };
   } catch (error) {
 
     return {
       success: false,
-      message: "Tăng số lượng thất bại",
+      message: "Stock quantity increased successfully.",
     };
   }
 };
@@ -189,14 +189,28 @@ export const importMedicineBatchesFromExcel = async (
   try {
     // Xử lý từng dòng
     for (const row of rows) {
-      if (!row.medicineName || !row.importQuantity) continue
-
-      // Tìm thuốc theo tên (cần import model Medicine)
+      if (!row.medicineName) {
+        throw new Error("❌ Missing medicine name in one of the rows.");
+      }
+      
+      if (!row.importQuantity) {
+        throw new Error(`❌ Missing import quantity for medicine “${row.medicineName}”.`);
+      }
+      
+      // Find medicine by name
       const foundMedicine = await Medicine.findOne({ name: row.medicineName });
-      if (!foundMedicine) continue;
+      if (!foundMedicine) {
+        throw new Error(`❌ Medicine “${row.medicineName}” not found in the system.`);
+      }
+      
+      if (foundMedicine.deleted /* or foundMedicine.isDeleted */) {
+        throw new Error(
+          `❌ Cannot import: Medicine “${row.medicineName}” has been deleted from the system.`
+        );
+      }
 
       const price = foundMedicine.price || 0;
-      const totalValue = price * row.importQuantity;
+      const totalValue = price * row.importQuantity * 0.8;
 
 
       await MedicineBatch.create({
@@ -211,10 +225,14 @@ export const importMedicineBatchesFromExcel = async (
     }
 
     return {
-      success: true, message: 'Đã import thành công'
+      success: true, message: 'Import successful!'
     }
   } catch (error) {
-    return { success: false, message: 'Đã xảy ra lỗi khi import' }
+    const err = error as Error;
+    return {
+      success: false,
+      message: `❌ Failed to import: ${err.message || "Unknown error occurred."}`,
+    };
   }
 }
 

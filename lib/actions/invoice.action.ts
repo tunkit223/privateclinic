@@ -50,7 +50,7 @@ export const updateInvoiceWithPrescription = async ({
   session: any,
 }) => {
 
-  console.log("prescription data", prescription)
+  // console.log("prescription data", prescription)
 
   // Get prescription details for invoice
   const prescriptionDetails = await getPrescriptionDetailsById(prescription._id.toString(), session);

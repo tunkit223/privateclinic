@@ -4,7 +4,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, InputNumber, message, Row, Space, Tag, Typography } from 'antd';
 import { Select, Tooltip } from 'antd';
 import { useRouter } from 'next/navigation';
-import { getMedicineList } from '@/lib/actions/medicine.action';
+import { checkMedicineStock, getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
 import { getPatientExaminedList, createPrescription } from "@/lib/actions/prescription.action";
 import { getEmployeesList } from '@/lib/actions/employees.action';
@@ -49,29 +49,64 @@ function CreatePrescription() {
       .catch(err => console.error("Error fetching initial data", err))
   }, [])
 
-  console.log(patientExaminedList);
+  // console.log(patientExaminedList);
   const onFinish = async (values: any) => {
     // console.log("values", values)
+
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
-    const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
-      const medicineSelected = medicineList.find(med => med._id === item.medicineId);
-      return {
-        medicineId: medicineSelected?._id,
-        quantity: item.quantity,
-        duration: item.duration,
-        morningDosage: item.morningDosage,
-        afternoonDosage: item.afternoonDosage,
-        noonDosage: item.noonDosage,
-        eveningDosage: item.eveningDosage,
-        usageMethodId: item.usage,
-        price: medicineSelected?.price || 0
-      }
-    })
+
+    const prescriptionDetails = await Promise.all(
+      values.prescriptionDetails.map(async (item: any) => {
+        const medicineSelected = medicineList.find(med => med._id === item.medicineId);
+
+        const stock = await checkMedicineStock(item.medicineId);
+        if (!stock.success) {
+          messageApi.open({
+            key,
+            type: 'error',
+            content: stock.message || `Cannot check medicine stock ${medicineSelected?.name || item.medicineId}`,
+            duration: 3,
+          });
+          return null;
+        }
+        console.log("stock", stock.data)
+        console.log("item", item.quantity)
+        if ((stock.data?.availableQuantity || 0) < item.quantity) {
+          messageApi.open({
+            key,
+            type: 'error',
+            content: `Medicine ${name} not enough in inventory. Request: ${item.quantity}, Stock: ${stock.data?.availableQuantity}`,
+            duration: 3,
+          });
+          return null;
+        }
+
+        return {
+          medicineId: medicineSelected?._id,
+          quantity: item.quantity,
+          duration: item.duration,
+          morningDosage: item.morningDosage,
+          afternoonDosage: item.afternoonDosage,
+          noonDosage: item.noonDosage,
+          eveningDosage: item.eveningDosage,
+          usageMethodId: item.usage,
+          price: medicineSelected?.price || 0,
+        };
+
+      })
+    );
+
+    // Check if null -> cancel create prescription
+    const filterNotNull = prescriptionDetails.filter(detail => detail !== null);
+    if (filterNotNull.length !== values.prescriptionDetails.length) {
+      return;
+    }
+
     const payload: Create_EditPrescriptionPayload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
       details: prescriptionDetails,
-    }
+    };
     console.log("Payload to create prescription:", payload);
     try {
       messageApi.open({
@@ -195,7 +230,7 @@ function CreatePrescription() {
                   }
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => {
-                    const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                    const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY - hh:mm A")}`;
                     // console.log("pt", pt)
                     // key nen la pt.medicalRp de tranh TH benh nhan do co 2 PKB
                     return (
@@ -379,9 +414,6 @@ function CreatePrescription() {
                           size='large' style={{ width: 100 }} placeholder="Quantity" min={1} />
                       </Form.Item>
 
-                      {/* <Form.Item >
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Form.Item> */}
                       <div>
                         <MinusCircleOutlined
                           style={{ fontSize: 20, color: '#ff4d4f', marginBottom: 18, cursor: 'pointer' }}

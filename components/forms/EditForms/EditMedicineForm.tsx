@@ -26,7 +26,6 @@ export default function EditMedicineForm({
     name: string
     unit: string
     medicineTypeId: string
-    amount: string
     price: string
   },
   onSave: Function,
@@ -38,7 +37,6 @@ export default function EditMedicineForm({
       name: initialData.name,
       medicineTypeId: initialData.medicineTypeId,
       unit: initialData.unit,
-      amount: initialData.amount.toString(),
       price: initialData.price.toString(),
     },
   })
@@ -108,18 +106,6 @@ export default function EditMedicineForm({
         <option value="Jar">Jar</option>
         <option value="Pill">Pill</option>
       </select>
-    </div>
-
-    {/* Amount */}
-    <div className="mb-4">
-      <label className="block font-medium mb-1" htmlFor="amount">Amount</label>
-      <input
-        id="amount"
-        type="number"
-        {...form.register("amount")}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring"
-        placeholder="Enter amount"
-      />
     </div>
 
     {/* Price */}
