@@ -210,3 +210,18 @@ export function getDateRange(from: Date, to: Date): string[] {
   }
   return dates;
 }
+
+
+export function globalFilterFn<TData>(row: any, columnId: string, filterValue: string) {
+  const valuesToSearch = [
+    row.original?.code, // ID
+    row.original?.medicalReportId?.appointmentId?.patientId?.name,
+    row.original?.prescribeByDoctor?.name,
+    row.original?.totalPrice?.toString(),
+    row.original?.isPaid ? "Paid" : "Unpaid"
+  ];
+
+  return valuesToSearch.some((value) =>
+    value?.toString().toLowerCase().includes(filterValue.toLowerCase())
+  );
+}

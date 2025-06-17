@@ -34,8 +34,6 @@ interface DataTitleViewPrescription {
 }
 const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProps) => {
 
-
-
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [dataTitlePrescription, setDataTitlePrescription] = useState<DataTitleViewPrescription | null>(null);
@@ -132,7 +130,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
         title={
           dataTitlePrescription ? (
             <>
-              <div className="text-xl mb-2">Prescription detail - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "success" : "warning"}>{dataTitlePrescription?.code}</Tag></div>
+              <div className="text-xl mb-2">Prescription detail - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "success" : "blue"}>{dataTitlePrescription?.code}</Tag></div>
               <div>
                 {dataTitlePrescription?.isPaid ? <Tag style={{
                   width: 100,
@@ -149,7 +147,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
                   fontSize: 17,
                   paddingTop: 5,
                   paddingBottom: 5
-                }} icon={<ExclamationCircleOutlined />} color="warning">
+                }} icon={<ExclamationCircleOutlined />} color="blue">
                   Unpaid
                 </Tag>}
               </div></>

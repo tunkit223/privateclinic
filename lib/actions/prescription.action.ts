@@ -366,10 +366,12 @@ export const deletePrescription = async (prescriptionId: string) => {
     )
 
     // Remove prescription from invoice
-    await removePrescriptionFromInvoice({
-      medicalReportId: prescription.medicalReportId.toString(),
-      session
-    })
+    if (!prescription.status) {
+      await removePrescriptionFromInvoice({
+        medicalReportId: prescription.medicalReportId.toString(),
+        session
+      })
+    }
 
 
     await session.commitTransaction();

@@ -135,6 +135,9 @@ function EditInvoicePage() {
         duration: 2
       });
       await fetchInvoice();
+      setTimeout(() => {
+        router.back();
+      }, 1500);
 
     } catch (error) {
       console.log("Failed to confirm payment invoice", error)

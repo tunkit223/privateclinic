@@ -195,7 +195,7 @@ function CreatePrescription() {
                   }
                   }>
                   {patientExaminedList && patientExaminedList.map((pt) => {
-                    const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                    const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY - hh:mm A")}`;
                     // console.log("pt", pt)
                     // key nen la pt.medicalRp de tranh TH benh nhan do co 2 PKB
                     return (
@@ -379,9 +379,6 @@ function CreatePrescription() {
                           size='large' style={{ width: 100 }} placeholder="Quantity" min={1} />
                       </Form.Item>
 
-                      {/* <Form.Item >
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Form.Item> */}
                       <div>
                         <MinusCircleOutlined
                           style={{ fontSize: 20, color: '#ff4d4f', marginBottom: 18, cursor: 'pointer' }}

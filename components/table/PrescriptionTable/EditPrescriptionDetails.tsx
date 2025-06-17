@@ -257,7 +257,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
         title={
           dataTitlePrescription ? (
             <>
-              <div className="text-xl mb-2">Edit prescription - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "green" : "warning"}>{dataTitlePrescription?.code}</Tag></div>
+              <div className="text-xl mb-2">Edit prescription - <Tag style={{ fontSize: 18, paddingBottom: 1 }} color={dataTitlePrescription?.isPaid ? "green" : "blue"}>{dataTitlePrescription?.code}</Tag></div>
               <div>
                 {dataTitlePrescription?.isPaid ? <Tag style={{
                   width: 100,
@@ -274,7 +274,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                   fontSize: 17,
                   paddingTop: 5,
                   paddingBottom: 5
-                }} icon={<ExclamationCircleOutlined />} color="warning">
+                }} icon={<ExclamationCircleOutlined />} color="blue">
                   Unpaid
                 </Tag>}
               </div></>
@@ -323,7 +323,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                     }
                     }>
                     {patientExaminedList && patientExaminedList.map((pt) => {
-                      const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY")}`;
+                      const label = `${pt.name} - ${dayjs(pt.dateAppointment).format("DD/MM/YYYY - hh:mm A")}`;
                       // console.log("pt", pt)
                       return (
                         <Select.Option
