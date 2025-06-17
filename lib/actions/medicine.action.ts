@@ -178,15 +178,6 @@ export const checkMedicineInUnpaidPrescriptions = async (
 export const deleteMedicine = async (id: string | Types.ObjectId) => {
   try {
     await dbConnect();
-    const check = await checkMedicineInUnpaidPrescriptions(id);
-    if (check.inUse) {
-      return {
-        success: false,
-        message:
-          "Cannot delete this medicine because it is used in unpaid prescriptions.",
-      };
-    }
-
 
     const deletedMedicine = await Medicine.findByIdAndUpdate(
       id,
