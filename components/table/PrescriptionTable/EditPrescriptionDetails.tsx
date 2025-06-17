@@ -6,7 +6,7 @@ import { GrView } from "react-icons/gr";
 import { Modal } from "antd";
 import { Form, Input, Select, Space, InputNumber, Tag, Alert, } from "antd";
 import { getEmployeesList, getName } from '@/lib/actions/employees.action';
-import { getMedicineById, getMedicineList } from '@/lib/actions/medicine.action';
+import { checkMedicineStock, getMedicineById, getMedicineList } from '@/lib/actions/medicine.action';
 import type { DefaultOptionType } from 'antd/es/select';
 import { IMedicine } from "@/lib/interfaces/medicine.interface";
 import { PatientExamined } from "@/lib/interfaces/patientExamined.interface";
@@ -192,29 +192,59 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
 
   // On finish form
   const onFinish = async (values: any) => {
-    // console.log("values", values)
     const selectedPatient = patientExaminedList.find(pt => pt.patientId === values.patientId);
-    // console.log("patient", selectedPatient)
-    // console.log(values)
-    const prescriptionDetails = values.prescriptionDetails.map((item: any) => {
-      const medicineSelected = medicineList.find(med => med._id === item.medicineId);
-      return {
-        medicineId: medicineSelected?._id,
-        quantity: item.quantity,
-        usageMethodId: item.usage,
-        duration: item.duration || '',
-        morningDosage: item.morningDosage ?? '',
-        noonDosage: item.noonDosage ?? '',
-        afternoonDosage: item.afternoonDosage ?? '',
-        eveningDosage: item.eveningDosage ?? '',
-        price: medicineSelected?.price || 0
-      }
-    })
+
+    const prescriptionDetails = await Promise.all(
+      values.prescriptionDetails.map(async (item: any) => {
+        const medicineSelected = medicineList.find(med => med._id === item.medicineId);
+
+        const stock = await checkMedicineStock(item.medicineId);
+        if (!stock.success) {
+          messageApi.open({
+            key,
+            type: 'error',
+            content: stock.message || `Cannot check medicine stock ${medicineSelected?.name || item.medicineId}`,
+            duration: 3,
+          });
+          return null;
+        }
+
+        if (stock.data?.availableQuantity || 0 < item.quantity) {
+          messageApi.open({
+            key,
+            type: 'error',
+            content: `Medicine ${name} not enough in inventory. Request: ${item.quantity}, Stock: ${stock.data?.availableQuantity}`,
+            duration: 3,
+          });
+          return null;
+        }
+
+        return {
+          medicineId: medicineSelected?._id,
+          quantity: item.quantity,
+          duration: item.duration,
+          morningDosage: item.morningDosage,
+          afternoonDosage: item.afternoonDosage,
+          noonDosage: item.noonDosage,
+          eveningDosage: item.eveningDosage,
+          usageMethodId: item.usage,
+          price: medicineSelected?.price || 0,
+        };
+
+      })
+    );
     const payload = {
       medicalReportId: selectedPatient?.medicalReportId || '',
       prescribeByDoctor: values.doctor,
       details: prescriptionDetails,
     }
+
+    // Check if null -> cancel create prescription
+    const filterNotNull = prescriptionDetails.filter(detail => detail !== null);
+    if (filterNotNull.length !== values.prescriptionDetails.length) {
+      return;
+    }
+
     // console.log("payload", payload);
     try {
       messageApi.open({

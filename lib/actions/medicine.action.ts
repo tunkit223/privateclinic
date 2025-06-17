@@ -246,3 +246,39 @@ export const getMedicineUsageReport = async (from: string, to: string) => {
   // Convert về mảng
   return Object.values(medicineMap)
 }
+export const checkMedicineStock = async (medicineId: string) => {
+  try {
+    await dbConnect();
+
+    // Tìm thuốc trong cơ sở dữ liệu dựa trên medicineId và ép kiểu về IMedicine
+    const medicine = await Medicine.findById(medicineId)
+      .select('name amount unit')
+      .lean() as IMedicine | null;
+
+    if (!medicine) {
+      throw new Error(`Medicine with ID "${medicineId}" not found`);
+    }
+
+    // Kiểm tra nếu thuốc đã bị xóa mềm (soft delete)
+    if (medicine.deleted) {
+      throw new Error(`Medicine "${medicine.name}" is marked as deleted`);
+    }
+
+    // Trả về thông tin tồn kho
+    return {
+      success: true,
+      data: {
+        medicineId: medicineId,
+        name: medicine.name,
+        unit: medicine.unit,
+        availableQuantity: medicine.amount,
+      },
+    };
+  } catch (error: any) {
+    console.error("Error checking medicine stock:", error);
+    return {
+      success: false,
+      message: error.message || "Error checking medicine stock",
+    };
+  }
+};
