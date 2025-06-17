@@ -20,6 +20,7 @@ import { examiningMedicalReport, ExaminedMedicalReport } from "@/lib/actions/med
 import medicalreport from "@/app/[accountId]/(root)/medicalreport/page"
 import DoctorCell from "../Doctorcell"
 import { format } from "date-fns"
+import DeleteMedicalreportModal from "../deleteMedicalreportModal"
 
 
 export const columns: ColumnDef<IMedicalReport>[] = [
@@ -28,13 +29,17 @@ export const columns: ColumnDef<IMedicalReport>[] = [
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>
   },
   {
-    accessorKey: "patient",
-    header: "Patient",
-    cell: ({ row }) => {
-      const patient = row.original.appointmentId?.patientId;
-      const name = typeof patient === "object" ? patient?.name : "Unknown";
-      return <p className="text-14-medium">{name}</p>;
-    },
+  accessorKey: "patient",
+  accessorFn: (row) =>
+    typeof row.appointmentId?.patientId === "object"
+      ? row.appointmentId.patientId.name
+      : "",
+  header: "Patient",
+  cell: ({ row }) => {
+    const patient = row.original.appointmentId?.patientId;
+    const name = typeof patient === "object" ? patient?.name : "Unknown";
+    return <p className="text-14-medium">{name}</p>;
+  },
   },
   {
     accessorKey: "status",
@@ -195,6 +200,10 @@ export const columns: ColumnDef<IMedicalReport>[] = [
               disabled={!isExamining}
               open={modalOpen}
               onOpenChange={setModalOpen}
+            />
+            <DeleteMedicalreportModal
+              medicalreportId={row.original._id.toString()}
+              disabled={row.original.status === "examined" || row.original.status === "examining"}
             />
         </div>
       )

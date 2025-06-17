@@ -8,6 +8,7 @@ import Success from "@/app/patient/[patientId]/appointment/success/page";
 import { startOfDay, endOfDay } from "date-fns"
 import Invoice from "@/database/invoice.model"; import { deleteOnePrescriptionDetail } from "./prescription.action";
 import PrescriptionDetail from "@/database/prescriptionDetail.model";
+import Prescription from "@/database/prescription.model";
 
 export const addMedicine = async (data: any) => {
   try {
@@ -46,7 +47,7 @@ export const getMedicinesWithType = async () => {
 
 export const getMedicineTypes = async () => {
   await dbConnect();
-  const medicineTypes = await MedicineType.find({}).select('_id name').lean();
+  const medicineTypes = await MedicineType.find({deleted: false}).select('_id name').lean();
   return medicineTypes;
 };
 
@@ -142,6 +143,37 @@ export const updateMedicine = async (id: Types.ObjectId | string, data: any) => 
     };
   }
 };
+
+// Kiểm tra xem thuốc có đang được sử dụng trong đơn thuốc chưa
+export const checkMedicineInUnpaidPrescriptions = async (
+  medicineId: string | Types.ObjectId
+): Promise<{ inUse: boolean; 
+  prescriptionId?: string;
+  prescriptionCode?: string;  
+ }> => {
+  const id = Types.ObjectId.isValid(medicineId)
+    ? new Types.ObjectId(medicineId)
+    : medicineId;
+
+  const detail = await PrescriptionDetail.findOne({
+    medicineId: id,
+    deleted: false,
+  }).populate({
+    path: "prescriptionId",
+    match: { isPaid: false, deleted: { $ne: true } },
+    select: "_id code",
+  });
+
+  const unpaidPrescription = detail?.prescriptionId;
+
+  return {
+    inUse: !!unpaidPrescription,
+    prescriptionId: unpaidPrescription?._id?.toString(),
+    prescriptionCode: detail?.prescriptionId?.code,
+  };
+};
+
+
 
 export const deleteMedicine = async (id: string | Types.ObjectId) => {
   try {

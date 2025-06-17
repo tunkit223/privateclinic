@@ -41,6 +41,8 @@ export interface IMedicalReport {
   diseaseType?: string,
   symptom?: string,
   status: MedicalStatus,
+  deleted?: boolean,
+  deletedAt?: Date
 }
 
 
@@ -50,7 +52,8 @@ const MedicalReportSchema = new Schema<IMedicalReport>({
   diseaseType: { type: String },
   symptom: { type: String },
   status: { type: String, required: true },
-
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
 },
   { timestamps: true }
 );

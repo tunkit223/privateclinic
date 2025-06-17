@@ -6,18 +6,30 @@ import { deleteMedicineType } from "@/lib/actions/medicineType.action"
 import { useRouter } from "next/navigation"
 import { Trash2, FilePen } from "lucide-react"
 import { Button } from "../ui/button"
-import { useState } from "react"
+import { useState , useEffect } from "react"
 import EditMedicineTypeModal from "@/components/Modal/EditMedicineTypeModal" // đảm bảo tên 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "../ui/dialog"
 import { toast } from "react-hot-toast"
-
+import { checkMedicineTypeInUse } from "@/lib/actions/medicineType.action"
 export interface ConfirmButtonProps {
   medicineTypeId: string;
 }
 
 export function ConfirmDeleteButton({ medicineTypeId }: ConfirmButtonProps) {
   const [open, setOpen] = useState(false);
+  const [inUseInfo, setInUseInfo] = useState<{
+    inUse: boolean;
+    sampleMedicineName?: string;
+  }>({ inUse: false });
   const router = useRouter();
+
+  useEffect(() => {
+    if (open) {
+      checkMedicineTypeInUse(medicineTypeId).then((res) => {
+        setInUseInfo(res);
+      });
+    }
+  }, [open, medicineTypeId]);
 
   const handleDelete = async () => {
     const res = await deleteMedicineType(medicineTypeId);
@@ -52,7 +64,11 @@ export function ConfirmDeleteButton({ medicineTypeId }: ConfirmButtonProps) {
             Are you sure you want to delete this medicine type?
             </DialogDescription>
           </DialogHeader>
-
+          {inUseInfo.inUse && (
+          <div className="text-sm text-red-600 text-center font-semibold">
+            ⚠️ This type is currently in use by medicine "{inUseInfo.sampleMedicineName}"
+          </div>
+        )}
         <DialogFooter className="sm:justify-center gap-4">
           <Button className="bg-blue-300 hover:bg-blue-400"  variant="destructive" onClick={handleDelete}>
             Yes, delete

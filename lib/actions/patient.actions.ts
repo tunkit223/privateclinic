@@ -207,3 +207,12 @@ export const getPatientById = async (id: string) => {
   }
 }
 
+
+export async function getAllPatients() {
+  await dbConnect();
+  const patients = await Patient.find()
+    .sort({ createdAt: -1 })
+    .select("name _id")
+    .lean();
+  return JSON.parse(JSON.stringify(patients));
+}

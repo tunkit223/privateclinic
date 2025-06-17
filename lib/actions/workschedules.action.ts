@@ -4,9 +4,10 @@ import User from "@/database/user.model"; // model User đã có role: "doctor"
 import WorkSchedules from "@/database/workschedules";
 import mongoose from "mongoose";
 import dbConnect from "../mongoose";
+import Appointment from "@/database/appointment.model";
 
 export async function getAvailableDoctors(date: Date, shift: "Morning" | "Afternoon") {
-  const targetDate = new Date(date.toDateString()); // bỏ giờ, chỉ so sánh ngày
+  const targetDate = new Date(date.toDateString()) // reset giờ về 00:00:00
 
   const schedules = await WorkSchedules.find({
     date: {
@@ -17,11 +18,10 @@ export async function getAvailableDoctors(date: Date, shift: "Morning" | "Aftern
   })
     .populate({
       path: "doctor",
-      match: { role: "doctor" },
+      match: { role: "doctor", deleted: false }, 
       select: "_id name image",
     })
-    .lean();
-
+    .lean()
 
   return schedules
     .map(s => s.doctor)
@@ -30,11 +30,36 @@ export async function getAvailableDoctors(date: Date, shift: "Morning" | "Aftern
       name: d.name,
       image: d.image,
       workShift: shift.toLowerCase(),
-      _id: d._id.toString()
-    }));
-
+      _id: d._id.toString(),
+    }))
 }
+export async function getAvailableDoctorsdeleted(date: Date, shift: "Morning" | "Afternoon") {
+  const targetDate = new Date(date.toDateString()) // reset giờ về 00:00:00
 
+  const schedules = await WorkSchedules.find({
+    date: {
+      $gte: targetDate,
+      $lt: new Date(targetDate.getTime() + 24 * 60 * 60 * 1000),
+    },
+    shift: shift,
+  })
+    .populate({
+      path: "doctor",
+      match: { role: "doctor" }, 
+      select: "_id name image",
+    })
+    .lean()
+
+  return schedules
+    .map(s => s.doctor)
+    .filter(d => d !== null && d !== undefined)
+    .map(d => ({
+      name: d.name,
+      image: d.image,
+      workShift: shift.toLowerCase(),
+      _id: d._id.toString(),
+    }))
+}
 
 export async function getDoctorInfo(doctorId: string) {
   try {
@@ -55,6 +80,10 @@ export async function getDoctorInfo(doctorId: string) {
 }
 
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+
+/*******  946eb3ec-495c-4f7d-9902-81f427643807  *******/
 export async function addSchedule({
   doctorId,
   date,
@@ -123,4 +152,19 @@ export async function getSchedules() {
         shift: schedule.shift,
       },
     }));
+}
+
+
+export async function getAppointmentsByDoctorDateShift( doctorId:string, date: Date, shift: "Morning" | "Afternoon") {
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
+
+  return await Appointment.find({
+    doctor: doctorId,
+    date: {
+      $gte: targetDate,
+      $lt: new Date(targetDate.getTime() + 24 * 60 * 60 * 1000),
+    },
+    shift,
+  });
 }

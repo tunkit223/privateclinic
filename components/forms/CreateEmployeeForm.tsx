@@ -14,6 +14,7 @@ import { Role } from "@/constants"
 import { createAccount , createUser} from "@/lib/actions/user.action"
 import { SelectItem } from "../ui/select"
 import toast from "react-hot-toast";
+import { createPermission } from "@/lib/actions/permission.action"
 const CreateEmployeeForm = () => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
@@ -53,7 +54,7 @@ const CreateEmployeeForm = () => {
     }
  
     const UserData = {
-      accountId:accountId?.toString(), 
+      accountId:newAccount._id?.toString(), 
       name: values.name,
       username: values.username,
       role:values.role,
@@ -62,7 +63,7 @@ const CreateEmployeeForm = () => {
     };
 
     const newUser = await createUser(UserData);
-
+    await createPermission(newUser._id, values.role);
     if (newUser) {
       router.refresh();
       toast.success("Create user successfully.", {

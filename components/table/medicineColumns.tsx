@@ -2,11 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { IMedicineDoc } from "@/database/medicine";
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { Button } from "../ui/button";
 import { Trash2, FilePen } from "lucide-react";
 import EditMedicineModal from "../Modal/EditMedicineModal";
-import { deleteMedicine } from "@/lib/actions/medicine.action";
+import { deleteMedicine , checkMedicineInUnpaidPrescriptions } from "@/lib/actions/medicine.action";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "react-hot-toast";
@@ -17,10 +17,25 @@ interface ConfirmButtonProps {
 
 export function ConfirmDeleteButton({ medicineId }: ConfirmButtonProps) {
   const [open, setOpen] = useState(false);
+  const [unpaidState, setUnpaidState] = useState<{ inUse: boolean; prescriptionId?: string; prescriptionCode?: string;}>({
+    inUse: false,
+    prescriptionId: undefined,
+    prescriptionCode: undefined,
+  });
   const router = useRouter();
+
+  useEffect(() => {
+    if (open) {
+      checkMedicineInUnpaidPrescriptions(medicineId).then((result) => {
+        // ✅ result là { inUse: boolean; prescriptionId?: string }
+        setUnpaidState(result);
+      });
+    }
+  }, [open, medicineId]);
 
   const handleDelete = async () => {
     const res = await deleteMedicine(medicineId);
+
     if (res.success) {
       toast.success("Deleted successfully!");
       setOpen(false);
@@ -52,6 +67,11 @@ export function ConfirmDeleteButton({ medicineId }: ConfirmButtonProps) {
             Are you sure you want to delete this medicine ?
             </DialogDescription>
           </DialogHeader>
+          {unpaidState.inUse && (
+          <div className="text-red-500 text-sm text-center font-semibold">
+            ⚠️ This medicine is part of an unpaid prescription (Code: {unpaidState.prescriptionCode})
+          </div>
+        )}
 
         <DialogFooter className="sm:justify-center gap-4">
           <Button className="bg-blue-300 hover:bg-blue-400"  variant="destructive" onClick={handleDelete}>
@@ -126,7 +146,7 @@ export const getMedicineColumns = (
     header: "Type",
     cell: ({ row }) => {
       const type = medicineTypes.find(
-        (t) => t._id === row.original.medicineTypeId?.toString()
+        (t) => t._id === row.original.medicineTypeId?.toString() 
       );
       return <p className="text-14-medium">{type?.name || "Unknown"}</p>;
     },

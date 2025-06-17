@@ -14,8 +14,6 @@ const Medicine = async () => {
 
   return (
     <div className='relative mx-auto flex max-w-4xl flex-col space-y-14'>
-      <div className='absolute right-0 -top-5'><NewMedicineModal /></div>
-      {/* Truyền data + types cho component client */}
       <MedicineTableClient data={medicine.documents} medicineTypes={parsedTypes} />
     </div>
   )

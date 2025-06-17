@@ -211,8 +211,8 @@ export const sidebarLinks = [
     ],
   },
   {
-    imgURL: '/assets/icons/trash.png',
-    label: 'Garbage',
-    route: '/garbage'
+    imgURL: '/assets/images/permissions.png',
+    label: 'Permissions',
+    route: '/permissions'
   },
 ]

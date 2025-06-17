@@ -16,11 +16,8 @@ import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
 import toast from "react-hot-toast"
 
-const RegisterForm = () => {
+const DirectlyRegisterPatientForm = () => {
   const router = useRouter();
-   const searchParams = useSearchParams();
-  const patientId = searchParams.get("patientId");
-   const [isFetching, setIsFetching] = useState(true);
   const [isLoading, setisLoading] = useState(false);
   const form = useForm<z.infer<typeof PatientRegisterFormValidation>>({
     resolver: zodResolver(PatientRegisterFormValidation),
@@ -33,34 +30,7 @@ const RegisterForm = () => {
       address: "",
     },
   })
-   useEffect(() => {
-    const fetchPatientData = async () => {
-      if (!patientId) return setIsFetching(false);
-
-      try {
-        const patient = await getPatientById(patientId);
-        if (patient) {
-          form.reset({
-            name: patient.name,
-            email: patient.email,
-            phone: patient.phone,
-            birthdate: new Date(patient.birthdate),
-            gender: patient.gender ?? "male",
-            address: patient.address ?? "",
-          });
-        }
-      } catch (err) {
-        console.error("Lỗi khi fetch patient:", err);
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    fetchPatientData();
-  }, [patientId, form]);
-
-  if (isFetching) return <p>Loading...</p>;
-
+   
   async function onSubmit(values: z.infer<typeof PatientRegisterFormValidation>) {
     setisLoading(true);
 
@@ -73,17 +43,14 @@ const RegisterForm = () => {
         phone: cleanedPhone,
         birthdate: new Date(values.birthdate),
       };
-      if (patientId) {
-        await updatePatient(patientId, patientData)
-        toast.success("Đã cập nhật thông tin bệnh nhân.")
-        router.push(`/patient/${patientId}/appointment`)
-      } else {
+      
       const newPatient = await registerPatient(patientData);
 
       if (newPatient) {
-        router.push(`/patient/${newPatient._id}/appointment`);
+        toast.success('Successfully registered patient');
+        router.refresh()
       }
-    }
+    
     } catch (error) {
       console.error('Lỗi đăng ký:', error);
       form.setError('root', {
@@ -98,10 +65,7 @@ const RegisterForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
-        <section className="space-y-4">
-          <h1 className="header">Welcome👋</h1>
-          <p className="text-dark-400">Let us know more about yourself.</p>
-        </section>
+        
 
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
@@ -181,10 +145,10 @@ const RegisterForm = () => {
             placeholder='Linh Trung ward, Thu Đuc, Ho Chi Minh city'
           />
         </div>
-        <SubmitButton isLoading={isLoading}>Submit</SubmitButton>
+        <SubmitButton isLoading={isLoading}>Create</SubmitButton>
       </form>
     </Form>
   )
 }
 
-export default RegisterForm
+export default DirectlyRegisterPatientForm
