@@ -266,7 +266,7 @@ function CreatePrescription() {
                   }
                   }>
                   {doctorList && doctorList
-                    .filter((dt: IDoctor) => !dt.deleted)
+                    .filter((dt: IDoctor) => !dt.deleted && dt.role === "doctor")
                     .map(dt => (
                       <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
                         {dt.name}

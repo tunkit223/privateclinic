@@ -389,7 +389,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
                       return false;
                     }
                     }>
-                    {doctorList && doctorList.filter((dt: IDoctor) => !dt.deleted).map(dt => (
+                    {doctorList && doctorList.filter((dt: IDoctor) => !dt.deleted && dt.role === "doctor").map(dt => (
                       <Select.Option style={{ fontSize: "17px" }} key={dt._id} value={dt._id}>
                         {dt.name}
                       </Select.Option>
