@@ -3,6 +3,8 @@ import Account, { IAccount } from "@/database/account.model";
 import dbConnect from "../mongoose";
 import User, { IUser } from "@/database/user.model";
 import mongoose, { Types } from "mongoose";
+import Appointment from "@/database/appointment.model";
+import MedicalReport from "@/database/medicalReport.modal";
 
 export async function createAccount(data: any) {
   try {
@@ -110,3 +112,55 @@ export const checkOldPassword = async (accountId: string, oldPassword: string) =
     return { success: false, message: "Error checking password" };
   }
 };
+
+export const getAllUsers = async () => {
+  try {
+    await dbConnect();
+    const users = await User.find({}, "_id name role").lean();
+    return users.map(user => ({
+      _id: user._id.toString(),
+      name: user.name,
+      role: user.role,
+    }));
+  } catch (error) {
+    throw new Error("Lỗi khi lấy danh sách người dùng");
+  }
+};
+
+
+
+export async function deleteUser(userId: string) {
+  try {
+    const user = await User.findById(userId).populate("accountId");
+    if (!user) return { success: false, message: "User not found" };
+
+    if (user.role === "doctor") {
+      const appointments = await Appointment.find({ doctor: user._id });
+
+      const pending = appointments.filter(a => a.status === "pending");
+      const confirmed = appointments.filter(a => a.status === "confirmed");
+
+      for (const a of confirmed) {
+        const report = await MedicalReport.findOne({ appointmentId: a._id });
+        if (report && report.status !== "examined") {
+          return {
+            success: false,
+            message: "Doctor is examining a patient. Cannot delete.",
+          };
+        }
+      }
+
+      if (pending.length > 0) {
+        await Appointment.deleteMany({ _id: { $in: pending.map(p => p._id) } });
+      }
+    }
+
+    user.deleted = true;
+    await user.save();
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { success: false, message: "Internal error" };
+  }
+}

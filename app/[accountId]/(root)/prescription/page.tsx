@@ -10,6 +10,7 @@ import { columns } from "@/components/table/PrescriptionTable/prescriptionColumn
 import { IPrescription } from "@/database/prescription.model";
 import { FaPlus } from "react-icons/fa";
 import { Input } from "../../../../components/ui/input"
+import { getUserByAccountId } from "@/lib/actions/user.action";
 
 
 interface PrescriptionData {
@@ -27,7 +28,17 @@ function Prescription() {
   }
   const [prescription, setPrescription] = useState<PrescriptionData>({ documents: [] });
   const [filterValue, setFilterValue] = useState("");
-
+   const [isReceptionist, setIsReceptionist] = useState(false);
+    const fetchUserRole = async () => {
+    try {
+      const user = await getUserByAccountId(params?.accountId as string);
+      if (user?.role === "receptionist") {
+        setIsReceptionist(true);
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch user:", err);
+    }
+  };
   const fetchPrescription = async () => {
     try {
       const response = await getPrescriptionList();
@@ -40,6 +51,7 @@ function Prescription() {
   // Fetch prescription
   useEffect(() => {
     fetchPrescription();
+    fetchUserRole()
   }, [])
 
   return (
@@ -57,7 +69,7 @@ function Prescription() {
           color: "#fff",
           fontSize: "15px",
           fontWeight: "600",
-        }} onClick={handleAdd} variant="solid" icon={<FaPlus />
+        }} onClick={handleAdd}  disabled={isReceptionist} variant="solid" icon={<FaPlus />
         } iconPosition="start">
           Create prescription
         </Button>

@@ -3,6 +3,8 @@ import ChangePassWord from '@/components/forms/ChangePassWordForm'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createSetting, getLatestSetting } from '@/lib/actions/setting.action'
+import { getUserByAccountId } from '@/lib/actions/user.action'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -14,6 +16,17 @@ const change = () => {
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
+    const [isadmin, setIsAdmin] = useState(false);
+      const params = useParams();
+        const fetchUserRole = async () => {
+        try {
+          const user = await getUserByAccountId(params?.accountId as string);
+          if (user?.role === "admin") {
+            setIsAdmin(true);
+          }
+        } catch (err) {
+          console.error("Lỗi khi fetch user:", err);
+        }}
      useEffect(() => {
         async function fetchChange() {
           const latestSetting = await getLatestSetting();
@@ -27,6 +40,7 @@ const change = () => {
           }
         }
         fetchChange()
+        fetchUserRole()
       }, [])
       const handleAddDisease = () => {
       if (newDisease.trim() && !diseaseTypes.includes(newDisease.trim())) {
@@ -123,7 +137,7 @@ const change = () => {
             onChange={(e) => setAddress(e.target.value)}
             className='p-5 '
           />
-          <Button onClick={handleSaveSetting} className='mt-5 p-5 w-full text-[24px] font-bold bg-blue-400 hover:bg-blue-300'>Save</Button>
+          <Button onClick={handleSaveSetting} disabled={!isadmin} className='mt-5 p-5 w-full text-[24px] font-bold bg-blue-400 hover:bg-blue-300'>Save</Button>
           
         </div>
       </div>

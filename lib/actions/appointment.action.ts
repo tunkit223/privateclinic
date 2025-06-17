@@ -58,8 +58,6 @@ export const createAppointment = async (data: any) => {
       },
       status: { $ne: "cancelled" },
     });
-    console.log("Max patient per day:", maxPatientPerDay);
-    console.log("Current count:", count);
     console.log("Appointments on date:", await Appointment.find({
       date: { $gte: startOfDay, $lte: endOfDay },
       status: { $ne: "cancelled" },
@@ -240,13 +238,14 @@ export async function getAppointmentDetails(appointmentId: string) {
 export async function getAppointmentWithPatient(appointmentId: string) {
   try {
     await dbConnect()
-    const appointment = await Appointment.findById(appointmentId).populate("patientId")
+    const appointment = await Appointment.findById(appointmentId).populate("patientId");
 
     if (!appointment) return null
 
     const patient = appointment.patientId
 
     return {
+      
       name: patient.name,
       email: patient.email,
       phone: patient.phone,
@@ -267,56 +266,151 @@ export async function getAppointmentWithPatient(appointmentId: string) {
 
 export async function updateAppointmentAndPatient(appointmentId: string, values: any) {
   try {
-    await dbConnect()
+    await dbConnect();
 
-    const appointment = await Appointment.findById(appointmentId)
-    if (!appointment) return { error: "Appointment not found" }
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment)
+      return { success: false, error: "Appointment not found." };
 
-    // Update patient
-    const patient = await Patient.findById(appointment.patientId)
-    if (!patient) return { error: "Patient not found" }
+    const patient = await Patient.findById(appointment.patientId);
+    if (!patient)
+      return { success: false, error: "Patient not found." };
 
-    patient.name = values.name
-    patient.email = values.email
-    patient.phone = values.phone
-    patient.gender = values.gender
-    patient.address = values.address
-    patient.birthdate = values.birthdate
-    await patient.save()
+    // Update patient info
+    patient.name = values.name;
+    patient.email = values.email;
+    patient.phone = values.phone;
+    patient.gender = values.gender;
+    patient.address = values.address;
+    patient.birthdate = values.birthdate;
+    await patient.save();
 
-    // Update appointment
-    appointment.doctor = values.doctor
-    appointment.date = values.date
-    appointment.reason = values.reason
-    appointment.note = values.note
-    await appointment.save()
+    // Check if appointment date/time changed
+    const newDate = new Date(values.date);
+    const isDateChanged = newDate.getTime() !== new Date(appointment.date).getTime();
 
-    return { success: true }
-  } catch (error) {
-    console.error("Failed to update:", error)
-    return { error: "Update failed" }
+    if (isDateChanged) {
+      const hour = newDate.getHours();
+      const isMorning = hour < 13;
+      const sessionStart = new Date(newDate);
+      const sessionEnd = new Date(newDate);
+
+      if (isMorning) {
+        sessionStart.setHours(7, 0, 0, 0);
+        sessionEnd.setHours(12, 59, 59, 999);
+      } else {
+        sessionStart.setHours(13, 0, 0, 0);
+        sessionEnd.setHours(18, 0, 0, 0);
+      }
+
+      const existingAppointment = await Appointment.findOne({
+        _id: { $ne: appointment._id },
+        patientId: appointment.patientId,
+        date: { $gte: sessionStart, $lte: sessionEnd },
+        status: { $ne: "cancelled" },
+      });
+
+      if (existingAppointment) {
+        const session = isMorning ? "morning" : "afternoon";
+        const formatted = newDate.toLocaleDateString("en-GB");
+        return {
+          success: false,
+          error: `The patient already has an appointment in the ${session} on ${formatted}.`,
+        };
+      }
+    }
+
+    // Update appointment info
+    appointment.doctor = values.doctor;
+    appointment.date = newDate;
+    appointment.reason = values.reason;
+    appointment.note = values.note;
+    await appointment.save();
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error while updating appointment:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to update appointment.",
+    };
   }
 }
 
-export async function CreateAppointmentAndPatient(values: any) {
+export async function CreateAppointmentAndPatient(values: {
+  patientId: string;
+  doctor: string;
+  date: Date;
+  reason?: string;
+  note?: string;
+}) {
   try {
     await dbConnect();
 
-    const newPatient = new Patient({
-      name: values.name,
-      email: values.email,
-      phone: values.phone,
-      gender: values.gender,
-      address: values.address,
-      birthdate: values.birthdate,
+    const patientObjectId = new mongoose.Types.ObjectId(values.patientId);
+    const patient = await Patient.findById(patientObjectId);
+    if (!patient)
+      return { success: false, error: "Patient does not exist." };
+
+    const doctorObjectId = new mongoose.Types.ObjectId(values.doctor);
+    const doctor = await User.findById(doctorObjectId);
+    if (!doctor)
+      return { success: false, error: "Doctor does not exist." };
+
+    const appointmentDate = new Date(values.date);
+    const startOfDay = new Date(appointmentDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(appointmentDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const latestSetting = await Setting.findOne().sort({ createdAt: -1 });
+    const maxPerDay = latestSetting?.MaxPatientperDay ?? 40;
+
+    const count = await Appointment.countDocuments({
+      date: { $gte: startOfDay, $lte: endOfDay },
+      status: { $ne: "cancelled" },
     });
 
-    await newPatient.save();
+    if (count >= maxPerDay) {
+      return {
+        success: false,
+        error:
+          "The maximum number of appointments for this day has been reached. Please choose another date.",
+      };
+    }
+
+    const hour = appointmentDate.getHours();
+    const isMorning = hour < 13;
+    const sessionStart = new Date(appointmentDate);
+    const sessionEnd = new Date(appointmentDate);
+
+    if (isMorning) {
+      sessionStart.setHours(7, 0, 0, 0);
+      sessionEnd.setHours(12, 59, 59, 999);
+    } else {
+      sessionStart.setHours(13, 0, 0, 0);
+      sessionEnd.setHours(18, 0, 0, 0);
+    }
+
+    const existingAppointment = await Appointment.findOne({
+      patientId: patientObjectId,
+      date: { $gte: sessionStart, $lte: sessionEnd },
+      status: { $ne: "cancelled" },
+    });
+
+    if (existingAppointment) {
+      const session = isMorning ? "morning" : "afternoon";
+      const dateEN = appointmentDate.toLocaleDateString("en-GB");
+      return {
+        success: false,
+        error: `You already have an appointment in the ${session} on ${dateEN}.`,
+      };
+    }
 
     const newAppointment = new Appointment({
-      patientId: newPatient._id,
-      doctor: values.doctor,
-      date: values.date,
+      patientId: patientObjectId,
+      doctor: doctorObjectId,
+      date: appointmentDate,
       reason: values.reason,
       note: values.note,
       status: "pending",
@@ -324,12 +418,22 @@ export async function CreateAppointmentAndPatient(values: any) {
 
     await newAppointment.save();
 
-    return { success: true, appointmentId: newAppointment._id };
-  } catch (error) {
-    console.error("Failed to create appointment and patient:", error);
-    return { error: "Failed to create appointment and patient" };
+    return {
+      success: true,
+      appointmentId: newAppointment._id.toString(),
+    };
+  } catch (error: any) {
+    console.error("Failed to create appointment:", error);
+    return {
+      success: false,
+      error:
+        error?.message ??
+        "An unknown error occurred while creating the appointment.",
+    };
   }
 }
+
+
 
 export const ConfirmAppointment = async ({
   appointmentId,
@@ -414,4 +518,34 @@ export const getAppointmentStatsByDate = async (
   })
 
   return stats
+}
+
+
+export async function cancelAppointmentsByDoctorDateShift({
+  doctorId,
+  date,
+  shift,
+}: {
+  doctorId: string;
+  date: string | Date;
+  shift: "Morning" | "Afternoon";
+}) {
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
+
+  const nextDate = new Date(targetDate);
+  nextDate.setDate(targetDate.getDate() + 1);
+
+  await Appointment.updateMany(
+    {
+      doctor: doctorId,
+      date: {
+        $gte: targetDate,
+        $lt: nextDate,
+      },
+      shift,
+      status: "pending",
+    },
+    { $set: { status: "cancel" } }
+  );
 }

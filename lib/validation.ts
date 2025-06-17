@@ -105,6 +105,18 @@ export const PatientEditFormValidation = z.object({
     .max(500, "Address must be at most 500 characters"),
 
 });
+export const CreateAppointmentFormValidation = z.object({
+   patientId: z.string().min(1, "Please select a patient"),
+  doctor: z.string().min(2, "Select at least one doctor"),
+  date: z.coerce.date(),
+  reason: z
+    .string()
+    .min(2, "Reason must be at least 2 characters")
+    .max(500, "Reason must be at most 500 characters"),
+  note: z.string().optional(),
+  status:  z.string().optional(),
+  cancellationReason: z.string().optional(),
+});
 export const DetailsAppointmentFormValidation = z.object({
   name: z
     .string()

@@ -62,7 +62,8 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
   {
     accessorKey: "doctor",
     header: () => "Doctor",
-    cell: ({ row }) => <DoctorCell doctorId={row.original.doctor.toString()} />,
+    cell: ({ row }) => <DoctorCell doctorId={row.original.doctor} />,
+   
 },
   {
     id: "actions",

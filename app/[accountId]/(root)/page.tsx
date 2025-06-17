@@ -154,7 +154,7 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
-          setRevenueFigure({
+              setRevenueFigure({
             totalToday,
             totalYesterday,
             percentChange,
@@ -256,6 +256,7 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
+  console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {

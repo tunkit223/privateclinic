@@ -1,4 +1,5 @@
 'use client';
+
 import { sidebarLinks } from '@/constants';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -7,26 +8,42 @@ import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const NavLinks = ({ accountId }: { accountId: string }) => {
+interface NavLinksProps {
+  accountId: string;
+  userId: string;
+  permissions: string[];
+}
+
+const NavLinks = ({ accountId, userId, permissions }: NavLinksProps) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   return (
     <>
       {sidebarLinks.map((item) => {
-        const isActive =
-          (pathname.includes(item.route) && item.route.length > 1) || pathname === item.route;
 
-        // Nếu có children => render dạng dropdown
+        const hasParentPermission = permissions.includes(item.label);
+
+        const visibleChildren = item.children?.filter((child) =>
+          permissions.includes(child.label)
+        );
+
         if (item.children && item.children.length > 0) {
+          if (!visibleChildren || visibleChildren.length === 0) return null;
+
           const isOpen = openDropdown === item.label;
+          const isActive =
+            pathname.startsWith(`/${accountId}${item.route}`) ||
+            visibleChildren.some((child) =>
+              pathname === `/${accountId}${child.route}`
+            );
 
           return (
             <div key={item.label}>
               <button
                 onClick={() => setOpenDropdown(isOpen ? null : item.label)}
                 className={cn(
-                  isOpen
+                  isActive
                     ? 'bg-blue-400 rounded-lg text-dark-400'
                     : 'text-dark-200',
                   'w-full flex justify-between items-center gap-4 p-4'
@@ -47,8 +64,9 @@ const NavLinks = ({ accountId }: { accountId: string }) => {
 
               {isOpen && (
                 <div className="ml-6 mt-1 space-y-1">
-                  {item.children.map((child) => {
-                    const isChildActive = pathname === `/${accountId}${child.route}`;
+                  {visibleChildren.map((child) => {
+                    const isChildActive =
+                      pathname === `/${accountId}${child.route}`;
                     return (
                       <Link
                         key={child.route}
@@ -70,13 +88,21 @@ const NavLinks = ({ accountId }: { accountId: string }) => {
           );
         }
 
-        // Nếu không có children => render bình thường
+        // Nếu không có children => hiển thị nếu có quyền
+        if (!hasParentPermission) return null;
+
+        const isActive =
+          (pathname.includes(item.route) && item.route.length > 1) ||
+          pathname === item.route;
+
         return (
           <Link
             href={`/${accountId}${item.route}`}
             key={item.label}
             className={cn(
-              isActive ? 'bg-blue-400 rounded-lg text-dark-400' : 'text-dark-200',
+              isActive
+                ? 'bg-blue-400 rounded-lg text-dark-400'
+                : 'text-dark-200',
               'flex justify-start items-center gap-4 p-4'
             )}
           >
