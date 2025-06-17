@@ -154,11 +154,6 @@ const Dashboard = () => {
             : totalToday > 0
               ? 100
               : 0;
-          setRevenueFigure({
-            totalToday,
-            totalYesterday,
-            percentChange,
-          });
         } else {
           console.error("Failed to get revenue:", json.error);
         }
@@ -256,6 +251,7 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
+  // console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {
