@@ -79,7 +79,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
       setUsageMethodList(usageMethods)
 
       const formattedDetails = (details || []).map((item: any) => {
-        const priceMedicine = item.medicineId?.price || 0;
+        const priceMedicine = item.price || 0;
         const quantity = item.quantity || 0;
 
         return {
@@ -93,7 +93,6 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           quantity: item.quantity || '',
           usage: item.usageMethodId?._id || '',
           priceQuantity: quantity * priceMedicine || ''
-
         }
       })
       // console.log("Formatted details set to form:", formattedDetails);
@@ -229,7 +228,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           noonDosage: item.noonDosage,
           eveningDosage: item.eveningDosage,
           usageMethodId: item.usage,
-          price: medicineSelected?.price || 0,
+          price: item.price ?? medicineSelected?.price ?? 0,
         };
 
       })

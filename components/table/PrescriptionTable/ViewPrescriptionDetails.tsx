@@ -72,7 +72,7 @@ const ViewPrescriptionDetails = ({ prescriptionId }: ViewPrescriptionDetailsProp
 
 
       const formattedDetails = (details || []).map((item: any) => {
-        const priceMedicine = item.medicineId?.price || 0;
+        const priceMedicine = item.price || 0;
         const quantity = item.quantity || 0;
         return {
           medicineId: item.medicineId?.name || '',
