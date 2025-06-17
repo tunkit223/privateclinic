@@ -197,6 +197,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
     const prescriptionDetails = await Promise.all(
       values.prescriptionDetails.map(async (item: any) => {
         const medicineSelected = medicineList.find(med => med._id === item.medicineId);
+        // if()
 
         const stock = await checkMedicineStock(item.medicineId);
         if (!stock.success) {
@@ -213,7 +214,7 @@ const EditPrescriptionDetails = ({ prescriptionId }: EditPrescriptionDetailsProp
           messageApi.open({
             key,
             type: 'error',
-            content: `Medicine ${name} not enough in inventory. Request: ${item.quantity}, Stock: ${stock.data?.availableQuantity}`,
+            content: `Medicine ${item.name} not enough in inventory. Request: ${item.quantity}, Stock: ${stock.data?.availableQuantity}`,
             duration: 3,
           });
           return null;
