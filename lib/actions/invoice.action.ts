@@ -221,3 +221,7 @@ export async function getRevenueFromInvoice(fromDate: Date, toDate: Date) {
 
   return result;
 }
+
+export async function restoreAllInvoices() {
+  return await Invoice.updateMany({ deleted: true }, { deleted: false });
+}

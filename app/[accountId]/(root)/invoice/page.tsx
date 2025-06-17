@@ -9,6 +9,7 @@ import { InvoiceDataTable } from "@/components/table/InvoiceTable/InvoiceDataTab
 import { IInvoice } from "@/database/invoice.model"
 import { invoiceColumns } from "@/components/table/InvoiceTable/invoiceColumns"
 import { getInvoiceList } from "@/lib/actions/invoice.action"
+import { MdOutlineRestore } from "react-icons/md";
 
 interface InvoiceData {
   documents: IInvoice[];
@@ -38,7 +39,16 @@ function InvoicePage() {
   }, [])
   console.log("Invoice list: ", invoiceList)
 
-
+  const handleRestoreAll = async () => {
+    try {
+      await fetch("/api/invoices/restore-all", {
+        method: "PATCH",
+      });
+      fetchInvoice();
+    } catch (error) {
+      console.error("Khôi phục hóa đơn thất bại", error);
+    }
+  };
   return (
     <>
       <div className="header flex justify-between items-center">
@@ -48,6 +58,10 @@ function InvoicePage() {
           onChange={(e) => setFilterValue(e.target.value)}
           className="w-full max-w-[500px] font-medium text-xl py-5 border border-dark-200 rounded-lg mb-3"
         />
+        <Button icon={<MdOutlineRestore />
+        } type="primary" onClick={handleRestoreAll} className="ml-4 text-lg">
+          Restore
+        </Button>
       </div>
       <InvoiceDataTable
         globalFilter={filterValue}
