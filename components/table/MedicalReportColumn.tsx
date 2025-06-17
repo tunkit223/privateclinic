@@ -28,13 +28,17 @@ export const columns: ColumnDef<IMedicalReport>[] = [
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>
   },
   {
-    accessorKey: "patient",
-    header: "Patient",
-    cell: ({ row }) => {
-      const patient = row.original.appointmentId?.patientId;
-      const name = typeof patient === "object" ? patient?.name : "Unknown";
-      return <p className="text-14-medium">{name}</p>;
-    },
+  accessorKey: "patient",
+  accessorFn: (row) =>
+    typeof row.appointmentId?.patientId === "object"
+      ? row.appointmentId.patientId.name
+      : "",
+  header: "Patient",
+  cell: ({ row }) => {
+    const patient = row.original.appointmentId?.patientId;
+    const name = typeof patient === "object" ? patient?.name : "Unknown";
+    return <p className="text-14-medium">{name}</p>;
+  },
   },
   {
     accessorKey: "status",

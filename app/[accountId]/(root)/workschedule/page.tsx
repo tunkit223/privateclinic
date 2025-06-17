@@ -4,7 +4,7 @@ import User from '@/database/user.model';
 import React from 'react'
 
 const workschedule = async () => {
-   const doctorsRaw = await User.find({ role: 'doctor' }).lean();
+   const doctorsRaw = await User.find({ role: 'doctor',deleted: false }).lean();
 
   const doctors = doctorsRaw.map((doctor) => ({
     _id: String(doctor._id),

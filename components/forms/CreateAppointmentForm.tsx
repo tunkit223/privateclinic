@@ -7,7 +7,7 @@ import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useEffect, useState } from "react"
-import { DetailsAppointmentFormValidation } from "@/lib/validation"
+import { CreateAppointmentFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { FormFieldType } from "./PatientForm"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
@@ -15,24 +15,20 @@ import { Doctors, GenderOptions } from "@/constants"
 import { Label } from "../ui/label"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
-import { CreateAppointmentAndPatient, getAppointmentWithPatient, updateAppointmentAndPatient } from "@/lib/actions/appointment.action"
+import { CreateAppointmentAndPatient, getAppointmentWithPatient, } from "@/lib/actions/appointment.action"
 import toast from "react-hot-toast"
 import { getAvailableDoctors } from "@/lib/actions/workschedules.action"
+import { getAllPatients } from "@/lib/actions/patient.actions"
 const CreateAppointmentForm = ({ 
   onSuccess,
 }: {
   onSuccess?: () => void}) => {
   const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
-  const form = useForm<z.infer<typeof DetailsAppointmentFormValidation>>({
-    resolver: zodResolver(DetailsAppointmentFormValidation),
+  const form = useForm<z.infer<typeof CreateAppointmentFormValidation>>({
+    resolver: zodResolver(CreateAppointmentFormValidation),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      birthdate: new Date(Date.now()),
-      gender: "male" as Gender,
-      address: "",
+      patientId: "",
       doctor: "",
       date: new Date(Date.now()),
       reason: "",
@@ -40,7 +36,10 @@ const CreateAppointmentForm = ({
     },
   })
   
- 
+  const [patients, setPatients] = useState<{ _id: string, name: string }[]>([]);
+  useEffect(() => {
+   getAllPatients().then(setPatients);
+  }, []);
   const [availableDoctors, setAvailableDoctors] = useState<{ _id: string, name: string, image: string }[]>([]);
   
    const watchedDate = useWatch({
@@ -68,31 +67,25 @@ const CreateAppointmentForm = ({
       });
   }, [watchedDate?.toISOString()]); 
   
-  async function onSubmit(values: z.infer<typeof DetailsAppointmentFormValidation>) {
+  async function onSubmit(values: z.infer<typeof CreateAppointmentFormValidation>) {
     setisLoading(true);
 
    try {
     const res = await CreateAppointmentAndPatient(values)
 
-    if (res.error) {
-      console.error(res.error)
-      return
-    }
-    if(res.success){
-        router.refresh();
-        toast.success("Adjust successfully.", {
-          position: "top-left",
-          duration: 3000,
-        });
-      }
-      else{
-        toast.error("Cannot adjust.", {
-          position: "top-left",
-          duration: 3000,
-        });
-      }
-    router.refresh()
-    onSuccess?.()
+     if (res.success) {
+    toast.success("Created successfully!", {
+      position: "top-left",
+      duration: 3000,
+    });
+    router.refresh();
+    onSuccess?.();
+  } else {
+    toast.error("Cannot create: " + res.error, {
+      position: "top-left",
+      duration: 3000,
+    });
+  }
   } catch (error) {
     console.error("Submit error", error)
   } finally {
@@ -104,78 +97,19 @@ const CreateAppointmentForm = ({
     <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
       
-      <CustomFormField
-        fieldType = {FormFieldType.INPUT}
-        control = {form.control}
-        name = 'name'
-        label= 'Full name'
-        placeholder = 'Your full name'
-        iconSrc = '/assets/icons/user.png'
-        iconAlt = 'user'
-      />
-      
-    <div className="flex flex-col gap-6 xl:flex-row">
-      <CustomFormField
-        fieldType = {FormFieldType.INPUT}
-        control = {form.control}
-        name = 'email'
-        label = 'Email'
-        placeholder = 'tunkit223@gmail.com'
-        iconSrc = '/assets/icons/mail.png'
-        iconAlt = 'email'
-      />
-
-      <CustomFormField
-        fieldType = {FormFieldType.PHONE_INPUT}
-        control = {form.control}
-        name = 'phone'
-        label = 'Phone number'
-        placeholder = '(84+) 913 834 393'
-      />
-    </div>
-
-    <div className="flex flex-col gap-6 xl:flex-row">
-      <CustomFormField
-        fieldType = {FormFieldType.DATE_PICKER}
-        control = {form.control}
-        name = 'birthdate'
-        label = 'Date of Birth'
-      />
-
-      <CustomFormField
-        fieldType = {FormFieldType.SKELETON}
-        control = {form.control}
-        name = 'gender'
-        label = 'Gender'
-        renderSkeleton={(field) => (
-          <FormControl>
-            <RadioGroup className="flex h-11 gap-6 xl:jusutify-between"
-            onValueChange={field.onChange}
-            value={field.value}
-            >
-              {GenderOptions.map((option)=>(
-                <div key={option} className="radio-group">
-                    <RadioGroupItem value={option} id={option}/>
-                    <Label htmlFor={option} className="cursor-pointer">
-                      {option}
-                    </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </FormControl>
-        )}
-      />
-    </div>
-
-    <div className="flex flex-col xl:flex-row">
-      <CustomFormField
-          fieldType = {FormFieldType.INPUT}
-          control = {form.control}
-          name = 'address'
-          label = 'Address'
-          placeholder = 'Linh Trung ward, Thu Đuc, Ho Chi Minh city'
-      />
-      </div>
+     <CustomFormField
+      fieldType={FormFieldType.SELECT}
+      control={form.control}
+      name="patientId"
+      label="Patient"
+      placeholder="Select a patient"
+    >
+      {patients.map((patient) => (
+        <SelectItem key={patient._id} value={patient._id}>
+          {patient.name}
+        </SelectItem>
+      ))}
+    </CustomFormField>
        <CustomFormField
         fieldType={FormFieldType.DATE_PICKER}
         control={form.control}

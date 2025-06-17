@@ -7,6 +7,8 @@ export interface IAppointment {
   note?: string,
   status: Status,
   cancellationReason?: string
+  deleted?: boolean,
+  deletedAt?: Date
 }
 export interface IAppointmentDoc extends IAppointment, Document {
   _id: Types.ObjectId;
@@ -19,7 +21,9 @@ const AppointmentSchema = new Schema<IAppointment>({
   reason: { type: String },
   note: { type: String },
   status: { type: String },
-  cancellationReason: { type: String }
+  cancellationReason: { type: String },
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
 },
   {
     timestamps: true

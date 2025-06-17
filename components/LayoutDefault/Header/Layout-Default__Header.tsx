@@ -2,7 +2,7 @@
 import { Input } from "../../ui/input"
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Form, Image, } from 'antd';
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { sidebarLinks } from "@/constants";
 
 import React, { useState, useEffect, use } from 'react';
@@ -10,6 +10,7 @@ import { Modal, Row } from 'antd';
 import { getCookieParsed } from "@/lib/utils";
 import { getUserByAccountId } from "@/lib/actions/user.action";
 import GlobalSeacrt from "@/components/GlobalSearch";
+import toast from "react-hot-toast";
 
 interface LayoutDefaultHeaderProps {
   accountId: string;
@@ -66,7 +67,34 @@ function LayoutDefaultHeader({ accountId }: LayoutDefaultHeaderProps) {
     };
     fetchUser();
   }, []);
-  // console.log("úe", user)
+  const router = useRouter();
+  const handleLogout = () => {
+    toast((t) => (
+      <span className="flex flex-col gap-2">
+        <span>Are you sure you want to log out?</span>
+        <div className="flex gap-2 justify-end">
+          <Button
+            
+            onClick={() => {
+              toast.dismiss(t.id)
+       
+              router.push("/")
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+           
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </Button>
+        </div>
+      </span>
+    ), {
+      duration: 5000,
+    })
+  }
 
 
 
@@ -77,6 +105,9 @@ function LayoutDefaultHeader({ accountId }: LayoutDefaultHeaderProps) {
         <div className="flex gap-2 w-[800px] mr-11 ">
           <GlobalSeacrt accountId={accountId} />
         </div>
+        <Button onClick={handleLogout} >
+          Log out
+        </Button>
         <div className="mr-11 cursor-pointer ">
           <Avatar
             style={{ backgroundColor: user.image ? "transparent" : "#87d068" }}

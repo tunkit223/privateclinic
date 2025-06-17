@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useRef, useEffect } from "react";
 
 export default function Chat() {
@@ -28,35 +29,37 @@ export default function Chat() {
 
   return (
     <>
-      {/* Nút mở/đóng chat */}
+      {/* Toggle Chat Button */}
       <button
         onClick={() => setOpen(!open)}
         className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 shadow-lg flex items-center justify-center transition-all duration-200"
-        aria-label={open ? "Đóng chat" : "Mở chat"}
+        aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? "×" : "💬"}
       </button>
 
-      {/* Khung chat */}
+      {/* Chat Box */}
       {open && (
         <div className="fixed bottom-20 right-6 z-50 w-80 max-h-[500px] bg-white border border-gray-300 rounded-xl shadow-2xl flex flex-col overflow-hidden">
           
-          {/* Nút xóa lịch sử (× nhỏ ở góc phải trên) */}
+          {/* Clear history button */}
           <div className="flex justify-end items-center px-3 py-2 border-b border-gray-200 relative">
             <button
               onClick={() => setMessages([])}
-              className="text-gray-400 hover:text-red-500 text-lg font-bold transition-colors"
-              aria-label="Xóa lịch sử"
-              title="Xóa toàn bộ lịch sử trò chuyện"
+              className="text-gray-400 hover:text-red-500 text-[16px] font-bold transition-colors"
+              aria-label="Clear history"
+              title="Clear all chat history"
             >
-              ×
+              Delete history
             </button>
           </div>
 
-          {/* Nội dung tin nhắn */}
+          {/* Chat messages */}
           <div className="p-4 flex-1 overflow-y-auto bg-gray-50 space-y-3">
             {messages.length === 0 && (
-              <p className="text-gray-500 text-sm text-center">Bạn có thể hỏi tôi bất cứ điều gì...</p>
+              <p className="text-gray-500 text-sm text-center">
+                You can ask me anything...
+              </p>
             )}
             {messages.map((msg, i) => (
               <div
@@ -77,12 +80,12 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Ô nhập + nút gửi */}
+          {/* Input and send button */}
           <div className="p-3 border-t border-gray-200 bg-white flex gap-2">
             <input
               className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="text"
-              placeholder="Nhập câu hỏi..."
+              placeholder="Type your question..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
@@ -91,7 +94,7 @@ export default function Chat() {
               onClick={sendMessage}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm transition-colors"
             >
-              Gửi
+              Send
             </button>
           </div>
         </div>

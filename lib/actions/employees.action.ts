@@ -5,7 +5,7 @@ import dbConnect from "../mongoose";
 export const getEmployeesList = async () => {
   try {
     await dbConnect();
-    const employees = await User.find()
+    const employees = await User.find({ deleted: false }) 
       .sort({ createdAt: -1 })
       .lean();
 

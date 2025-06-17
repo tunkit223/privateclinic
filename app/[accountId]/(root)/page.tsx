@@ -256,7 +256,7 @@ const Dashboard = () => {
     setFromDate(dates[0].toDate());
     setToDate(dates[1].toDate());
   };
-  // console.log('Revenue Chart Image:', chartImages.revenue);
+  console.log('Revenue Chart Image:', chartImages.revenue);
 
   // Capture for print
   useEffect(() => {

@@ -18,6 +18,7 @@ const NewemployeeModal = ({}:{}) => {
   const [open, setOpen] = useState(false)
   const [isadmin, setIsAdmin] = useState(false);
   const params = useParams();
+
     const fetchUserRole = async () => {
     try {
       const user = await getUserByAccountId(params?.accountId as string);
@@ -33,7 +34,7 @@ const NewemployeeModal = ({}:{}) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant='ghost' disabled={!isadmin} className={`capitalize bg-blue-400`}>
+      <Button variant='ghost' disabled={!isadmin} className={`capitalize bg-blue-400 p-5`}>
                 <Image
                   src="/assets/images/user-plus.png"
                   height={24}

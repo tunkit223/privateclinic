@@ -4,10 +4,11 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useEffect, useState } from "react";
-import { addSchedule, deleteSchedule, getSchedules } from "@/lib/actions/workschedules.action";
+import { addSchedule, deleteSchedule, getAppointmentsByDoctorDateShift, getSchedules } from "@/lib/actions/workschedules.action";
 import { useParams } from "next/navigation";
 import { getUserByAccountId } from "@/lib/actions/user.action";
 import toast from "react-hot-toast";
+import { cancelAppointmentsByDoctorDateShift } from "@/lib/actions/appointment.action";
 
 export default function DoctorCalendar() {
   const [events, setEvents] = useState<any[]>([]);
@@ -86,54 +87,83 @@ export default function DoctorCalendar() {
   };
 
   // Xử lý xoá lịch
-  const handleDelete = (event: any) => {
-    if (!isAdmin) return;
+  const handleDelete = async (event: any) => {
+  if (!isAdmin) return;
 
-    const doctorId = event.extendedProps.doctorId;
-    const date = event.startStr || event.start;
-    const shift = event.extendedProps.shift;
+  const doctorId = event.extendedProps.doctorId;
+  const date = event.startStr || event.start;
+  const shift = event.extendedProps.shift;
 
-    const today = new Date();
-    const eventDate = new Date(date);
-    eventDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  const eventDate = new Date(date);
+  eventDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
 
-    if (eventDate <= today) {
-      toast.error("Cannot delete past schedules!");
-      return;
-    }
+  if (eventDate <= today) {
+    toast.error("Cannot delete past schedules!");
+    return;
+  }
 
-    toast(
-      (t) => (
-        <span>
-          Confirm delete schedule.
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={async () => {
-                toast.dismiss(t.id);
-                await deleteSchedule({ doctorId, date, shift });
-                const updatedSchedules = await getSchedules();
-                setEvents(updatedSchedules);
-                toast.success("delete schedule successfully");
-              }}
-              className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="bg-gray-200 text-black px-2 py-1 rounded text-sm"
-            >
-              Cancel
-            </button>
-          </div>
-        </span>
-      ),
-      {
-        duration: 10000,
-      }
-    );
-  };
+  const relatedAppointments = await getAppointmentsByDoctorDateShift(doctorId, date, shift);
+  const pendingAppointments = relatedAppointments.filter((app: any) => app.status === "pending");
+
+  if (pendingAppointments.length > 0) {
+    toast((t) => (
+      <span>
+        This schedule has {pendingAppointments.length} pending appointments.
+        <br />
+        Deleting it will cancel all of them. Are you sure?
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              await deleteSchedule({ doctorId, date, shift });
+              await cancelAppointmentsByDoctorDateShift({ doctorId, date, shift });
+              const updatedSchedules = await getSchedules();
+              setEvents(updatedSchedules);
+              toast.success("Schedule and pending appointments cancelled successfully!");
+            }}
+            className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+          >
+            Confirm
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-200 text-black px-2 py-1 rounded text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </span>
+    ), { duration: 10000 });
+  } else {
+    toast((t) => (
+      <span>
+        Are you sure you want to delete this schedule?
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              await deleteSchedule({ doctorId, date, shift });
+              const updatedSchedules = await getSchedules();
+              setEvents(updatedSchedules);
+              toast.success("Schedule deleted successfully.");
+            }}
+            className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-200 text-black px-2 py-1 rounded text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </span>
+    ), { duration: 10000 });
+  }
+};
 
   // Hiển thị nội dung từng event
   const renderEventContent = (eventInfo: any) => (

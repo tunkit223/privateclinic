@@ -17,7 +17,7 @@ import { SelectItem } from "../ui/select"
 import Image from "next/image"
 import { getAppointmentWithPatient, updateAppointmentAndPatient } from "@/lib/actions/appointment.action"
 import toast from "react-hot-toast"
-import { getAvailableDoctors } from "@/lib/actions/workschedules.action"
+import { getAvailableDoctors, getAvailableDoctorsdeleted } from "@/lib/actions/workschedules.action"
 const DetailsAppointmentForm = ({ 
   appointmentId,
   onSuccess,
@@ -80,15 +80,21 @@ const DetailsAppointmentForm = ({
     const isoDate = dateObj; 
     const hour = dateObj.getHours();
     const shift = hour < 13 ? "Morning" : "Afternoon";
-  
-    getAvailableDoctors(isoDate, shift)
+  if(disabled) {
+    getAvailableDoctorsdeleted(isoDate, shift)
+      .then((doctors) => {
+        setAvailableDoctors(doctors);
+      })
+  }
+    else
+    {getAvailableDoctors(isoDate, shift)
       .then((doctors) => {
         setAvailableDoctors(doctors);
       })
       .catch((err) => {
         console.error("Error fetching doctors", err);
         toast.error("Failed to load doctors.");
-      });
+      });}
   }, [watchedDate?.toISOString()]); 
   
   async function onSubmit(values: z.infer<typeof DetailsAppointmentFormValidation>) {
@@ -97,25 +103,19 @@ const DetailsAppointmentForm = ({
    try {
     const res = await updateAppointmentAndPatient(appointmentId, values)
 
-    if (res.error) {
-      console.error(res.error)
-      return
+   if (res.success) {
+      router.refresh();
+      toast.success("Adjust successfully.", {
+        position: "top-left",
+        duration: 3000,
+      });
+      onSuccess?.();
+    } else {
+      toast.error("Cannot adjust: " + res.error, {
+        position: "top-left",
+        duration: 3000,
+      });
     }
-    if(res.success){
-        router.refresh();
-        toast.success("Adjust successfully.", {
-          position: "top-left",
-          duration: 3000,
-        });
-      }
-      else{
-        toast.error("Cannot adjust.", {
-          position: "top-left",
-          duration: 3000,
-        });
-      }
-    router.refresh()
-    onSuccess?.()
   } catch (error) {
     console.error("Submit error", error)
   } finally {
