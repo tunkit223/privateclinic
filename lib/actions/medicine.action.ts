@@ -47,7 +47,7 @@ export const getMedicinesWithType = async () => {
 
 export const getMedicineTypes = async () => {
   await dbConnect();
-  const medicineTypes = await MedicineType.find({}).select('_id name').lean();
+  const medicineTypes = await MedicineType.find({deleted: false}).select('_id name').lean();
   return medicineTypes;
 };
 

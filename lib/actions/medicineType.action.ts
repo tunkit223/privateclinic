@@ -2,12 +2,13 @@
 import { Types } from "mongoose";
 import dbConnect from "../mongoose"
 import MedicineType from "@/database/medicineType"
+import Medicine from "@/database/medicine";
 import { trackSynchronousPlatformIOAccessInDev } from "next/dist/server/app-render/dynamic-rendering";
 
 export const getMedicineTypeList = async () => {
     try {
       await dbConnect();
-      const medicineTypes = await MedicineType.find()
+      const medicineTypes = await MedicineType.find({ deleted: false })
         .sort({ createdAt: -1 })
         .lean();
       
@@ -41,7 +42,10 @@ export const getMedicineTypeList = async () => {
     const objectId = typeof id === "string" ? new Types.ObjectId(id) : id;
   
     try {
-      const medicineType = await MedicineType.findById(objectId).select("name");
+      const medicineType = await MedicineType.findOne({
+        _id: objectId,
+        deleted: false, // ✨ chỉ lấy bản chưa xoá
+      }).select('name');
   
       if (!medicineType) {
         return "Unknown";
@@ -56,7 +60,11 @@ export const getMedicineTypeList = async () => {
   export const deleteMedicineType = async (id: Types.ObjectId | string) => {
    try{
     await dbConnect();
-    const deleted = await MedicineType.findByIdAndDelete(id);
+    const deleted = await MedicineType.findByIdAndUpdate(
+      id,
+      { deleted: true, deletedAt: new Date() }, // ✨ soft‑delete
+      { new: true }
+    );
 
     if(!deleted){
       throw new Error("Medicine type not found");
@@ -72,11 +80,11 @@ export const getMedicineTypeList = async () => {
     try{
       await dbConnect();
 
-      const updatedMedicineType = await MedicineType.findByIdAndUpdate(
-        id , 
-        {name : data.name, description: data.description},
-        {new: true}
-      )
+      const updatedMedicineType = await MedicineType.findOneAndUpdate(
+        { _id: id, deleted: false },          // ✨ chỉ update bản chưa xoá
+        { name: data.name, description: data.description },
+        { new: true }
+      );
       if (!updatedMedicineType) {
         throw new Error("Medicine type not found")
       }
@@ -92,3 +100,27 @@ export const getMedicineTypeList = async () => {
     }
     
   };
+
+  // Kiểm tra xem loại thuốc có đang được sử dụng trong bất kỳ thuốc nào chưa
+export const checkMedicineTypeInUse = async (
+  medicineTypeId: string | Types.ObjectId
+): Promise<{
+  inUse: boolean;
+  sampleMedicineName?: string;
+  sampleMedicineId?: string;
+}> => {
+  const id = Types.ObjectId.isValid(medicineTypeId)
+    ? new Types.ObjectId(medicineTypeId)
+    : medicineTypeId;
+
+  const medicine = await Medicine.findOne({
+    medicineTypeId: id,
+    deleted: false,
+  }).select("_id name");
+
+  return {
+    inUse: !!medicine,
+    sampleMedicineId: medicine?._id?.toString(),
+    sampleMedicineName: medicine?.name,
+  };
+};

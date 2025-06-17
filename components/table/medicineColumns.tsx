@@ -146,7 +146,7 @@ export const getMedicineColumns = (
     header: "Type",
     cell: ({ row }) => {
       const type = medicineTypes.find(
-        (t) => t._id === row.original.medicineTypeId?.toString()
+        (t) => t._id === row.original.medicineTypeId?.toString() 
       );
       return <p className="text-14-medium">{type?.name || "Unknown"}</p>;
     },
