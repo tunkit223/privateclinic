@@ -130,7 +130,7 @@ export const getAppointment = async (appointmentId: string) => {
 
 export const getRecentAppointmentList = async () => {
   try {
-    const appointments = await Appointment.find()
+    const appointments = await Appointment.find({ deleted: { $ne: true } })
       .sort({ createdAt: -1 })
       .populate("patientId", "name")
       .populate("doctor", "name")
@@ -549,3 +549,70 @@ export async function cancelAppointmentsByDoctorDateShift({
     { $set: { status: "cancel" } }
   );
 }
+
+
+export const deleteAppointment = async (appointmentId: string) => {
+  try {
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return { success: false, message: "Appointment not found." };
+    }
+
+    const status = appointment.status;
+
+    if (status === "pending" || status === "cancelled") {
+      await Appointment.findByIdAndUpdate(appointmentId, {
+        deleted: true,
+        deletedAt: new Date(),
+      });
+      return { success: true, message: "Appointment deleted successfully." };
+    }
+
+    if (status === "confirmed") {
+      const medicalReport = await MedicalReport.findOne({
+        appointmentId: new mongoose.Types.ObjectId(appointmentId),
+      });
+
+      if (!medicalReport) {
+        return {
+          success: false,
+          message: "Medical report related to this appointment not found.",
+        };
+      }
+
+      if (medicalReport.status === "unexamined") {
+        await Promise.all([
+          Appointment.findByIdAndUpdate(appointmentId, {
+            deleted: true,
+            deletedAt: new Date(),
+          }),
+          MedicalReport.findByIdAndUpdate(medicalReport._id, {
+            deleted: true,
+            deletedAt: new Date(),
+          }),
+        ]);
+        return {
+          success: true,
+          message: "Appointment and unexamined medical report deleted successfully.",
+        };
+      } else {
+        return {
+          success: false,
+          message: "Cannot delete appointment with completed medical report.",
+        };
+      }
+    }
+
+    return {
+      success: false,
+      message: "Cannot delete appointment with the current status.",
+    };
+  } catch (error: any) {
+    console.error("Error deleting appointment:", error);
+    return {
+      success: false,
+      message: "An error occurred while deleting the appointment.",
+    };
+  }
+};

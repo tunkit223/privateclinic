@@ -16,6 +16,7 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { getDoctorInfo } from "@/lib/actions/workschedules.action"
 import DoctorCell from "../Doctorcell"
+import DeleteAppointmentModal from "../DeleteAppointmentModal"
 
 
 
@@ -122,6 +123,10 @@ export const columns: ColumnDef<IAppointmentDoc>[] = [
              <DetailsAppointmentModal
                appointmentId={row.original._id.toString()}
                disabled={row.original.status !== "pending"}
+             />
+             <DeleteAppointmentModal
+                appointmentId={row.original._id.toString()}
+                disabled={row.original.status === "confirmed"}
              />
         </div>
       )
